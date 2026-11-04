@@ -1,0 +1,48 @@
+/** Optional QA tool: set PLAYWRIGHT_MODULE_PATH to playwright-core's entry point. */
+import fs from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
+const { chromium } = await import(process.env.PLAYWRIGHT_MODULE_PATH ? pathToFileURL(process.env.PLAYWRIGHT_MODULE_PATH).href : 'playwright-core');
+const executablePath=process.env.CHROME_EXECUTABLE ?? ['C:/Program Files/Google/Chrome/Application/chrome.exe','C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'].find(existsSync);
+const browser=await chromium.launch({headless:true,executablePath,args:['--autoplay-policy=no-user-gesture-required']});
+const context=await browser.newContext({viewport:{width:1440,height:900},deviceScaleFactor:1.5,reducedMotion:'no-preference'});
+await context.addInitScript(()=>{
+  window.__scrollQA={seeks:0,longTasks:[],renders:0};
+  document.addEventListener('seeking',e=>{if(e.target.closest('.underground-stage'))window.__scrollQA.seeks++;},true);
+  new PerformanceObserver(list=>window.__scrollQA.longTasks.push(...list.getEntries().map(e=>e.duration))).observe({type:'longtask',buffered:true});
+  const original=CanvasRenderingContext2D.prototype.fillRect;
+  CanvasRenderingContext2D.prototype.fillRect=function(...args){if(this.canvas.matches('.underground-stage>canvas')&&args[0]===0&&args[1]===0&&this.fillStyle==='#07080a')window.__scrollQA.renders++;return original.apply(this,args);};
+});
+const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
+await page.goto('http://127.0.0.1:3000',{waitUntil:'networkidle'});
+await page.waitForFunction(()=>document.querySelector('.underground-stage canvas')?.dataset.decoded==='120',{timeout:60000});
+await page.waitForFunction(()=>document.querySelector('.underground-stage video').paused);
+const result=await page.evaluate(async()=>{
+  const data=window.__scrollQA;data.longTasks=[];data.renders=0;
+  const deltas=[],samples=[];let previous=0,begin=0;
+  const extent=document.documentElement.scrollHeight-innerHeight;
+  await new Promise(resolve=>{function tick(t){if(!begin)begin=t;if(previous)deltas.push(t-previous);previous=t;
+    const phase=Math.min(1,(t-begin)/16000),p=phase<.5?phase*2:2-phase*2;
+    scrollTo({top:extent*p,behavior:'instant'});
+    dispatchEvent(new PointerEvent('pointermove',{pointerType:'mouse',clientX:innerWidth*(.5+.4*Math.sin(t*.001)),clientY:innerHeight*.5}));
+    if(samples.length===0||phase>samples.at(-1).phase+.08)samples.push({phase,y:scrollY,hud:document.querySelector('.scroll-telemetry').textContent});
+    if(phase<1)requestAnimationFrame(tick);else resolve();}requestAnimationFrame(tick);});
+  const sorted=[...deltas].sort((a,b)=>a-b),quantile=p=>sorted[Math.floor((sorted.length-1)*p)];
+  const canvas=document.querySelector('.underground-stage canvas');
+  return {frames:deltas.length,averageMs:deltas.reduce((a,b)=>a+b,0)/deltas.length,medianMs:quantile(.5),p95Ms:quantile(.95),p99Ms:quantile(.99),maxMs:Math.max(...deltas),over25ms:deltas.filter(n=>n>25).length,over50ms:deltas.filter(n=>n>50).length,seeks:data.seeks,longTasks:data.longTasks,renders:data.renders,pipeline:canvas.dataset.pipeline,decoded:canvas.dataset.decoded,canvas:{width:canvas.width,height:canvas.height},samples};
+});
+await page.screenshot({path:process.env.QA_SCREENSHOT??'v1-1-preview.png'});
+await page.getByRole('button',{name:'Open chapter index'}).click();const drawer=await page.locator('#chapter-index').evaluate(e=>e.open);await page.keyboard.press('Escape');
+await page.getByRole('button',{name:'FX: FULL'}).click();
+await page.waitForFunction(()=>document.querySelector('.site').dataset.motion==='reduced');
+const reduced=await page.evaluate(async()=>{const count=window.__scrollQA.renders;await new Promise(r=>setTimeout(r,400));const after=window.__scrollQA.renders;await new Promise(r=>setTimeout(r,400));return {settled:window.__scrollQA.renders===after,initialDraws:after-count,videoPaused:document.querySelector('.underground-stage video').paused};});
+await context.close();
+const mobile=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:2,reducedMotion:'reduce'});const mobilePage=await mobile.newPage();await mobilePage.goto('http://127.0.0.1:3000',{waitUntil:'networkidle'});
+const mobileResult=await mobilePage.evaluate(()=>({overflow:document.documentElement.scrollWidth>innerWidth,motion:document.querySelector('.site').dataset.motion,canvasWidth:document.querySelector('.underground-stage canvas').width,decoded:document.querySelector('.underground-stage canvas').dataset.decoded}));
+await mobile.close();
+const fallbackContext=await browser.newContext({viewport:{width:1280,height:800}});await fallbackContext.route('**/underground-frames/*.jpg',route=>route.abort());const fallbackPage=await fallbackContext.newPage();await fallbackPage.goto('http://127.0.0.1:3000',{waitUntil:'networkidle'});await fallbackPage.waitForFunction(()=>document.querySelector('.underground-stage video').currentTime>.2);
+const fallback=await fallbackPage.evaluate(()=>({playing:!document.querySelector('.underground-stage video').paused,pipeline:document.querySelector('.underground-stage canvas').dataset.pipeline}));
+await fallbackContext.close();
+const report={date:new Date().toISOString(),browser:browser.version(),viewport:{width:1440,height:900,dpr:1.5},result,drawer,reduced,mobile:mobileResult,fallback,errors};
+await fs.writeFile(process.env.QA_REPORT??'scroll-benchmark-v1.1.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));await browser.close();
+if(result.seeks||result.decoded!=='120'||errors.length||mobileResult.overflow||!reduced.settled||!fallback.playing)process.exitCode=1;

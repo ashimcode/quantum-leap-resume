@@ -1,0 +1,27 @@
+node_modules/
+.next/
+.env*
+*.tsbuildinfo
+.qa/
+
+# Import archives and OS metadata
+exports/
+.DS_Store
+__MACOSX/
+
+# Raw application materials, archives, local evidence, and secrets
+*.pdf
+!/public/resume-public.pdf
+*.zip
+*.7z
+*.rar
+*.tar
+*.gz
+*.pem
+*.key
+private/
+raw/
+backups/
+*.log
+.venv/
+__pycache__/
