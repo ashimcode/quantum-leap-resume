@@ -1,223 +1,104 @@
-# Codex -> Gemini: Quantum Leap architecture sync prompt
+# Codex -> Gemini: Quantum Leap v1.2.0 deployment and preview sync
 
-## v1.2.0 feature update (supersedes the historical game status below)
+Gemini, act as our architectural prompt planner. Use this current report instead of older chat assumptions or the superseded historical sync document. Produce a bounded engineering plan after Replit returns evidence; do not redesign the approved website or assume the preview is already fixed.
 
-The user authorized reintegration on feat/v1.2.0-carmechanicos, created from clean main at v1.1.1 (81da231). The active RetroNameTerminal now conditionally loads a virtual filesystem CLI and a sandboxed local CarMechanicOS game. No scroll-engine, canonical-data, ambassador component/API, or PDF changes were made. Old tags and ZIPs are protected.
-
-All feature gates passed in order: typecheck; production build; 142 API + 33 scanner regressions (186 files scanned); submission checks; desktop/mobile Playwright comparison against a separately built v1.1.1 control. Native modal expansion originally collapsed page flow; a reserved monitor footprint corrected that before acceptance. Idle geometry, scroll position, frame lifecycle, lazy fetching, save/relaunch, reset isolation, and CLI focus restoration were verified at 1440x900 and 390x844. Sandbox tests confirmed parent-document and direct storage access are blocked. Game achievements are fictional, not new resume claims.
-
-Save key: ql_carmechanicos_save_v1. Game assets are about 1.2 MB, fetched only after launch; the iframe is opaque origin, has no network access, and communicates with a source/session-checked parent bridge. Closing it destroys game timers/rAF context. EXPAND/COLLAPSE preserves iframe identity. The name signal, pause and tune remain the initial state. Source: quarantined game assets reviewed alongside carmechanicos-public 3af75da; local Chart.js license retained.
-
-The v1.2.0 package/manifest freeze passed all 168 hashes. Feature implementation was committed as 5068b2b. On November 5, 2026, the user approved this build and requested that it be locked down, authorizing the merge to main, annotated v1.2.0 tag, private-origin push, and new quantum-leap-v1.2.0.zip archive. The v1.1.0/v1.1.1 tags and earlier upload archives remain preserved rollback points. This release lock does not change hosting or DNS. The required npm version command also updated package-lock version metadata to keep the lockfile consistent. Read README for controls and .qa/v12-acceptance.json for measured local evidence. Original integration/history folders stay where they were. Later plans below remain historical context unless explicitly superseded by this release update.
-
-> Historical handoff snapshot from before Phase 1. The user subsequently authorized the v1.1.1 scanner/release sequence: three adversarial cases were added (33 scanner cases total), and the maintenance release is prepared on sync/replit-reconciliation before merge to main. Use the current package version, release manifest, tags, and CI as the final release authority; statements below about pending verifier drift describe the earlier audit, not the new frozen release.
-
-Gemini, act as the architectural prompt planner for the next Quantum Leap engineering work. Treat this as an audited state report, not an instruction to rebuild the approved site. Distinguish verified observations, reported Replit findings, historical documents, and future plans. Produce bounded implementation prompts with explicit prerequisites, file scope, acceptance checks, and rollback steps.
-
-## 1. Source of truth and hosting decision
+## 1. Source of truth and release state
 
 - Canonical workspace: `C:\Users\admin\Desktop\QuantumLeap V1\preview-site`.
-- Canonical private GitHub repository: https://github.com/ashimcode/quantum-leap-resume . GitHub CLI confirmed PRIVATE visibility and main as the default branch.
-- Local changes become shared truth only after review, commit, and push. This sync branch is NOT yet committed or pushed.
-- Replit is a testing/import/submission environment, NOT the permanent production domain. Do not design future infrastructure around a permanent Replit hostname.
-- Preserve the approved layout, typography, dark underground aesthetic, animated footage, CRT name display, verified source data, and grounded ambassador. No runtime/UI source or public asset was changed during this reconciliation.
+- Authoritative repository: PRIVATE `https://github.com/ashimcode/quantum-leap-resume`, default branch `main`.
+- Approved feature release: v1.2.0, including the sandboxed CarMechanicOS CRT easter egg. The original annotated v1.2.0 tag still targets `f759182767a3924ce5c52104bcfefc1b1082563d`.
+- Codex committed and pushed a follow-up deployment repair to main: `7935cbf77ebfb740877acbf47c9be5d37b0a6665`, `fix(replit): isolate application typecheck from stale agent tests`. Latest main includes this fix; checking out the original v1.2.0 tag will omit it. No tag was moved and no release version was bumped.
+- Replit is our current testing/submission deployment environment. We have not selected it as the permanent host/domain. Local source plus private GitHub remain authoritative; Replit-only changes need a sanitized diff and local reconciliation.
+- Codex is committing this updated handoff and `REPLIT_PREVIEW_FIX_PROMPT.md` separately from the application fix. Those prompt documents are not runtime application code or included in the existing exporter allowlist.
 
-## 2. Git state and release identity
+## 2. What failed and what is fixed
 
-Before this audit, active main was clean and matched origin/main and annotated tag v1.1.0:
+The user imported a newer ZIP into an existing Replit workspace. `unzip -o` overwrote tracked application files but did not remove old Replit Agent additions. Replit then reported:
 
-| Item | Verified value |
-| --- | --- |
-| main / origin/main / tag target | a2941e279fc9b2a3a081f1c735ce03e052c892b2 |
-| Annotated tag object v1.1.0 | 359662e49539b764796eb2d1283472b4e95f104c |
-| Current working branch | sync/replit-reconciliation |
-| Branch HEAD | Same commit as main; reconciliation edits are uncommitted |
-| package version | 1.1.0; no new release version assigned |
-| Conflicts | No merge conflict markers or unresolved Git merge state observed |
+- next build compilation succeeded, but TypeScript could not resolve `@playwright/test` in root `playwright.config.ts` and `tests/browser/portfolio.spec.ts`.
+- Related implicit-any diagnostics followed. The package intentionally did not depend on that external test runner, while old tsconfig `**/*.ts` / `**/*.tsx` patterns picked up its leftover files.
 
-Existing commits:
+Codex reproduced that exact class of failure locally using temporary stale Playwright files. The repair is limited to application TypeScript scope:
 
-1. `4f43565 feat(quantum-leap): lock v1.1 scrollytelling resume and grounded ambassador`
-2. `ee48058 security(repo): enforce zero-PII redaction and portfolio boundary`
-3. `a2941e2 docs(repo): add status table, security policy, and Handshake submission packet`
-
-The authenticated CLI can access this private repository. The connected GitHub plugin returned 404 for it; do not mistake that connector-access limitation for deletion of the repository. Remote refs were verified with git ls-remote, and visibility was checked with gh.
-
-No tag was moved, no history rewritten, no new release created, no push performed, and no existing ZIP overwritten during this audit.
-
-## 3. Workspace and file tree audit
-
-```text
-C:\Users\admin\Desktop\QuantumLeap V1\
-|-- preview-site\                    ACTIVE Next.js application and Git repository
-|   |-- src\app\page.tsx              approved single-page visual resume
-|   |-- src\app\globals.css           approved visual styling
-|   |-- src\app\api\ambassador\route.ts
-|   |-- src\components\UndergroundScrollStage.tsx
-|   |-- src\components\RetroNameTerminal.tsx
-|   |-- src\components\RetroNameTerminal.css
-|   |-- src\components\VirtualAmbassador.tsx
-|   |-- src\data\verifiedSources.ts    sole canonical public knowledge base
-|   |-- src\lib\grounding.ts
-|   |-- src\lib\conversation.ts
-|   |-- src\lib\model-provider.ts
-|   |-- public\underground-frames\     120 JPEG frames
-|   |-- public\underground-reel.mp4
-|   |-- public\name-signal.mp4
-|   |-- public\name-signal-poster.jpg
-|   |-- public\resume-public.pdf       only approved public PDF
-|   |-- scripts\verify-grounding.ts    reconciled locally; not yet released
-|   |-- scripts\privacy-scanner.ts     new local scanner implementation
-|   |-- scripts\verify-privacy-scanner.ts  30 new scanner cases
-|   |-- scripts\verify-submission.ts
-|   |-- scripts\verify-baseline.mjs    now reads manifest version dynamically
-|   |-- scripts\freeze-release.mjs     new explicit new-release manifest operation
-|   |-- scripts\generate-submission.ts  no longer silently rewrites the baseline
-|   |-- scripts\export-replit.py       ZIP + checksum + per-file manifest exporter
-|   |-- RELEASE_BASELINE.json          original v1.1.0 baseline, preserved
-|   |-- .github\workflows\verify.yml
-|   |-- GEMINI_SYNC.md                 this prompt/report
-|   `-- .qa\                          ignored local diagnostic artifacts/fixtures
-|-- resume-site\                      historical planning/source-review scaffold
-|-- reverted-crt-integration-20261104-164426\  quarantined integration and QA notes
-|-- exports\                          historical archives
-|-- replit-quantum-leap-handshake.zip
-|-- replit-quantum-leap-handshake.sha256
-`-- replit-quantum-leap-handshake.manifest.json
+```json
+{
+  "include": [
+    "next-env.d.ts",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
+  ],
+  "exclude": ["node_modules", "playwright.config.ts", "tests", "scripts", ".qa"]
+}
 ```
 
-`resume-site` has older configuration, planning documents, and generated remnants, but no active src tree. Do not use its package/configuration as the application source. It contains LINKEDIN_SOURCE_REVIEW.md and WEBSITE_ROADMAP.md; private source documents must not be copied into the public application.
+Strict mode remains enabled. No Playwright dependency or ignoreBuildErrors was added. Typecheck, production build and verifier passed while the stale files were still present; the reproduction files were then removed. Maintainer scripts still run independently through ts-node.
 
-There is currently NO `QuantumLeap V1\CarMechanicOS` folder. Original game checkouts are here:
+Changed in the application-fix commit: `tsconfig.json`, `RELEASE_BASELINE.json` (only the tsconfig hash), `REPLIT_DEPLOYMENT.md` (safe import/cleanup commands), and `RELEASE_VERIFICATION.md` (repair evidence). No src/, public/, dependency or package-version changes.
 
-| Folder under C:\Users\admin\Desktop\junk projects | HEAD | Working status |
-| --- | --- | --- |
-| carmechanicos | 4c48b04 - Fix progression persistence and certified dispatch | clean |
-| carmechanicos-public | 3af75da - security(public): remove local path wording | clean |
-| carmechanicos-documentation | b62fac4 - Add CarMechanicOS build documentation | clean |
+The existing freeze script intentionally refuses to overwrite an already tagged/same-version release. Under the user's explicit deployment-repair authorization, Codex updated just the current deployment baseline's tsconfig hash, verified all other frozen files unchanged, and recorded the repair in a new commit instead of rewriting the old tag. Preserve that provenance.
 
-The rollback archive still contains CarMechanicCLI.tsx, CarMechanicEasterEgg.tsx, CarMechanicEasterEgg.css, and public/carmechanicos assets. Its README describes the integration as active: that wording is HISTORICAL AND STALE. Files in active preview-site and the rollback report take precedence. Do not edit or delete the archive merely to make its prose current.
+## 3. Current artifact and checks
 
-## 4. Feature status
+Updated Replit package:
 
-### Scroll stage: active, approved, unchanged
+- Path: `C:\Users\admin\Desktop\QuantumLeap V1\quantum-leap-v1.2.0-replit.zip`.
+- Bytes: 12,789,603; 188 allowlisted application files.
+- SHA-256: `0b4a1ccab98905cc615904f048b1ce2344431240bd6b6f7bd3334823a6db0aee`.
+- Adjacent .sha256 and .manifest.json regenerated and verified against archive bytes and every per-entry hash.
+- Includes all seven public/carmechanicos assets and the approved RetroNameTerminal implementation. No node_modules, .next, .git, .qa, .env files, private source PDFs or stale root Playwright tests.
+- The same filename was used for a previous ZIP, so file name and package version alone do not prove the import is current. Use the checksum/current tsconfig or required fix commit.
+- Original general `quantum-leap-v1.2.0.zip`, v1.1.0/v1.1.1 archives and existing tags remain preserved. The general v1.2.0 ZIP is the original release, not the corrected Replit package.
 
-Single fixed Canvas 2D stage; 120 asynchronously decoded images; adjacent-frame blending; native playback fallback; no scroll-driven video seeking; ref-based damping, cursor effects, continuous scene windows, native chapter navigation, reduced motion, and DPR cap 1.5. Main page still identifies data-engine="v1.1".
-
-Use "60 fps target" rather than claiming guaranteed locked performance. Previous measured high-refresh Chromium run: median 4.2 ms, p95 8.2 ms, max 112.5 ms, zero background video seek events. Rare outliers occurred. Those performance measurements were not rerun in this audit. Decoded-frame memory (~95-149 MB on the intended ImageBitmap path) remains a mobile-budget consideration.
-
-### Grounded Virtual Ambassador: active, approved, unchanged
-
-Canonical facts in verifiedSources.ts; deterministic routing and approved excerpts; privacy and prompt-injection rejection before optional model calls; answer-ID-only model selection and post-checks. Exact unsupported refusal remains: "I don't have verified information about that."
-
-Server-only standard and Replit-managed credential configuration exists in model-provider.ts. No key is needed for deterministic answers. The current application logs/stores no chat content; upstream provider and hosting retention are separate. Preserve these qualifications.
-
-### CRT and CarMechanicOS: distinguish them
-
-The active CRT is the animated ASHIM JOHN name terminal with pause, retune, and proximity effects. There are NO active CarMechanic imports/components/assets in preview-site. The CLI, sandboxed game, monitor expansion, isolated storage key, and game saves are reverted experiments, not merged features. No attempt to reinstate them was made here. A future integration needs a separate branch, explicit user approval, isolated QA, and visual regression checks across the entire scroll page.
-
-## 5. Replit findings reconciled locally
-
-### A. rounded-full privacy false positive: implemented and tested locally
-
-Before this audit, the local scanner lacked a CSS rounded-full exception and globally masked three numeric strings inside generated JS. The exact Replit patch was not imported: it was not available as a reviewed source diff. A local equivalent was implemented, with stronger syntax scoping.
-
-- New scripts/privacy-scanner.ts exempts only the generated `.rounded-full { border-radius: 2147483647px }` rule in .next/static CSS, allowing ordinary formatting whitespace.
-- The same number in other rules, source CSS, public CSS, comments, strings, or URLs remains subject to detection. There is no stylesheet-wide exemption.
-- Existing necessary generated-JS constants are recognized through TypeScript AST context instead of globally whitelisting their digit strings. Comments and unrelated strings/URLs cannot inherit those syntax exemptions.
-- scripts/verify-grounding.ts now calls the scanner and 30 regression cases. The existing 142 API cases are retained.
-- This is a local, unreleased reconciliation; do not say the private GitHub repository already contains it.
-
-### B. Frozen baseline versus archive checksums: separated explicitly
-
-These are different controls:
-
-1. RELEASE_BASELINE.json hashes frozen application files. It currently records v1.1.0.
-2. The ZIP .sha256 hashes one exact archive.
-3. The ZIP .manifest.json contains that archive hash and per-entry hashes.
-
-The original upload ZIP/checksum/manifest were checked and still agree. Original ZIP SHA-256:
-`e80b68e35b144815afeb725325f49d965cde9803fff16d969cfec0145fd77bab`
-
-The new local verifier intentionally differs from the frozen v1.1.0 hash. Therefore `npm run verify:baseline` currently FAILS on scripts/verify-grounding.ts. This is expected detected drift, not a passing check. All runtime src/public files still match v1.1.0. Do not hide this by overwriting the old release manifest or weakening the check.
-
-Changes prepared for future releases:
-
-- verify-baseline.mjs compares the package version with baseline.version instead of hard-coding 1.1.0; it supports existing and new normalization schemas.
-- New `npm run release:freeze -- --version X.Y.Z` requires matching package/lockfile versions, refuses an existing Git tag or same-version manifest rewrite, and hashes src/public/scripts/workflow/config files.
-- generate-submission.ts now writes the submission packet only; it cannot silently reset the frozen-release manifest.
-- The exporter already regenerates both ZIP sidecars from exact archived bytes. It was exercised in an ignored isolated fixture, without replacing the official ZIP. The temporary candidate ZIP includes unreleased changes and an old baseline; it is NOT approved for upload.
-
-Suggested next approved release sequence (not executed):
-
-```sh
-# First review all changes and approve a new version, such as 1.1.1.
-npm version 1.1.1 --no-git-tag-version
-npm run typecheck
-# Stop the owned preview server before any build in this working directory.
-npm run build
-npm run verify
-npm run verify:submission
-npm run release:freeze -- --version 1.1.1
-npm run verify:baseline
-# Regenerate release docs/versioned wording; review staged changes; commit.
-# Export to a NEW versioned filename, preserving the v1.1.0 archive.
-python scripts/export-replit.py --output ../quantum-leap-v1.1.1.zip
-# Review archive/sidecars; create a NEW annotated tag only after acceptance.
-```
-
-Do not blindly regenerate the Handshake packet yet: its prose is still v1.1.0/Replit-oriented and needs an authorized version/hosting documentation update for a new permanent-host release.
-
-### C. Proxy rate-limit parsing: inspected, deliberately unchanged
-
-Default is a safe shared anonymous bucket, 15 attempts/minute/process. TRUST_PROXY=true currently uses the first X-Forwarded-For entry. Changing to the right-most entry without knowing trusted hops would not establish the real client identity either. Do not enable TRUST_PROXY or select a platform client-IP header until its trusted ingress contract is documented and tested. The map is not a distributed quota; serverless/Autoscale needs an edge or shared limiter if a global per-client limit is required.
-
-## 6. Verification performed in this audit
+Verified locally:
 
 | Check | Result |
 | --- | --- |
-| Clean starting main and remote/tag comparison | passed |
-| Git diff v1.1.0 -- src public | empty; runtime/UI/data/assets unchanged |
-| npm run typecheck | passed |
-| npm run verify | passed: 142 API + 30 scanner regressions; 172 scanned files including existing production bundles/PDF |
-| npm run verify:submission | passed |
-| npm run verify:baseline after scanner change | expected failure: verifier hash differs; not release-ready |
-| Existing v1.1.0 ZIP + checksum + manifest | consistent, preserved |
-| New-version manifest operation in isolated fixture | passed |
-| Same-version manifest rewrite refusal in isolated fixture | passed |
-| Attempt to freeze existing v1.1.0 tag | correctly refused |
-| Candidate archive and sidecar regeneration in isolated fixture | passed |
-| Current full production rebuild / browser benchmark | not rerun during this audit; no runtime files changed |
+| npm run typecheck | passed, including stale-file reproduction after fix |
+| npm run build | passed with stale Playwright files still present |
+| npm run verify | 142 API + 33 scanner regressions passed; 186 source/public/client files scanned |
+| npm run verify:submission | passed exact questions/refusals/deep-links/provider routing |
+| npm run verify:baseline | all 168 frozen hashes passed |
+| ZIP integrity, corrected config and game contents | passed |
+| Private GitHub application-fix push | main verified at 7935cbf after push |
 
-Current modified tracked files: package.json; scripts/verify-grounding.ts; scripts/verify-baseline.mjs; scripts/generate-submission.ts. New local files: scripts/privacy-scanner.ts; scripts/verify-privacy-scanner.ts; scripts/freeze-release.mjs; GEMINI_SYNC.md. There is no integration merge conflict, but these changes are not committed, pushed, tagged, or reflected in the official upload ZIP.
+GitHub Actions must be checked for the current pushed commit; local success alone is not a remote CI or live deployment result.
 
-## 7. Hosting and permanent domain readiness
+## 4. Current unresolved issue: Replit Preview timeout
 
-This is a Next.js App Router application with a POST API, not a purely static site. GitHub Pages alone cannot run the current ambassador API. Keep the repository private; grant only necessary hosting integration access.
+After the build repair, the user's screenshot shows Replit Preview reporting: "This is taking longer than expected. Ask Agent to fix the preview." Its visible address includes :3000. The screenshot also contains old Agent discussion of 30 scanner tests and several modified workspace files. That history is not proof that the active imported source is old, but motivates checking the actual fingerprint and diffs. Current local suite is 33 scanner cases.
 
-Candidate routes:
+We have NOT inspected Replit's current process, Run logs, browser console, live headers or deployment logs during this task. Exact cause is unconfirmed. Do not state that a UI/game regression, a port mismatch or CSP is proven.
 
-- Vercel: native Next.js/GitHub workflow, preview deployments, and a production branch/custom domain. This is the least migration-heavy candidate for the current app; cost/account limits and production Node support still need checking in the selected account. Official references: https://vercel.com/docs/git/vercel-for-github and https://vercel.com/docs/domains/set-up-custom-domain .
-- A Node/Docker host connected to GitHub: npm ci, npm run build, npm run start, host-required port binding, TLS/reverse proxy, secrets, health checks, and a rollback path. Current scripts bind 0.0.0.0:3000; evaluate dynamic PORT requirements for the chosen platform.
-- Cloudflare Workers: evaluate runtime/adapter compatibility separately. Current official guidance recommends vinext; OpenNext is another path, not an automatic drop-in claim. Do not silently migrate this frozen Next.js 16 project. Validate node:crypto/node:net, route behavior, model timeouts, headers and CI in a separate branch first. References: https://developers.cloudflare.com/workers/framework-guides/web-apps/nextjs/ and https://developers.cloudflare.com/workers/framework-guides/web-apps/opennext/ .
+Concrete diagnostics given to Replit Agent:
 
-Before a custom domain is ready: choose the provider and domain owner, authorize the private-repo integration, configure production secrets (or keep deterministic mode), define proxy/edge rate limiting, deploy a preview, test assets/PDF/ambassador/refusals/mobile/reduced-motion, add domain/DNS using provider-generated records, verify TLS and canonical www/apex redirects, then update public submission links. No host account, domain purchase, DNS change, or production deployment was performed in this audit.
+1. Verify the latest ZIP/source. Inspect current Run workflow and sanitized config diffs. Stop only the app's process before installation/build; avoid concurrent processes sharing .next.
+2. Approved package scripts bind 0.0.0.0:3000. Approved .replit maps localPort 3000 to externalPort 80. Confirm actual listener/HTTP response and Preview's selected exposed endpoint; inspect inherited 5000-port workflows instead of blindly changing ports.
+3. Compare HTTP localhost, external new-tab preview and embedded Preview. Inspect real console/network/response headers to distinguish server startup, routing, framing, HMR or stale assets.
+4. Existing next.config.mjs sets X-Frame-Options DENY and CSP frame-ancestors 'none'. These may affect embedded Preview; dev CSP/HMR may also need investigation if errors show it. They are hypotheses only. Prefer correcting workflows/ports or a production-mode preview when appropriate. Do not globally weaken production headers.
+5. Any necessary preview-only policy adjustment must use verified workspace origins, be narrowly scoped and be returned as a diff. Keep production security and game sandbox/storage controls intact. Do not mask failures with disabled checks or silent baseline rewrites.
+6. Verify build, application/API/privacy checks and the whole page at desktop/mobile, including initialized scrolling footage and CRT -> CLI -> game -> expand/collapse -> exit. Then make a NEW publishing attempt and verify the published endpoint separately. Report a blocked/failed deployment accurately.
 
-Keep existing Replit deployment files and old Handshake artifacts as historical/testing material for now. Do not treat their old Replit-hosted instructions as the new permanent-host plan.
+Full ready-to-paste Agent instructions are in `REPLIT_PREVIEW_FIX_PROMPT.md`. No message was sent to Replit automatically and no live deployment was performed by Codex in this task.
 
-## 8. Multi-chat coordination and Replit evidence limits
+## 5. Approved features to protect
 
-Earlier concurrent work rebuilt .next while an older production preview process remained running, creating a plausible stale-asset mismatch. Separate ports alone do not isolate Next.js build output. Use separate checkouts/output directories or stop the owned server before rebuilding. Do not restart another chat's processes without coordinating ownership.
+- UndergroundScrollStage: approved v1.1 continuous Canvas animation, 120 decoded frames, native navigation/reduced-motion behavior. Say "60 fps target," not guaranteed locked performance.
+- CRT initial display: ASHIM JOHN signal, pause/tune and pointer effects. CLI/game modules load on demand. Virtual filesystem commands do not access the actual host filesystem.
+- CarMechanicOS: reintegrated, accepted at desktop 1440x900 and mobile 390x844. Sandboxed opaque-origin iframe; local assets/Chart.js; isolated key ql_carmechanicos_save_v1; source/session-validated save bridge; expand/collapse preserves iframe; exit tears down its browsing context and restores focus without changing page scroll geometry. The earlier statement that this feature is reverted is obsolete.
+- Grounded ambassador: verifiedSources.ts and approved answers only. Unsupported response remains "I don't have verified information about that." No personal phone/address/email, invented credentials/outcomes, arbitrary model prose or chat logging.
+- Public resume, canonical claims, layout and visuals are unchanged by this deployment repair. No new game or resume work is authorized by a preview fix.
 
-The prior Replit live inspection found v1.1 markup but no initialized canvas/data-motion attributes, indicating client startup/hydration had not completed. Exact root cause was not established because deeper debugging permission was declined. Subsequent Replit fixes, its reported 30-case scanner implementation, and the reported published URL have not been independently re-audited here. Request sanitized Replit diffs before claiming its entire workstream is reconciled; do not use Replit as a second source of truth.
+## 6. What Gemini should plan next
 
-## 9. Requested Gemini output
+Return a concise diagnosis tree and a bounded Codex reconciliation prompt, to be finalized once the Replit Agent report arrives:
 
-Respond with a sequenced plan and ready-to-paste engineering prompts for:
+- Separate observed evidence from hypotheses and clearly distinguish build success, running preview, embedded framing, production publishing and post-publish health.
+- Request only missing sanitized logs/diffs/fingerprints needed to select the smallest fix; do not plan a redesign or a fresh application rewrite.
+- Define file scope, tests and rollback for importing any proven config fix back into the canonical workspace. No production-only Replit patches should silently become permanent architectural policy.
+- Resolve release provenance for future repairs: the current same-version packaging correction is an explicit documented exception. Propose a new patch version/tag/artifact for subsequent source/config fixes instead of repeatedly replacing a frozen release or reusing ambiguous ZIP names. Do not execute a version bump or move old tags without an authorized implementation task.
+- Keep permanent-host/custom-domain migration separate from this urgent Replit repair. No DNS or host change is authorized here.
+- Require verification of the new published build before calling the update live. If the platform is unavailable, state the limitation and preserve a working rollback.
 
-1. Review this local reconciliation (including adversarial scanner boundary tests), resolve the expected release drift using a NEW approved version, and update release documentation/CI without rewriting v1.1.0.
-2. Choose a permanent host/custom-domain route. Ask only for the provider/account/domain decisions that are actually missing. Compare native Next.js hosting with Workers migration, and specify proxy/edge limiter requirements before implementation.
-3. Define a safe multi-chat ownership and build-isolation workflow.
-4. Design an optional CarMechanicOS reintegration plan as a separate future feature, explicitly acknowledging it is currently reverted. Include sandbox/storage boundaries, dependencies/licensing, loading budgets, exit/reset behavior, whole-page visual tests, and rollback gates.
-
-Do not ask Codex to redesign the site, invent resume facts, reactivate the game, disable privacy checks, weaken production security, publish to Replit as the permanent host, move historical folders, or overwrite old tags/checksums. The immediate deliverable is a reviewed engineering plan; implementation of future hosting/game work needs its own authorized scope.
+References: [Replit ports](https://docs.replit.com/features/project-setup/ports), [Replit configuration](https://docs.replit.com/features/project-setup/configuration), [Replit Preview](https://docs.replit.com/features/editor/preview), [MDN X-Frame-Options](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/X-Frame-Options). These explain diagnostic possibilities, not the actual cause of this workspace's timeout.
