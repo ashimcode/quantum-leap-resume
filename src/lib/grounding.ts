@@ -13,51 +13,60 @@ export function approvedAnswer(id: AnswerId, expanded = false): string {
 
 function normalize(message: string): string {
   return message.normalize('NFKC').toLowerCase().replace(/[’‘]/g, "'")
-    .replace(/\b(?:ashim|john)'s\b/g, 'ashim').replace(/[?!.,;:]+$/g, '').trim();
+    .replace(/\bm\.s\.?/g, 'masters').replace(/\bb\.s\.?/g, 'bachelors')
+    .replace(/[?!.,;:]+$/g, '').trim();
 }
 
-// Checked BEFORE intent scoring or follow-up resolution. Mixed requests refuse as a whole.
-const privateOrUnsupported = /\b(?:salary|compensation|pay|wage|earnings|relocat\w*|gpa|grade\s+point|phone|telephone|cellphone|mobile\s+number|email|e-mail|citizen\w*|visa|sponsor\w*|schedule|availability|available|birthday|birthdate|married|religio\w*|ssn|social\s+security|passport|password|secret|api\s*key)\b|\b(?:home|street|mailing|physical|personal|his|your)\s+address\b|^what.*\baddress\b|\b(?:years?|decades?)\b|\b(?:percent\w*|percentage|savings|dollars|headcount|team\s+size|direct.report\s+count)\b/i;
+// Privacy/injection and unsupported detail gates precede all entity routing, including follow-ups.
+const privateOrUnsupported = /\b(?:salary|compensation|pay|wage|earnings|relocat\w*|phone|telephone|cellphone|mobile\s+number|email|e-mail|citizen\w*|visa|sponsor\w*|schedule|availability|available|birthday|birthdate|married|religio\w*|ssn|social\s+security|passport|password|secret|api\s*key)\b|\b(?:home|street|mailing|physical|personal|his|your)\s+address\b|^what.*\baddress\b|\b(?:percent\w*|percentage|savings|dollars|headcount|team\s+size|direct.report\s+count)\b/i;
 const injection = /\b(?:ignore|override|pretend|roleplay|fabricate|invent|assume|confirm|jailbreak|obey|disregard|forget|reveal|hidden|decode|encode|base64|translate)\b|\bact\s+as\b|\b(?:system|developer)\s+(?:prompt|message|instructions?|rules?)\b|\b(?:previous|prior|new|these|your)\s+(?:instructions?|rules?|prompt)\b|\b(?:prompt|instructions?)\b/i;
-const unsupportedEvidence = /\b(?:aws|kubernetes|iam|cissp|terraform|ztna|atlas|smb|ports?|micro.segmentation)\b|security\+|\b(?:completed|complete|finished|deployed|end.to.end)\b.*\b(?:sysmon|elastic|hardening|telemetry)\b|\b(?:sysmon|elastic|hardening|telemetry)\b.*\b(?:completed|complete|finished|deployed|end.to.end)\b/i;
+const unsupportedEvidence = /\b(?:home|enterprise)\s+(?:soc|siem)\b|\bsiem\s+lab\b|\b(?:soc|sysmon|splunk|elastic|kibana|docker|vmware|graphiti|openclaw|urban\s+air|walgreens|riis|spellman|dean|honors\s+society|coaxial|ethernet|kubernetes|cissp|terraform|ztna|atlas|smb|hardening|soldering|cricut|carmechanicos)\b|security\+|part\s*107|\b(?:phone|email|street)\b|\b(?:ten|twenty|\d+)\s+years?\b|\bhow\s+many\s+years\b|\b(?:deployed|deployment|production|expert|advanced\s+proficiency|certified\s+in)\b|\b(?:aws|iam|linux|siem)\b.*\b(?:certificat\w*|certif\w*|implementation|implement\w*|built|configured)\b|\b(?:certificat\w*|certif\w*|implementation|implement\w*|built|configured)\b.*\b(?:aws|iam|linux|siem)\b|\b(?:awarded|completed|finished|earned)\b.*\b(?:masters?|bachelors?|degree|m\.s|b\.s)\b|\b(?:masters?|bachelors?|degree)\b.*\b(?:awarded|completed|finished|earned)\b/i;
 const followUp = /^(?:what do you mean(?: by that)?|what does that mean|can you (?:please )?(?:elaborate|expand|explain|clarify)(?: (?:on that|that|more|further))?|could you (?:please )?(?:elaborate|expand|explain|clarify)(?: (?:on that|that|more|further))?|tell me more(?: about (?:that|it))?|(?:please )?(?:elaborate|expand|explain|clarify)(?: (?:on that|that|more|further))?)(?: please)?$/;
-
-// Recruiter language is explicit rather than accidentally derived from JSON property names.
-const conversationalWords = `a an the is are was were be been being do does did what how where when which who why whether can could would will should tell me about walk through give overview summarize describe explain please his he him ashim john individual candidate person applicant you your yourself we us our they them their this that it those these something anything any one some much more most of have has had with without and or in on at for to from by into as i want know get see find look looking learn hear say question example examples strongest relevant relevantly currently previously current previous prior past present background qualification qualifications strength strengths remember mean means meant happened happen happening lead leads led leading leadership initiative initiatives ownership own owned owning supervise supervised supervising mentor mentoring mentors contribution contributions contribute contributed contributing change changed changes changing measurably measurable measure measured measurement impact impacts impacting outcome outcomes result results deliverable deliverables achievement achievements achieved achieve accomplish accomplished accomplishments successful success difference make made making hire hired hiring fit fits fitting alignment align aligned match matches matching role roles job jobs position positions opportunity opportunities project projects deep dive details detail deeper elaborate expand clarification responsibility responsibilities responsible experience experiences professional practical hands hand hands-on technical skill skills abilities ability capable capability capabilities work worked working employment employer employers career team teams youth students newcomers operations campus secretary elected graduate education degree school university coursework certification certifications credential credentials study studied studying studying technology technologies tools tool used uses use using end ended start started dates date internship intern academic training provide provided share show ever time times took taken biggest best major delivered deliver personally built build building architected architect documented document demonstrated demonstrate involved involvement led managed managing`.split(/\s+/);
-const corpus = [data.candidate, data.capabilities, data.experience,
-  data.answers.filter(answer => answer.id !== 'clarify')];
-const vocabulary = new Set([...(JSON.stringify(corpus).toLowerCase().match(/[a-z]+/g) || []), ...conversationalWords, 'awards', 'honors', 'honours', 'recognition', 'junior', 'won', 'win', 'winning', 'received', 'first', 'place', 'list', 'wireless', 'trust', 'certificate', 'certificates', 's', 'dean']);
-
+const conversationalWords = `a an the is are was were be been being do does did what how where when which who why whether can could would will should tell me about walk through give overview summarize describe explain please his he him ashim john individual candidate person applicant you your yourself we us our they them their this that it those these something anything any one some much more most of have has had with without and or in on at for to from by into as i want know get see find look looking learn hear say question example examples strongest relevant currently previously current previous prior past present background qualification qualifications strength strengths remember mean means meant happened happen happening lead leads led leading leadership initiative initiatives ownership own owned contribution contributions contribute contributed change changed changes measurably measurable measure measured impact impacts outcome outcomes result results deliverable deliverables achievement achievements achieve accomplish accomplishments successful success difference make made making hire hired hiring fit fits alignment align aligned match matches matching role roles job jobs position positions opportunity opportunities project projects details detail deeper elaborate expand clarification responsibility responsibilities responsible experience experiences professional practical hands hand technical skill skills abilities ability work worked working employment employer employers career team teams students operations campus secretary elected graduate education degree school university coursework certification certifications credential credentials study studied studying technology technologies tools tool used uses use using ended start started dates date internship intern academic training provide provided share show ever time times took taken biggest best major delivered deliver personally built build building documented document demonstrated demonstrate involved involvement managed managing contact connect download resume linkedin profile portfolio pronouns location live based born gpa grade grades masters master bachelors bachelor ms bs defense honours honors award awards recognition received won first second place s t identity access management services trust certificate certificates five top entry entries six three list listed lists license licenses licensed full title titles name names highschool cloud modelling bachelor's master's`.split(/\s+/);
+const vocabulary = new Set([...(JSON.stringify(data).toLowerCase().match(/[a-z]+/g) || []), ...conversationalWords]);
 function knownSubjectScope(text: string): boolean {
-  const words = text.match(/[a-z]+/g) || [];
-  if (words.some(word => !vocabulary.has(word))) return false;
-  // Tools from a real employer's product suite do not establish employment at that vendor.
+  if ((text.match(/[a-z]+/g) || []).some(word => !vocabulary.has(word))) return false;
   if (/\bgoogle\b/.test(text) && !/\bgoogle (?:forms|drive)\b/.test(text)) return false;
-  if (/\bmicrosoft\b/.test(text) && !/\bmicrosoft (?:excel|teams|sharepoint)\b/.test(text)) return false;
-  if (/\b(?:work\w*|employ\w*|job|intern\w*|led|lead)\s+(?:at|for|by)\s+/.test(text)) {
-    const employer = text.split(/\b(?:work\w*|employ\w*|job|intern\w*|led|lead)\s+(?:at|for|by)\s+/).slice(1);
-    if (employer.some(part => !/^(?:handshake(?: ai)?|university at albany|ualbany|cehc|asis|apex(?: entertainment)?|urban air|walgreens|jacob a[.]? riis)\b/.test(part))) return false;
-  }
+  if (/\bmicrosoft\b/.test(text) && !/\bmicrosoft (?:teams|sharepoint)\b/.test(text)) return false;
+  const employers = text.split(/\b(?:work\w*|employ\w*|job|intern\w*|led|lead)\s+(?:at|for|by)\s+/).slice(1);
+  if (employers.some(part => !/^(?:handshake(?: ai)?|university at albany|ualbany|cehc|asis|apex(?: entertainment)?)\b/.test(part))) return false;
+  // An entity and an unrelated detail cannot borrow each other's evidence.
+  if (/\b(?:hia|hedgehog)\b/.test(text) && /\b(?:awards?|creativity|first|second)\b/.test(text)) return false;
+  if (/\bgoldman\b/.test(text) && /\b(?:employ\w*|jobs?|intern\w*|career)\b/.test(text)) return false;
+  if (/\b(?:copper|fiber|coaxial|ethernet)\b/.test(text) && /\b(?:drone|robotics|makerspace)\b/.test(text)) return false;
+  if (/\bfiber\b/.test(text) && /\b(?:certificat\w*|credential\w*|licen\w*)\b/.test(text)) return false;
   return true;
 }
 
-/** Synonym/verb-aware scoring; specific recruiter intent outweighs a generic project/work noun. */
 function scoreIntent(text: string): AnswerId | null {
-  const scores: { id: AnswerId; score: number }[] = [
-    { id: 'hia', score: /\bhia\b|\bcollege access\b/.test(text) ? 24 : 0 },
-    { id: 'goldman', score: /\bgoldman\b|\bvr\b|\bforecast\w*\b|\bcreativity\b/.test(text) ? 24 : 0 },
-    { id: 'honors', score: /\b(?:honors?|awards?|recognition|spellman|dean|accolades)\b/.test(text) ? 20 : 0 },
-    { id: 'fit', score: /\b(?:fit\w*|hire|hiring|alignment|align\w*|match\w*|strength\w*|qualifications?)\b/.test(text) ? 16 : /\b(?:role|position|cybersecurity|cyber risk)\b/.test(text) ? 4 : 0 },
-    { id: 'leadership', score: /\b(?:lead|leads|led|leading|leadership|initiative\w*|ownership|owning|owned|supervis\w*|mentor\w*)\b/.test(text) ? 14 : /\b(?:secretary|asis|campus|access control)\b/.test(text) ? 7 : 0 },
-    { id: 'impact', score: /\b(?:measur\w*|impact\w*|outcomes?|results?|change\w*|deliver\w*|achiev\w*|accomplish\w*|difference)\b/.test(text) ? 12 : 0 },
-    { id: 'soc', score: /\b(?:soc|siem|elastic|sysmon|telemetry|threat|lab)\b/.test(text) ? 9 : /\b(?:projects?|built|build|building|architected|architect)\b/.test(text) ? 6 : 0 },
-    { id: 'education', score: /\b(?:education|degree|graduation|graduate|course\w*|school|stud\w*|certifications?|credentials?|c-tech)\b/.test(text) ? 8 : 0 },
-    { id: 'experience', score: /\b(?:handshake|makerspace|robotics|apex|walgreens|internship|employ\w*|work|worked|working|jobs?|career|operations|responsibilit\w*)\b/.test(text) ? 7 : /\bexperience\b/.test(text) ? 2 : 0 },
-    { id: 'skills', score: /\b(?:skills?|tools?|abilities|ability|programming|python|bash|javascript|docker|linux|hardware|cabling)\b/.test(text) ? 8 : 0 },
-    { id: 'contact', score: /\b(?:contact|linkedin|connect|download|resume|github|portfolio)\b/.test(text) ? 10 : 0 },
-  ];
-  scores.sort((a, b) => b.score - a.score);
-  return scores[0].score > 0 ? scores[0].id : null;
+  if (/\b(?:headline|about statement|affiliation|pronouns|location|name)\b/.test(text)) return 'profile';
+  if (/\bhedgehog\b/.test(text)) return 'hedgehog';
+  if (/\bhia\b|\bcollege access\b/.test(text)) return 'hia';
+  if (/\bgoldman\b|\bvr\b|\bforecast\w*\b|\bcreativity\b|\bawards?\b/.test(text)) return 'goldman';
+  if (/\b(?:wireless|5g)\b/.test(text)) return 'wireless';
+  if (/\bgrounding\b|\bbonding\b|\bnational electrical code\b/.test(text)) return 'grounding';
+  if (/\bcopper\b|\bstructured cabling\b/.test(text)) return 'copper';
+  if (/\btrust\b|\bsuas\b|\bfaa\b|\bfederal aviation\b/.test(text)) return 'trust';
+  if (/\btelecommunications technologies\b|\bhome networking\b/.test(text)) return 'telecom';
+  if (/\b(?:secretary|asis)\b/.test(text)) return 'secretary';
+  if (/\bhandshake\b|\bai training evaluator\b/.test(text)) return 'handshake';
+  if (/\bapex\b|\battractions attendant\b/.test(text)) return 'apex';
+  if (/\bwork.study\b|\bcircuit.making\b|\bblender\b/.test(text)) return 'workstudy';
+  if (/\bmakerspace\b|\bgrad danes\b/.test(text)) return 'makerspace';
+  if (/\bdrone\w*\b|\brobotics\b|\brobomaster\b/.test(text)) return 'drones';
+  if (/\bmasters?\b|\bms\b/.test(text)) return 'masters';
+  if (/\bbachelors?\b|\bbs\b/.test(text)) return 'bachelors';
+  if (/\bchelsea\b|\bhigh.?school\b|\bfiber optics\b/.test(text)) return 'highschool';
+  if (/\b(?:certifications?|credentials?|certificates?|licenses?)\b/.test(text)) return 'certifications';
+  if (/\b(?:education|degree|graduation|school|stud\w*|gpa|grade)\b/.test(text)) return 'education';
+  if (/\b(?:fit\w*|hire|hiring|align\w*|match\w*|strength\w*|qualifications?|headline|affiliation|pronouns|location)\b/.test(text)) return 'fit';
+  if (/\b(?:lead|leads|led|leading|leadership|initiative\w*|ownership|owning|owned)\b/.test(text)) return 'leadership';
+  if (/\b(?:measur\w*|impact\w*|outcomes?|results?|change\w*|deliver\w*|achiev\w*|accomplish\w*|difference)\b/.test(text)) return 'impact';
+  if (/\b(?:skills?|tools?|abilities|ability|siem|iam|identity and access management|security information and event management|threat|linux|aws|amazon|cloud)\b/.test(text)) return 'skills';
+  if (/\b(?:contact|linkedin|connect|download|resume|portfolio)\b/.test(text)) return 'contact';
+  if (/\bprojects?\b/.test(text)) return 'projects';
+  if (/\b(?:experience|employ\w*|work|worked|working|jobs?|career|operations|responsibilit\w*|roles?)\b/.test(text)) return 'experience';
+  return null;
 }
 
 /** Accept history context only when the last assistant text is an exact approved excerpt.
@@ -76,16 +85,22 @@ function lastContext(history: readonly ConversationTurn[]): ReplySelection | nul
 export function resolveReply(message: string, history: readonly ConversationTurn[] = []): ReplySelection | null {
   const text = normalize(message);
   if (!text || message.length > 500 || /[^\x20-\x7e\n\r\t’‘–—]/.test(text) ||
-    privateOrUnsupported.test(text) || injection.test(text) || /\d|https?:|[{}<>\\]/.test(text)) return null;
+    privateOrUnsupported.test(text) || injection.test(text) || /https?:|[{}<>\\]/.test(text)) return null;
   if (followUp.test(text)) {
     const previous = lastContext(history);
     return { id: previous?.id || 'clarify', expanded: previous !== null };
   }
-  // The technical starter explicitly asks for the evidence boundary, not new cloud claims.
-  const starter = data.starterQuestions.findIndex(question => normalize(question) === text);
-  if (starter >= 0) return { id: (['fit', 'soc', 'technical', 'leadership'] as const)[starter], expanded: false };
-  if (unsupportedEvidence.test(text) || /\bcloud\b/.test(text) || !knownSubjectScope(text)) return null;
+  if (unsupportedEvidence.test(text) || !knownSubjectScope(text)) return null;
   const id = scoreIntent(text);
+  if (id) {
+    const evidence = data.answers.find(answer => answer.id === id)!;
+    const facts = evidence.text + ' ' + evidence.detail;
+    const numbers = text.match(/\d+(?:\.\d+)?/g) || [];
+    const factNumbers = new Set<string>(facts.match(/\d+(?:\.\d+)?/g) || []);
+    if (numbers.some(number => !factNumbers.has(number))) return null;
+    const months = text.match(/\b(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\b/g) || [];
+    if (months.some(month => !facts.toLowerCase().includes(month.slice(0,3)))) return null;
+  }
   return id ? { id, expanded: false } : null;
 }
 

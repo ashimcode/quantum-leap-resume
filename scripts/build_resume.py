@@ -1,27 +1,51 @@
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, KeepTogether, PageBreak
+"""Render the public resume exclusively from the canonical LinkedIn data export."""
+from pathlib import Path
+import sys, json
+sys.path.insert(0, str(Path('.qa/python')))
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, KeepTogether, PageBreak
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
-from reportlab.lib.enums import TA_LEFT
 from xml.sax.saxutils import escape
-import json,os
-D=json.load(open('.qa/resume-data.json')); c=D['candidate']; styles=getSampleStyleSheet()
-styles.add(ParagraphStyle(name='NameX',fontName='Helvetica-Bold',fontSize=27,leading=31,textColor=colors.HexColor('#172c29'),spaceAfter=9))
-styles.add(ParagraphStyle(name='RoleX',fontName='Helvetica-Bold',fontSize=11,leading=16,spaceAfter=9,textColor=colors.HexColor('#28593d')))
-styles.add(ParagraphStyle(name='BodyX',fontName='Helvetica',fontSize=9,leading=13,spaceAfter=6,textColor=colors.HexColor('#34463e')))
-styles.add(ParagraphStyle(name='HeadX',fontName='Helvetica-Bold',fontSize=10,leading=15,spaceBefore=13,spaceAfter=7,textColor=colors.HexColor('#28593d')))
-styles.add(ParagraphStyle(name='TitleX',fontName='Helvetica-Bold',fontSize=10,leading=14,spaceAfter=3,textColor=colors.HexColor('#172c29')))
-styles.add(ParagraphStyle(name='SmallX',fontName='Helvetica',fontSize=8,leading=11,spaceAfter=6,textColor=colors.HexColor('#56645c')))
-def p(s,style='BodyX'):return Paragraph(escape(s).replace('—','-').replace('–','-').replace('’',"'"),styles[style])
-story=[p(c['name'],'NameX'),p(c['target'],'RoleX'),p('Albany, NY | linkedin.com/in/johnashim | github.com/ashimcode','SmallX'),p(c['summary']),p('EDUCATION & CREDENTIALS','HeadX'),p(c['education']),p(c['educationStatus']),p('Coursework: '+ '; '.join(c['coursework']),'SmallX'),p('Credentials & honors: '+ '; '.join(c['credentials']),'SmallX'),p('EXPERIENCE & LEADERSHIP','HeadX')]
-for e in D['experience'][:6]:
- story.append(KeepTogether([p(e['title']+' | '+e['organization'],'TitleX'),p(e['dates'],'SmallX'),p(e['description'])]))
-story.extend([PageBreak(),p(c['name']+' / Selected evidence','NameX'),p('SECURITY OPERATIONS PROJECT','HeadX')])
-a=D['projects'][0]
-story.extend([p(a['title'],'TitleX'),p(a['status'],'SmallX'),p(a['problem']),p(a['contribution']),p(a['outcome']),p(a['boundary'],'SmallX'),p(a['link'],'SmallX'),p('NETWORK INFRASTRUCTURE','HeadX'),p(D['projects'][2]['contribution']),p(D['projects'][2]['boundary'],'SmallX'),p('ADDITIONAL OPERATIONS EXPERIENCE','HeadX'),p(D['experience'][6]['organization']+' | '+D['experience'][6]['dates'],'TitleX'),p(D['experience'][6]['description']),p('EVIDENCE BOUNDARIES','HeadX'),p('Project descriptions distinguish documented work from proposed architecture. Research and Atlas completion claims await supporting evidence and are not included as completed achievements.'),p('PUBLIC CONTACT','HeadX'),p(c['links']['linkedin'])])
+
+D = json.loads(Path('.qa/resume-data.json').read_text(encoding='utf8'))
+C = D['candidate']
+styles = getSampleStyleSheet()
+for name, size, leading, color, space in [('NameX',25,29,'#172c29',8),('RoleX',12,16,'#28593d',8),('HeadX',12,16,'#28593d',9),('TitleX',10,13,'#172c29',4),('BodyX',9,12,'#34463e',4),('SmallX',8,10,'#56645c',4)]:
+    styles.add(ParagraphStyle(name=name, fontName='Helvetica-Bold' if name in ['NameX','RoleX','HeadX','TitleX'] else 'Helvetica', fontSize=size, leading=leading, textColor=colors.HexColor(color), spaceAfter=space))
+def clean(text):
+    return text.replace('—','-').replace('–','-').replace('’',"'").replace('·',' | ')
+def p(text, style='BodyX'):
+    return Paragraph(escape(clean(text)), styles[style])
+def bullets(items):
+    return [p('- '+item) for item in items]
+
+story=[p(C['name']+' | '+C['pronouns'],'NameX'),p(C['headline'],'RoleX'),p(C['affiliation']+' | '+C['location'],'SmallX'),Paragraph('<link href="'+C['links']['linkedin']+'">linkedin.com/in/johnashim</link>',styles['SmallX']),p(C['summary']),Spacer(1,5),p('TOP SKILLS','HeadX'),p('; '.join(C['skills'])),Spacer(1,5),p('EDUCATION','HeadX')]
+for e in D['education']:
+    story.append(KeepTogether([p(e['degree'],'TitleX'),p(e['institution']+' | '+e['dates']+' | Grade: '+e['grade'],'SmallX'),p(e['details'])]+([p('Skills: '+', '.join(e['skills']),'SmallX')] if e['skills'] else [])))
+story.extend([Spacer(1,5),p('LICENSES & CERTIFICATIONS','HeadX')])
+for c in D['certifications']:
+    story.append(KeepTogether([p(c['title'],'TitleX'),p(c['issuer']+' | Issued '+c['issued'],'SmallX')]+([p('Skills: '+', '.join(c['skills']),'SmallX')] if c['skills'] else [])))
+story.extend([PageBreak(),p('EXPERIENCE','HeadX')])
+for e in D['experience']:
+    block=[p(e['title']+' | '+e['organization'],'TitleX'),p(e['employmentType']+' | '+e['dates']+' | '+e['location'],'SmallX')]+bullets(e['bullets'])
+    if 'artifact' in e: block.append(p('Featured artifact: '+e['artifact'],'SmallX'))
+    block.append(p('Skills: '+', '.join(e['skills']),'SmallX'))
+    block.append(Spacer(1,5))
+    story.append(KeepTogether(block))
+story.extend([PageBreak(),p('PROJECTS','HeadX')])
+for project in D['projects']:
+    story.append(KeepTogether([p(project['title'],'TitleX'),p(project['dates']+' | Associated with '+project['association'],'SmallX'),p(project['contribution']),p('Skills: '+', '.join(project['tools']),'SmallX'),Spacer(1,10)]))
+story.extend([p('SOURCE & PUBLIC CONTACT','HeadX'),p('Career, education, project, certification, and skill facts follow the candidate-supplied canonical LinkedIn specification. Entries are self-reported, not independently certified.'),p(C['links']['linkedin'])])
 def footer(canvas,doc):
- canvas.setStrokeColor(colors.HexColor('#d9ded6'));canvas.line(40,39,572,39);canvas.setFont('Helvetica',8);canvas.setFillColor(colors.HexColor('#56645c'));canvas.drawString(40,26,'Ashim John | Public resume');canvas.drawRightString(572,26,str(doc.page))
-SimpleDocTemplate('public/resume-public.pdf',pagesize=(612,792),rightMargin=40,leftMargin=40,topMargin=35,bottomMargin=50,title='Ashim John - Public Resume',author='Ashim John').build(story,onFirstPage=footer,onLaterPages=footer)
-import pypdf
-r=pypdf.PdfReader('public/resume-public.pdf');assert len(r.pages)==2,f'Expected two pages, got {len(r.pages)}'
+    canvas.setStrokeColor(colors.HexColor('#d9ded6')); canvas.line(40,38,572,38)
+    canvas.setFont('Helvetica',8); canvas.setFillColor(colors.HexColor('#56645c'))
+    canvas.drawString(40,25,'Ashim John | LinkedIn-aligned public resume'); canvas.drawRightString(572,25,str(doc.page))
+SimpleDocTemplate('public/resume-public.pdf',pagesize=(612,792),leftMargin=40,rightMargin=40,topMargin=35,bottomMargin=50,title='Ashim John - LinkedIn Public Resume',author='Ashim John',subject='Candidate-supplied canonical LinkedIn specification',pageCompression=1).build(story,onFirstPage=footer,onLaterPages=footer)
+from pypdf import PdfReader
+reader=PdfReader('public/resume-public.pdf')
+assert len(reader.pages)==3, f'Expected 3 complete pages, got {len(reader.pages)}'
 import pypdfium2 as pdfium
-for i,page in enumerate(pdfium.PdfDocument('public/resume-public.pdf')):page.render(scale=1.4).to_pil().save(f'.qa/resume-{i+1}.png')
+out=Path('.qa/v121'); out.mkdir(parents=True,exist_ok=True)
+for i,page in enumerate(pdfium.PdfDocument('public/resume-public.pdf')):
+    page.render(scale=1.4).to_pil().save(out/f'resume-{i+1}.png')
+print(f'Generated and rendered {len(reader.pages)} LinkedIn-only resume pages.')
