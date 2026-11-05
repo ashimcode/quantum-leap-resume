@@ -167,7 +167,7 @@
     "package.json": "2c987537b675f7fcafd07f2ab1e49e9b71f290ef714e36ed644f41c001a2ca63",
     "package-lock.json": "067e9678a9300bd9fe6973572ed1ea2717a3ea1b0cf63b3824dc5dc70b04af41",
     "next.config.mjs": "0732806603edd6c67c1537521d14dff8581cb70f06bd30abad1b2ffe9a498108",
-    "tsconfig.json": "828ef4c142d8e6aad46d5ac122dad78af09b022a84087536d292aa723c43c4e6",
+    "tsconfig.json": "5b1ea8ae1df64dc501a241f6251019bf65609e4ba0e7913413b92a4a85f26344",
     ".replit": "eb0c543c78f0a72b4ae38f2215b0cdb4f9f0da3091e1c3b884b78423204a322f",
     "replit.nix": "8ebba5b3ef480fb8bd3299cb41286614834fcf1599f9a2bd7dbce89ffd89947b"
   }

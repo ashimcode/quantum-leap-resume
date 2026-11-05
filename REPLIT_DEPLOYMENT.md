@@ -9,6 +9,18 @@
 
 If the import did not install dependencies, run `npm ci` in Shell once. Replit's import compatibility checks may adjust its workspace setup.
 
+## Update an existing workspace to v1.2.0
+
+Stop the running app first. Upload the refreshed `quantum-leap-v1.2.0-replit.zip` into `public/`, then run this from the Replit project root:
+
+```sh
+unzip -tq public/quantum-leap-v1.2.0-replit.zip && rm -f -- playwright.config.ts && rm -rf -- tests .next && rm -f -- tsconfig.tsbuildinfo && unzip -o public/quantum-leap-v1.2.0-replit.zip && rm -- public/quantum-leap-v1.2.0-replit.zip && npm ci --include=dev && npm run build
+```
+
+This validates the ZIP before removing the stale Replit Agent Playwright configuration/tests and generated build cache. `npm ci --include=dev` installs the exact lockfile, including TypeScript build tools even if the environment omits development dependencies by default. After a successful build, restart Run for preview and republish to update the live deployment.
+
+The application TypeScript project includes only `src/**/*.ts`, `src/**/*.tsx`, `next-env.d.ts`, and generated Next.js types. External Playwright files and local verification scripts are excluded from the application build. Strict checking remains enabled; no Playwright dependency or `ignoreBuildErrors` setting is needed. Maintainer checks still run independently through `npm run verify` and `npm run verify:submission`.
+
 ## Publish
 
 Open Publishing, choose **Autoscale**, and use the supplied commands:

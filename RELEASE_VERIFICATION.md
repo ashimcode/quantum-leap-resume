@@ -1,5 +1,14 @@
 # Quantum Leap release verification
 
+## v1.2.0 Replit packaging correction - November 5, 2026
+
+The refreshed `quantum-leap-v1.2.0-replit.zip` narrows the application TypeScript project to `src/`, `next-env.d.ts`, and generated Next.js types. It excludes external Playwright files, tests, maintainer scripts, and local QA without disabling strict checking or adding test-runner dependencies. No runtime source, public asset, dependency, or version changes were made.
+
+- Reproduced the reported missing `@playwright/test` and implicit-any errors using temporary root-level Playwright configuration and browser-test files under the old configuration.
+- With those same stale files still present, the corrected `npm run typecheck`, `npm run build`, and `npm run verify` passed: 142 API regressions, 33 scanner regressions, and 186 source/public/client files scanned.
+- Temporary reproduction files were removed before export. The updated Replit instructions clean stale Agent tests and build cache and install locked dependencies including build tools.
+- Under the explicit deployment-repair authorization, only the `tsconfig.json` hash is refreshed in the 168-file v1.2.0 baseline. The existing annotated `v1.2.0` tag and general `quantum-leap-v1.2.0.zip` remain unchanged; the refreshed Replit ZIP has its own regenerated checksum and manifest. The tagged source represents the original release; the corrected deployment package is tracked in a separate follow-up commit.
+
 ## v1.1.1 maintenance release - November 5, 2026
 
 Release scope: scanner/release tooling and documentation only. No src/ or public/ changes. Verification sequence: version bump, typecheck, production build, 142 API + 33 scanner regressions, submission checks, explicit new-version freeze, baseline check, and versioned ZIP export. Release completion is evidenced by the v1.1.1 commit/tag and GitHub Actions results.
