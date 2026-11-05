@@ -38,7 +38,7 @@ The second grounding run scans built browser bundles. Windows can set PYTHON_BIN
 
 ## Release and submission
 
-`v1.2.0` adds the scoped CarMechanicOS integration on feat/v1.2.0-carmechanicos. The v1.1.1 rollback tag remains unchanged. The scroll engine, canonical facts, ambassador component/route and public PDF are unchanged. The scanner retains 142 API regressions and 33 scanner regressions. `RELEASE_BASELINE.json` covers source, assets, verification scripts, workflows and release configuration. Future releases require an explicit new package version and `npm run release:freeze -- --version X.Y.Z`; existing tags and same-version manifests cannot be overwritten by that command.
+`v1.2.0` is the user-approved release, locked on November 5, 2026, with an annotated tag on main and a versioned upload archive. It adds the scoped CarMechanicOS integration developed on feat/v1.2.0-carmechanicos. The v1.1.1 rollback tag remains unchanged. The scroll engine, canonical facts, ambassador component/route and public PDF are unchanged. The scanner retains 142 API regressions and 33 scanner regressions. `RELEASE_BASELINE.json` covers source, assets, verification scripts, workflows and release configuration. Future releases require an explicit new package version and `npm run release:freeze -- --version X.Y.Z`; existing tags and same-version manifests cannot be overwritten by that command.
 
 ## Hidden garage
 
@@ -64,7 +64,7 @@ EXPAND uses a native modal top layer while a measured placeholder preserves the 
 
 Acceptance ran in production Chromium at 1440x900 and 390x844 against an independently built v1.1.1 control: identical idle section geometry/footer height; no idle game downloads; CLI navigation/README/completion; game boot; opaque-origin/storage isolation; saved progress restored; expansion without iframe remount; unchanged document height/scroll on enter/expand/collapse/exit; reset preserves unrelated storage; 120 background frames still decoded; no uncaught browser errors. Local evidence lives under ignored .qa/v12-* files. Baseline geometry and game checks do not establish a universal FPS guarantee.
 
-Read HANDSHAKE_SUBMISSION_PACKET.md for the historical v1.1.0 submission lists, adapted Agent prompts, existing claim audit, and Replit testing steps. Its application content remains applicable because runtime files are unchanged. Replit is a testing/submission environment; permanent hosting and a custom domain remain a separate decision. GEMINI_SYNC.md is the architectural handoff snapshot. Prompt templates and exact original source line references are not claimed as available when absent.
+Read HANDSHAKE_SUBMISSION_PACKET.md for the historical v1.1.0 submission lists, adapted Agent prompts, existing claim audit, and Replit testing steps. Its verified resume content remains applicable; the game is an additional feature outside those historical submission instructions. Replit is a testing/submission environment; permanent hosting and a custom domain remain a separate decision. GEMINI_SYNC.md is the architectural handoff snapshot. Prompt templates and exact original source line references are not claimed as available when absent.
 
 ```sh
 python scripts/export-replit.py --output ../quantum-leap-v1.2.0.zip
