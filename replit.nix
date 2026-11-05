@@ -1,10 +1,5 @@
 { pkgs }: {
-  # nodejs_20 includes the npm CLI. This supports older Nix-based workspaces.
-  deps = [
-    pkgs.nodejs_20
-    pkgs.openssl
-  ];
-  env = {
-    LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [ pkgs.openssl ];
-  };
+  # Node and its matching libraries come from .replit's nodejs-20 module.
+  # A separate OpenSSL search path can break Node before npm even starts.
+  deps = [];
 }

@@ -11,13 +11,19 @@ If the import did not install dependencies, run `npm ci` in Shell once. Replit's
 
 ## Update an existing workspace to v1.2.0
 
-Stop the running app first. Upload the refreshed `quantum-leap-v1.2.0-replit.zip` into `public/`, then run this from the Replit project root:
+Use `quantum-leap-v1.2.0-replit-openssl-fix.zip`. Earlier packages, including `quantum-leap-v1.2.0-replit.zip`, still carry the obsolete Nix library override and must not be re-imported over the corrected workspace. The corrected package retains application version 1.2.0 and the approved UI; its filename distinguishes this deployment configuration repair from the original release.
+
+The existing Replit workspace was repaired directly; it does not need another ZIP upload. A full import replaces the canonical port-3000 configuration and can overwrite Replit's existing port-5000/workflow/development-preview adaptations. Preserve or reconcile those platform settings before any future full import. The instructions below describe the canonical package configuration, not an instruction to overwrite the already-repaired workspace.
+
+Stop the running app first. Upload `quantum-leap-v1.2.0-replit-openssl-fix.zip` into `public/`, then run this from the Replit project root:
 
 ```sh
-unzip -tq public/quantum-leap-v1.2.0-replit.zip && rm -f -- playwright.config.ts && rm -rf -- tests .next && rm -f -- tsconfig.tsbuildinfo && unzip -o public/quantum-leap-v1.2.0-replit.zip && rm -- public/quantum-leap-v1.2.0-replit.zip && npm ci --include=dev && npm run build
+unzip -tq public/quantum-leap-v1.2.0-replit-openssl-fix.zip && rm -f -- playwright.config.ts && rm -rf -- tests .next && rm -f -- tsconfig.tsbuildinfo && unzip -o public/quantum-leap-v1.2.0-replit-openssl-fix.zip && rm -- public/quantum-leap-v1.2.0-replit-openssl-fix.zip && env -u LD_LIBRARY_PATH npm ci --include=dev && env -u LD_LIBRARY_PATH npm run build
 ```
 
 This validates the ZIP before removing the stale Replit Agent Playwright configuration/tests and generated build cache. `npm ci --include=dev` installs the exact lockfile, including TypeScript build tools even if the environment omits development dependencies by default. After a successful build, restart Run for preview and republish to update the live deployment.
+
+The import command also clears any library-path override inherited by the already-open Shell. The permanent fix is the absence of the override in `replit.nix`; clearing it only in a later deployment build command cannot fix Replit's earlier automatic npm-install stage. Reload/reopen the Shell after Nix configuration changes. Publishing is a separate action and can incur normal hosting/build usage. The November 5 repair was explicitly verified without using Replit Agent or publishing, at the user's request.
 
 The application TypeScript project includes only `src/**/*.ts`, `src/**/*.tsx`, `next-env.d.ts`, and generated Next.js types. External Playwright files and local verification scripts are excluded from the application build. Strict checking remains enabled; no Playwright dependency or `ignoreBuildErrors` setting is needed. Maintainer checks still run independently through `npm run verify` and `npm run verify:submission`.
 
@@ -83,4 +89,4 @@ git push -u origin main
 
 Then import `https://github.com/ashimcode/ashim-john-visual-resume` through https://replit.com/import. The repository must exist and your GitHub HTTPS credentials must have push access. These commands are provided for you to run; this preparation task did not create the repository or upload the code.
 
-The optional legacy replit.nix supplies Node 20 (including npm) and OpenSSL. Nix evaluation requires a Nix/Replit environment and was not run on this macOS host.
+The `nodejs-20` module in `.replit` supplies Node and its matching libraries. `replit.nix` deliberately has no additional dependencies or `LD_LIBRARY_PATH` override. A legacy override injected an incompatible OpenSSL library during Replit's automatic package-install stage, before the application build command could run. Clearing the variable only inside that later build command cannot repair that earlier stage. Nix/deployment validation requires Replit; a successful Windows build alone does not prove deployment success.

@@ -1,5 +1,17 @@
 # Codex -> Gemini: Quantum Leap v1.2.0 deployment and preview sync
 
+## Latest update: OpenSSL config fixed directly; no publishing authorized
+
+On November 5, the user asked Codex to fix Replit directly without spending Agent credits. A failed publish log proved that Replit's automatic npm installation could not start Node because `replit.nix` injected OpenSSL 3.0.13 through `LD_LIBRARY_PATH`. Earlier empty-variable/build-command workarounds did not remove this source setting. Codex removed the actual Nix environment block directly in the user's existing Replit Shell, saved a backup, and retained the platform-managed Node module. Node/npm work with the inherited variable removed, and Replit typecheck and production build passed. This is an environment/bootstrap error, not a failure in CarMechanicOS or the resume UI.
+
+The user explicitly chose **"Fix and verify only; don't publish."** No Replit Agent messages/actions or publish attempt are authorized by this update. Do not generate another Agent task as the next step or claim the live deployment has been updated. The previous successful public deployment stays live until the user chooses to publish.
+
+The local `replit.nix` now has empty dependencies and no library-path override; `.replit` continues to supply its Node module. Only this config hash is refreshed in the current 168-file deployment baseline, with existing tags and historical archives preserved. Local typecheck/build, 142 API + 33 scanner cases, submission checks and baseline verification passed. All src/ and public/ content remains unchanged. Existing Replit-specific port 5000 and development-preview settings were inspected but were not imported into the canonical local configuration during this narrow repair.
+
+Use the new separately named `quantum-leap-v1.2.0-replit-openssl-fix.zip` and its adjacent checksum/manifest. Earlier ZIP names and checksums below are historical and contain the old Nix override. The package version remains 1.2.0; this is a documented follow-up configuration correction, not a moved/replaced release tag. Replit's automatic deployment install is untested until a future authorized publish. The earlier speculative preview diagnosis below is superseded for the confirmed install failure; no framing/security policy change was needed to remove that failure.
+
+The detailed report and final Replit verification outcome are recorded in `REPLIT_REPAIR_REPORT.md`. That report is a maintainer document, outside the exporter's fixed application-file allowlist.
+
 Gemini, act as our architectural prompt planner. Use this current report instead of older chat assumptions or the superseded historical sync document. Produce a bounded engineering plan after Replit returns evidence; do not redesign the approved website or assume the preview is already fixed.
 
 ## 1. Source of truth and release state

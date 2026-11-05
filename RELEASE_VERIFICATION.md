@@ -1,5 +1,11 @@
 # Quantum Leap release verification
 
+## v1.2.0 OpenSSL deployment configuration repair - November 5, 2026
+
+The user authorized direct repair of Replit, prohibited Agent credit usage, and explicitly selected verification without publishing. Codex removed `replit.nix`'s `LD_LIBRARY_PATH` override through the existing Replit Shell. The platform-managed Node runtime could run with its own libraries, while the legacy override forced an incompatible OpenSSL 3.0.13 and prevented automatic npm installation. The corrected file has empty Nix dependencies and relies on `.replit`'s existing Node module. No application UI, source data, game assets, dependencies, security headers or version metadata were changed by this repair.
+
+The same minimal configuration correction is applied locally. Only the `replit.nix` hash is refreshed in the current deployment baseline; all other 167 frozen entries are preserved. Existing release tags and archives remain historical originals. A separately named `quantum-leap-v1.2.0-replit-openssl-fix.zip` prevents a later import from restoring the defective override. Local typecheck, build, 142 API + 33 scanner regressions, submission checks and all 168 baseline hashes passed. Replit typecheck and production build passed after clearing the inherited library path for the current Shell. A new deployment install/publish was NOT attempted and is not claimed successful.
+
 ## v1.2.0 Replit packaging correction - November 5, 2026
 
 The refreshed `quantum-leap-v1.2.0-replit.zip` narrows the application TypeScript project to `src/`, `next-env.d.ts`, and generated Next.js types. It excludes external Playwright files, tests, maintainer scripts, and local QA without disabling strict checking or adding test-runner dependencies. No runtime source, public asset, dependency, or version changes were made.

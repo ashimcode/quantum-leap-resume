@@ -1,5 +1,7 @@
 # Replit Agent prompt: restore preview and publish the latest Quantum Leap update
 
+> Historical Agent handoff. Superseded by the user's November 5 instruction to fix directly without Agent credits and to verify without publishing. Do not submit this prompt or initiate another publish under the current instruction. Codex removed the actual Nix library-path override directly; see `REPLIT_REPAIR_REPORT.md`. Earlier artifact fingerprints below identify the old package and must not be reused for the repaired import.
+
 Fix this existing Replit workspace and deploy the latest approved Quantum Leap v1.2.0 application. Do not redesign or rebuild the site. Diagnose the current failure with evidence before changing configuration.
 
 ## Current evidence and source of truth
