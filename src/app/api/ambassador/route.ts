@@ -33,7 +33,8 @@ export async function POST(request: Request) {
  const forwarded=process.env.TRUST_PROXY==='true' ? request.headers.get('x-forwarded-for')?.split(',')[0].trim() : undefined;
  const key=createHash('sha256').update(forwarded && isIP(forwarded) ? forwarded : 'shared').digest('hex');
  if(!checkRate(key))return response(REFUSAL,429);
- if(!request.headers.get('content-type')?.includes('application/json'))return response(REFUSAL,415);
+ const contentType = request.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase();
+ if(contentType !== 'application/json')return response(REFUSAL,415);
  let message: string;
  let history: ConversationTurn[];
  try {

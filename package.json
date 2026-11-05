@@ -1,12 +1,14 @@
 {
   "name": "ashim-john-resume",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "private": true,
   "scripts": {
     "dev": "next dev -H 0.0.0.0 -p 3000",
     "build": "next build",
     "start": "next start -H 0.0.0.0 -p 3000",
-    "verify": "ts-node scripts/verify-grounding.ts",
+    "verify": "ts-node scripts/verify-grounding.ts && npm run verify:security",
+    "verify:security": "tsx scripts/verify-security.ts",
+    "verify:browser": "playwright test",
     "verify:submission": "ts-node scripts/verify-submission.ts",
     "verify:baseline": "node scripts/verify-baseline.mjs",
     "release:freeze": "node scripts/freeze-release.mjs",
@@ -25,6 +27,7 @@
     "tailwindcss": "4.3.3"
   },
   "devDependencies": {
+    "@playwright/test": "1.64.1",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",

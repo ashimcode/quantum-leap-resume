@@ -15,7 +15,7 @@ assert.notEqual(old.version,version,'Manifest already records this version; choo
 const files={};
 function add(path){assert(!lstatSync(path).isSymbolicLink(),'Unexpected symlink');const raw=readFileSync(path);const binary=/\.(?:jpg|jpeg|png|webp|mp4|webm|pdf|woff2?)$/i.test(path);files[path]=createHash('sha256').update(binary?raw:Buffer.from(raw.toString('utf8').replace(/\r\n/g,'\n'))).digest('hex');}
 function walk(folder){for(const e of readdirSync(folder,{withFileTypes:true})){const path=`${folder}/${e.name}`;if(e.isDirectory())walk(path);else add(path);}}
-for(const folder of ['src','public','scripts','.github/workflows'])walk(folder);
-for(const path of ['package.json','package-lock.json','next.config.mjs','tsconfig.json','.replit','replit.nix'])add(path);
+for(const folder of ['src','public','scripts','tests','.github/workflows'])walk(folder);
+for(const path of ['package.json','package-lock.json','next.config.mjs','tsconfig.json','playwright.config.ts','.replit','replit.nix'])add(path);
 writeFileSync('RELEASE_BASELINE.json',JSON.stringify({version,textNormalization:'LF for text; binary assets exact',files},null,2)+'\n');
 console.log(`Locked candidate ${version}: ${Object.keys(files).length} files. Verify, review and commit before creating a new annotated tag.`);

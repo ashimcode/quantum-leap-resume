@@ -1,7 +1,6 @@
 import { ArrowDown, ArrowUpRight, Download, ShieldCheck, ScanLine, Layers, Network } from 'lucide-react';
 import { verifiedSources as d } from '@/data/verifiedSources';
 import VirtualAmbassador from '@/components/VirtualAmbassador';
-import UndergroundScrollStage from '@/components/UndergroundScrollStage';
 import RetroNameTerminal from '@/components/RetroNameTerminal';
 import QuantumHeroBackground from '@/components/QuantumHeroBackground';
 import '@/components/QuantumHeroBackground.css';
@@ -12,13 +11,11 @@ function DossierVisual({ index }: { index: number }) {
 }
 
 export default function Home() {
-  return <div className="site soc" id="top" data-engine="v1.1">
-    <link rel="preload" as="image" href="/underground-frames/frame-000.jpg"/>
-    <a className="skip-link" href="#main">Skip to content</a>
-    <UndergroundScrollStage/>
-    <main id="main">
+  return <div className="site soc" id="top" data-engine="surveillance">
+    <a className="skip-link" href="#main" tabIndex={0}>Skip to content</a>
+    <QuantumHeroBackground/>
+    <main id="main" tabIndex={-1}>
       <section className="hero chapter" data-scene aria-labelledby="hero-heading">
-        <QuantumHeroBackground/>
         <div className="hero-coordinate" aria-hidden="true">00.000 / START OF TRANSMISSION <span>✦</span></div>
         <div className="hero-copy"><p className="pill"><span className="status-dot"/> AT YOUR SERVICE // {d.candidate.target}</p><p className="intro-name">{d.candidate.name} / {d.candidate.pronouns} / QUANTUM LEAP</p><h1 id="hero-heading">Security thinking.<br/><em>Practical evidence.</em></h1><p className="hero-description">{d.candidate.summary}</p><p className="micro-label">{d.candidate.affiliation}</p><div className="hero-actions"><a className="button primary" href={d.candidate.links.resume} download>Download Redacted Resume <Download size={14}/></a><a className="button outline" href="#ambassador">Ask the Ambassador <ArrowUpRight size={14}/></a><a className="text-link" href={d.candidate.links.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn profile <ArrowUpRight size={14}/></a><a className="text-link" href={d.candidate.links.github} target="_blank" rel="noopener noreferrer">GitHub <ArrowUpRight size={14}/></a></div></div>
         <div className="hero-grid-strip"><div><span className="eyebrow">THE FOUNDATION</span><p>{d.candidate.education}</p><small>{d.candidate.educationStatus}</small></div><div><span className="eyebrow">THE 60-SECOND SCAN</span><p>Cyber risk study. AI evaluation.<br/>Prototyping & technical operations.</p><a href="#role-match" className="text-link">Follow the evidence <ArrowDown size={14}/></a></div><span className="strip-star" aria-hidden="true">✦</span></div>

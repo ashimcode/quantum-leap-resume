@@ -1,5 +1,15 @@
 # Quantum Leap release verification
 
+## v1.2.3 unified camera study and local security checks
+
+The release branch is `feat/v1.2.3-unified-surveillance-and-security`, based on v1.2.2 at `38a96cd`. One fixed video element and tracking canvas now span the whole document. The visual simulation keeps all four feeds, three modes, cursor inspection, camera controls, and reduced-motion stills. The header camera control can reopen the study from any chapter. Scroll telemetry tracks the chapter and adjusts the camera framing.
+
+- Production build, application typecheck, and separate strict typecheck of security and browser scripts passed.
+- Grounding passed 249 API regressions and all 33 privacy cases. Submission passed 132 HTML/PDF fact checks and 17 entity answers and anchors.
+- All five local security checks passed. Both npm audits reported zero vulnerabilities. The lockfile check validated 150 registry tarballs and six bundled entries covered by their parent tarball. The existing opaque-origin garage bridge is covered by its exact fingerprint and message guards.
+- All 14 browser tests passed across desktop Chromium and iPhone 13 WebKit emulation. They checked four advancing H.264 feeds, camera and canvas identity through the footer, reduced mode redraws, blocked-autoplay recovery, keyboard focus and chat, exact PDF download bytes, and sandboxed garage geometry. BROWSER_TESTING.md describes the emulator and physical-device evidence boundary.
+- Git comparison against v1.2.2 confirmed the canonical data and claim audit, PDF, garage code and assets, scanner code and cases, Replit configuration, application TypeScript scope, and existing media files.
+
 ## v1.2.2 surveillance hero and public GitHub restoration - November 5, 2026
 
 Prepared on feat/v1.2.2-cv-surveillance from clean main at bdc117e. The supplied master brief reused an already-published version number; this feature uses the next patch version so the existing v1.2.1 tag, archive and live deployment remain intact. No Replit Agent, publish, hosting or DNS action occurs in this task.

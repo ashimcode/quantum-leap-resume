@@ -19,3 +19,15 @@ The application does not log or persist prompts, answers, or raw conversation hi
 ## Reporting and contribution safeguards
 
 Report suspected vulnerabilities privately to the owner through the public LinkedIn contact; do not include secrets or exploit personal data in GitHub issues. Test only owned or explicitly authorized environments. Run build, grounding/PDF verification, submission checks, and baseline integrity checks before pushing. Review staged filenames and content. Private repository visibility does not replace sanitization.
+
+## Local release checks
+
+Run `npm run build` followed by `npm run verify:security`. The main `npm run verify` command also runs this suite. Python 3.11 or newer is used to parse the Replit configuration and inspect an actual export. The dependency checks contact the npm registry for audit results.
+
+1. TypeScript syntax trees are checked for dynamic execution, shell execution, direct HTML injection and wildcard messaging. The existing opaque garage iframe's outbound bridge is pinned to its reviewed fingerprint. Its inbound source, origin, session and save slot checks are verified.
+2. Registry tarballs must use the official npm registry and valid SHA-512 integrity. npm's bundled child entries are checked against the declared bundle in the verified parent tarball. The production and full dependency audits both gate the release.
+3. Tracked and new project text is checked for credential patterns and entropy in labelled secret fields. Ignore rules and a temporary exported ZIP inventory are also checked. Two exact synthetic values in the existing privacy test suite are reserved as fixtures.
+4. The canonical Replit Node module, port and deploy commands are checked against the app scripts. The Nix dependencies, TypeScript scope and Next.js security headers are checked as configuration invariants.
+5. A short-lived loopback production server with provider credentials disabled exercises headers and real HTTP API boundaries, including method, media type, JSON schema and size, origin, grounding and rate limits.
+
+These checks are scoped local release evidence. Formal security assurance requires a separate review against the complete applicable standard and deployed infrastructure.
