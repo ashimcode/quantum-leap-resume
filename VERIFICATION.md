@@ -1,33 +1,22 @@
-# v1.2.1 LinkedIn reconciliation verification
+# v1.2.2 verification
 
-## Authority and inventory
+Career authority remains the candidate-supplied canonical LinkedIn specification. The v1.2.1 career dataset is unchanged: six roles, three education entries, five credentials, three projects and five top skills. GitHub is restored in the hero, contact section, approved contact answer and public PDF as a candidate-authorized public link, not career evidence.
 
-The sole factual authority is the candidate-supplied canonical LinkedIn specification. Public section links identify provenance, not independent validation. The page, deterministic ambassador answers and public PDF share verifiedSources.ts.
+## Release gates
 
-| Entity | Required count | Actual count |
-| --- | --- | --- |
-| Roles | 6 | 6 |
-| Education | 3 | 3 |
-| Credentials | 5 | 5 |
-| Projects | 3 | 3 |
-| Top skills | 5 | 5 |
+- `npm run typecheck` and `npm run build` enforce the application-only TypeScript scope.
+- `npm run verify`: 249 API regressions and all 33 unchanged privacy-scanner cases, scanning 196 source/public/client files after build. Added regressions cover GitHub contact routing and refusals for unsupported YOLO/SLAM/GitHub career inferences.
+- `npm run verify:submission`: all 132 canonical facts in rendered HTML and the three-page PDF; 17 entity answers/anchors, unsupported claims, provider routing, simulation disclosure, public GitHub link and LinkedIn-only source URLs.
+- `npm run verify:baseline` checks the explicit new-version source/asset/config manifest.
 
-## Reproducible checks
+## Browser acceptance
 
-- npm run typecheck
-- npm run build (stop the owned preview first)
-- npm run verify: API, unsupported-claim refusals, exact follow-ups, input/history/origin/rate limits, model pre/post checks, PDF and client privacy scanning; all 33 unchanged scanner regressions.
-- npm run verify:submission: current canonical recruiter questions; all rendered entries and source anchors; full public PDF content/metadata; supported entity answers and provider routing.
-- npm run verify:baseline after the explicit 1.2.1 freeze.
+Production Chromium at 1440x900 and 390x844 covers all four feeds, active-feed-only loading, image-gradient sampling, three modes, cursor triangulation/target lock, pause/resume, FX reduction and operating-system motion preference. It verifies paused offscreen playback/rendering, blocked-autoplay still fallback, no page overflow, stable document height, public PDF download, GitHub ambassador answers, 120 decoded underground frames, lazy CLI/game load, monitor expansion/collapse/exit, unchanged CRT document geometry/scroll and zero errors on the normal paths.
 
-The expanded grounding suite currently makes 243 API regression requests. Detailed actual run outcomes, protected-file hashes, PDF page renders and browser results are recorded during the release in RELEASE_VERIFICATION.md and ignored .qa/v121 artifacts.
+Local evidence is retained under ignored `.qa/v122/`: browser.cjs, browser-results.json, camera/target/game screenshots, media.json and protected.json. PDF pages are rendered under `.qa/resume-render/`. All three pages were visually reviewed with no clipping; the career facts stay identical and GitHub appears in public contact.
 
-## Grounding boundaries
+## Integrity boundaries
 
-Listed AWS, IAM, SIEM and Linux skills do not establish separate certifications, proficiency levels or production deployments. Graduate and bachelor's entries do not establish awarded degrees. Project awards do not establish employment. Unsupported salary, availability and private contact requests still return exactly: "I don't have verified information about that."
+The original underground scroll source/frames, retro terminal/game source/assets, privacy scanner source/cases, old tags and all existing ZIPs retain their captured hashes. The public PDF is intentionally rebuilt as authorized. Both ambassador component and API route remain unchanged. The surveillance overlay is explicitly a visual simulation, with authored labels/percentages and approximate zones: it is not actual YOLO inference, SLAM reconstruction, PII redaction or a security audit. A 60 fps render target is not a device-independent guarantee.
 
-Career facts no longer come from the old resume, cover letter or repository. Historical Handshake documents outside this task's allowed edits are preserved artifacts and are not authority for the reconciled site. CarMechanicOS is a fictional interactive easter egg, not a listed career project.
-
-## Privacy and deployment
-
-Only the canonical grades and public professional location are published; no personal email, phone or street address is imported. PDF metadata contains only public document identity. The corrected OpenSSL configuration and application-only TypeScript scope from main remain intact. No Replit Agent, publish, hosting or DNS action is part of this content reconciliation.
+No Replit Agent, publish, DNS or hosting action is performed for this feature upgrade. The existing v1.2.1 deployment remains the live version until a separately authorized update.

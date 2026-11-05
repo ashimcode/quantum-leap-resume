@@ -13,7 +13,8 @@ export const verifiedSources = {
     "location": "Albany, New York Metropolitan Area",
     "links": {
       "linkedin": "https://www.linkedin.com/in/johnashim/",
-      "resume": "/resume-public.pdf"
+      "resume": "/resume-public.pdf",
+      "github": "https://github.com/ashimcode"
     },
     "skills": [
       "Security Information and Event Management (SIEM)",
@@ -753,8 +754,8 @@ export const verifiedSources = {
     },
     {
       "id": "contact",
-      "text": "Connect with Ashim through his LinkedIn profile or download the redacted public resume.",
-      "detail": "The contact section links to https://www.linkedin.com/in/johnashim/ and the public resume. Private phone numbers, street addresses, and personal email addresses are not supplied.",
+      "text": "Connect with Ashim through his LinkedIn profile, visit his public GitHub at https://github.com/ashimcode, or download the redacted public resume.",
+      "detail": "The contact section links to https://www.linkedin.com/in/johnashim/, https://github.com/ashimcode, and the public resume. GitHub is a candidate-authorized public link, not career evidence. Only the canonical LinkedIn specification supports career claims. Private phone numbers, street addresses, and personal email addresses are not supplied.",
       "links": [
         {
           "label": "View public contact",

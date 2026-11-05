@@ -1,47 +1,43 @@
-# Codex -> Gemini: v1.2.1 LinkedIn-only reconciliation
+# Codex -> Gemini: v1.2.2 surveillance hero and GitHub restoration
 
-## Deployment confirmed - November 5, 2026
+You are the architectural prompt planner. Continue from the implemented state below; do not recreate the LinkedIn reconciliation or modify protected animation/game/privacy components.
 
-The user explicitly authorized publishing the next version. Codex manually deployed v1.2.1 to https://quantum-leap-interactive.replit.app/ without Replit Agent actions. The live headline and exact 3-project/6-role/3-education/5-credential inventory were verified, with all 120 scroll frames decoded. The live PDF byte hash matches the approved release; Project Hedgehog receives the exact approved ambassador answer and removed Home SOC claims receive the canonical refusal. The live game asset also matches approved bytes. Replit's build, 243 API + 33 scanner cases and 132 HTML/PDF fact checks passed before publishing; GitHub's source-branch verification passed too.
+## Version decision
 
-The scoped transfer retained Replit's existing port-5000 package scripts, .replit workflows and preview-only next.config.mjs settings. All other 165 frozen files match the canonical release. The three platform overlays are explicitly recorded with canonical/deployed hashes in Replit's ignored .qa/deploy-v121-20261105-074409/deployment-overlay.json; the canonical release baseline was not rewritten to hide them. The source was promoted to main and the release is recorded under the new v1.2.1 tag. Historical tags and archives remain intact. This confirmed deployment supersedes the preparation-only status below.
+Your Master v1.2.1 brief arrived after v1.2.1 had already been reconciled, tagged and published. Codex preserved that release and implemented the new hero and restored GitHub as v1.2.2 on feat/v1.2.2-cv-surveillance, based on clean main at bdc117e. No historical tag or ZIP is overwritten. The live Replit site remains v1.2.1; this task prepares local source and a new deployment ZIP only.
 
-## Current authority
+## Career authority
 
-The candidate-supplied canonical LinkedIn specification in the v1.2.1 task is now the sole authority for career, education, projects, certifications and skills. The former resume, cover letter, repository facts, honors and candidate date confirmations are retired as current evidence. This is a supplied canonical specification, not a claimed independent LinkedIn scrape.
+The canonical candidate-supplied LinkedIn dataset is unchanged: six roles, three education entries, five certifications, three projects and five top skills. This is supplied self-reported profile content, not an independent scrape. No extra roles, labs, honors, credentials, degrees or implementation experience are inferred. The user explicitly restored https://github.com/ashimcode as a public contact/navigation link. It appears in hero/contact, approved ambassador contact answers and the regenerated three-page redacted PDF. It does not become career evidence.
 
-Workspace: C:\Users\admin\Desktop\QuantumLeap V1\preview-site. Private repository: https://github.com/ashimcode/quantum-leap-resume. Branch: feat/v1.2.1-linkedin-reconciliation, created from clean main at 2a602e9. Main and historical v1.1.0/v1.1.1/v1.2.0 tags remain rollback references.
+## New implementation
 
-## Content now implemented
+- src/components/QuantumHeroBackground.tsx: hero-local client component; random camera on mount; cycle feeds; HYBRID_CV/YOLO_BOXES/SLAM_KEYPOINTS mode controls; accessible pause/resume.
+- src/components/QuantumHeroBackground.css: isolated background, high-contrast grading, scanlines/vignette and responsive controls. A mobile pointer interception issue was caught and fixed by separating the background's pointer behavior from the controls' stacking layer.
+- src/app/page.tsx: mounts the component and restores GitHub links. Existing resume sections and CRT footer remain.
+- public/surveillance/: four silent H.264 1280x720/30fps faststart feeds plus JPEG posters. Source filenames from the supplied Downloads folder: 16477662_1920_1080_25fps.mp4 (control room), 16894645_3840_2160_50fps.mp4 (night pedestrians), 15179427_3840_2160_60fps.mp4 (fisheye transit), 15389059_3840_2160_30fps.mp4 (spherical traffic). Audio/data streams and source metadata are stripped. The videos total 7,007,648 bytes; only the active feed loads. No new runtime dependencies were added.
+- Small offscreen luminance/motion sampling guides smoothly interpolated authored zones and high-gradient keypoints. A high-DPI canvas targets 60fps without per-frame React state. Pointer reticle projects to nearby targets and exposes simulation telemetry.
+- The hero observes the existing site's data-motion attribute; the protected scroll engine is untouched. OS reduced motion takes precedence, reduced mode fetches only a still, OFF pauses this hero, offscreen/hidden pages pause video and rendering, and unavailable/blocked autoplay falls back to a still.
+- Every camera/percentage label is explicitly a SIM visual study. No actual YOLO model, SLAM reconstruction, face identification, PII redaction, anomaly scoring or security audit is running. Requested misleading ENFORCED/PASS telemetry is represented as DEMO/NOT RUN. Never promote these decorative effects into verified career claims.
 
-- Name/pronouns: Ashim John (He/Him).
-- Headline: M.S Cybersecurity Risk & Management Compliance Student.
-- Affiliation: University at Albany | ASIS&T.
-- Location: Albany, New York Metropolitan Area.
-- About: Translating technical vulnerabilities into actionable business strategies and ethical AI deployment.
-- Five top skills: Security Information and Event Management (SIEM); Identity and Access Management (IAM); Threat Modeling & Frameworks; Linux; Amazon Web Services (AWS).
-- Six roles: Graduate Secretary (ASIS&T), AI Training Evaluator (Handshake AI), Attractions Attendant (Apex Entertainment), CEHC Work-Study, Makerspace Intern, and Drones Lab and Robotics Intern (University at Albany). All supplied role bullets, types, dates, locations, skills and the Grad Danes artifact are included.
-- Three education entries: UAlbany M.S. Cyber Risk Management & Compliance (Aug 2026 - May 2028, In-Progress); UAlbany B.S. Cybersecurity (Defense) (2023 - 2027, grade 3.4); Chelsea Career And Technical Education High School diploma/C-Tech (Sep 2019 - Jun 2023, grade 3.2). Grades are explicitly authorized public content; degree completion is not inferred.
-- Five exact credentials: Wireless Technician; Grounding and Bonding Technician; Network Cabling Specialist Copper Systems; Telecommunications Technologies (C-Tech Associates Inc., Jun 2023); sUAS Trust Certificate (FAA, Aug 2026). No additional certification is inferred from a skill.
-- Three projects, in order: Project Hedgehog; College Access AI Development Project: HIA AI; AI and VR Forecasting Challenge: Goldman Sachs. All supplied dates, associations, descriptions and skills are included. Goldman creativity awards are both 1st Place and 2nd Place, with no employment inference.
-- Previous SOC/infrastructure/Quantum Leap career-project cards, extra employers, standalone honors, extra credentials and unsupported duties are removed. The fictional CarMechanicOS easter egg remains a site feature, not a career project.
+## Architecture and protected boundaries
 
-## Implementation and verification
+preview-site remains the active Next.js application; no resume-site or game repository relocation is involved. QuantumHeroBackground is a separate hero layer; UndergroundScrollStage still owns the persistent 120-frame experience. RetroNameTerminal and its lazy opaque-origin CarMechanicOS sandbox remain intact. Both ambassador component/API are unchanged; only approved contact data/routing has a GitHub addition. All 33 privacy scanner cases and both protected scanner files remain unchanged.
 
-verifiedSources.ts drives the page, 28 approved answer topics and the rebuilt three-page public PDF. Source links point only to LinkedIn profile/experience/education/certifications/projects sections. Metadata follows the new headline and about text. No private phone, street address or personal email is published.
+The exporter already recursively includes public files; it now also fails closed if any of the four camera feeds/posters is missing and enforces a small media budget. Release freezing still hashes all src/public/scripts/config files and refuses existing tags or same-version baselines. The regenerated PDF, audit and current verification records share the canonical data.
 
-Passed: typecheck; production build; 243 API regressions; all 33 unchanged scanner regressions; 132 fact checks in rendered HTML and PDF; all 17 canonical entity answers and actual deep-links; submission/provider routing checks. Public PDF pages were rendered and visually inspected. At 1440x900 and 390x844, browser checks passed entity counts, no horizontal overflow, 120 decoded scroll frames, lazy game fetching, CLI/game expand-collapse-exit, stable CRT document geometry/scroll and zero uncaught errors.
+## Acceptance evidence
 
-CLAIM_AUDIT.md is regenerated with 223 field-to-source rows. VERIFICATION.md is regenerated with inventory and reproducible checks. RELEASE_VERIFICATION.md records current evidence. Historical Handshake documents outside the allowed edit scope are preserved but are not current factual authority.
+Typecheck, production build, 249 API regressions, 33 unchanged scanner regressions and 132 HTML/PDF canonical fact checks pass. New refusal tests prevent YOLO/SLAM/GitHub from implying unsupported career claims. All 17 canonical entity answers/anchors and public links pass submission checks. Three PDF pages were rendered and visually reviewed.
 
-The content preparation set package/lock version 1.2.1, explicitly froze a new RELEASE_BASELINE.json, verified the baseline and exported ../quantum-leap-v1.2.1-replit.zip with checksum/manifest. The subsequent publishing request authorized deployment and promotion to main. The deployment confirmation above records that completed follow-up; no old tag was rewritten.
+Production Chrome QA at 1440x900 and 390x844 covers four-feed cycling/playback, gradient sampling, modes, target lock, lazy loading, OFF/reduced behavior, OS preference precedence, offscreen pause, blocked-autoplay fallback, no horizontal overflow, GitHub ambassador answers, PDF download, 120 decoded scroll frames, lazy CRT game, expansion/collapse/exit and scroll/document-height invariance. Normal paths have zero browser errors. Screenshots and reproducible local QA scripts are retained in ignored .qa/v122. The FPS target is not a universal performance guarantee.
 
-## Protected features and deployment status
+The underground/CRT/game/scanner sources/assets, historical tags and existing ZIP archives retain their original fingerprints. The authorized PDF contact update is the only change to an existing public asset; the surveillance assets are new.
 
-The existing scroll engine, all 120 frames, CRT terminal/game components/assets, all 33 scanner cases, old tags and historical ZIPs are protected by pre-change fingerprints. The OpenSSL repair and scoped TypeScript config from main remain intact. No visual stylesheet or protected component changes are made.
+## Hosting and next prompts
 
-The public website now serves verified v1.2.1 at https://quantum-leap-interactive.replit.app/. Replit Agent credit usage remains prohibited without explicit authorization. Existing Replit-specific workflow/port settings need separate care before any future deployment import; a full canonical ZIP is not permission to overwrite live platform configuration blindly.
+Local source and private GitHub remain authoritative. Replit currently serves v1.2.1 at https://quantum-leap-interactive.replit.app/. The new quantum-leap-v1.2.2-replit.zip is a root-level application package with adjacent checksum/manifest. It has not been uploaded or published by this task, and no Replit Agent credits were used.
 
-## Requested Gemini response
+For a subsequent deployment prompt, preserve Replit's existing port-5000 scripts/workflows and preview-only configuration overlays rather than blindly overwriting them with canonical port-3000 settings. Preserve the fixed platform-managed Node/empty replit.nix configuration; do not reintroduce LD_LIBRARY_PATH/OpenSSL overrides. Run production build, grounding/submission checks and a source-hash comparison before a separately authorized manual publish. Keep the current live release as rollback.
 
-Review this LinkedIn-only release scope and propose only bounded follow-up work. Preserve the approved design and grounded-answer boundary. Distinguish public skill listings from certified expertise or implementation history; distinguish in-progress study from awarded degrees. Do not reintroduce retired facts from earlier chats, ask to rebuild the site, use Replit Agent, or assume authority to publish. Any later deployment, permanent-host/domain decision or new feature requires its own explicit task.
+Potential next engineering prompts: a focused visual review of feed framing/contrast, a device-specific performance budget, or production-host/custom-domain selection. Actual object recognition would be a separate explicitly scoped feature with model size, accuracy, privacy, compute and attribution decisions; do not describe this visual simulation as already implementing it. No permanent host, DNS change, new claims or deployment is authorized by this sync packet.

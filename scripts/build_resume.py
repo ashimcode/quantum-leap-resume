@@ -35,7 +35,7 @@ for e in D['experience']:
 story.extend([PageBreak(),p('PROJECTS','HeadX')])
 for project in D['projects']:
     story.append(KeepTogether([p(project['title'],'TitleX'),p(project['dates']+' | Associated with '+project['association'],'SmallX'),p(project['contribution']),p('Skills: '+', '.join(project['tools']),'SmallX'),Spacer(1,10)]))
-story.extend([p('SOURCE & PUBLIC CONTACT','HeadX'),p('Career, education, project, certification, and skill facts follow the candidate-supplied canonical LinkedIn specification. Entries are self-reported, not independently certified.'),p(C['links']['linkedin'])])
+story.extend([p('SOURCE & PUBLIC CONTACT','HeadX'),p('Career, education, project, certification, and skill facts follow the candidate-supplied canonical LinkedIn specification. Entries are self-reported, not independently certified.'),p(C['links']['linkedin']),Paragraph('<link href="'+C['links']['github']+'">github.com/ashimcode</link>',styles['SmallX']),p('GitHub is a candidate-authorized public link, not a source for career claims.','SmallX')])
 def footer(canvas,doc):
     canvas.setStrokeColor(colors.HexColor('#d9ded6')); canvas.line(40,38,572,38)
     canvas.setFont('Helvetica',8); canvas.setFillColor(colors.HexColor('#56645c'))
@@ -45,7 +45,7 @@ from pypdf import PdfReader
 reader=PdfReader('public/resume-public.pdf')
 assert len(reader.pages)==3, f'Expected 3 complete pages, got {len(reader.pages)}'
 import pypdfium2 as pdfium
-out=Path('.qa/v121'); out.mkdir(parents=True,exist_ok=True)
+out=Path('.qa/resume-render'); out.mkdir(parents=True,exist_ok=True)
 for i,page in enumerate(pdfium.PdfDocument('public/resume-public.pdf')):
     page.render(scale=1.4).to_pil().save(out/f'resume-{i+1}.png')
 print(f'Generated and rendered {len(reader.pages)} LinkedIn-only resume pages.')

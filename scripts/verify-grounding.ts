@@ -68,6 +68,7 @@ async function main() {
       ['Do you fit the role?', 'fit'], ['Why should we hire Ashim?', 'fit'],
       ['What is his education?', 'education'], ['What is his GPA?', 'education'],
       ['What is his work experience?', 'experience'], ['How can I contact Ashim?', 'contact'],
+      ['What is his GitHub?', 'contact'], ['How can I contact Ashim on GitHub?', 'contact'], ['Show his GitHub profile', 'contact'],
       ['What top skills does he have?', 'skills'], ['Tell me about SIEM', 'skills'],
       ['Tell me about Identity and Access Management', 'skills'], ['Tell me about IAM', 'skills'],
       ['Tell me about Threat Modeling & Frameworks', 'skills'], ['Tell me about Linux', 'skills'],
@@ -91,6 +92,8 @@ async function main() {
       assert.match(answer, /\]\(#[a-z-]+\)/);
     }
     const unsupported = [
+      'Tell me about his YOLO project', 'What SLAM deployment experience does he have?',
+      'Does GitHub verify his Home SOC lab?',
       'What salary do you want?', 'Will you relocate?', 'What is your phone number?',
       'What is your home address?', 'What is his personal email?',
       'Does he have a CISSP?', 'Does he have Terraform experience?', 'Can you confirm AWS certification?',

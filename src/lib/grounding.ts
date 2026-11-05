@@ -63,7 +63,7 @@ function scoreIntent(text: string): AnswerId | null {
   if (/\b(?:lead|leads|led|leading|leadership|initiative\w*|ownership|owning|owned)\b/.test(text)) return 'leadership';
   if (/\b(?:measur\w*|impact\w*|outcomes?|results?|change\w*|deliver\w*|achiev\w*|accomplish\w*|difference)\b/.test(text)) return 'impact';
   if (/\b(?:skills?|tools?|abilities|ability|siem|iam|identity and access management|security information and event management|threat|linux|aws|amazon|cloud)\b/.test(text)) return 'skills';
-  if (/\b(?:contact|linkedin|connect|download|resume|portfolio)\b/.test(text)) return 'contact';
+  if (/\b(?:contact|linkedin|github|connect|download|resume|portfolio)\b/.test(text)) return 'contact';
   if (/\bprojects?\b/.test(text)) return 'projects';
   if (/\b(?:experience|employ\w*|work|worked|working|jobs?|career|operations|responsibilit\w*|roles?)\b/.test(text)) return 'experience';
   return null;

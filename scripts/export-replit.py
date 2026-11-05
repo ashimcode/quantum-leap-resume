@@ -28,6 +28,16 @@ files.extend((ROOT / '.github' / 'workflows').glob('*.yml'))
 files = sorted(set(files), key=lambda p: p.relative_to(ROOT).as_posix())
 required = {'.replit', 'package.json', 'package-lock.json', 'src/app/page.tsx',
             'src/app/api/ambassador/route.ts', 'public/resume-public.pdf'}
+# Public assets are recursively allowlisted above. Fail closed if a camera or its
+# reduced-motion poster is missing, rather than exporting a partially working hero.
+surveillance = (
+    'cam-01-soc-wall', 'cam-02-night-pedestrians',
+    'cam-03-fisheye-transit', 'cam-04-spherical-grid',
+)
+required.update(f'public/surveillance/{name}.{ext}'
+                for name in surveillance for ext in ('mp4', 'jpg'))
+assert sum((ROOT / f'public/surveillance/{name}.mp4').stat().st_size
+           for name in surveillance) < 12 * 1024 * 1024, 'Camera payload exceeds release budget'
 assert all(p.is_file() and not p.is_symlink() for p in files), 'Missing file or unexpected symlink'
 paths = {p.relative_to(ROOT).as_posix() for p in files}
 assert required <= paths

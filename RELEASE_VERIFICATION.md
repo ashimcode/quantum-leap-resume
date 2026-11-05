@@ -1,5 +1,24 @@
 # Quantum Leap release verification
 
+## v1.2.2 surveillance hero and public GitHub restoration - November 5, 2026
+
+Prepared on feat/v1.2.2-cv-surveillance from clean main at bdc117e. The supplied master brief reused an already-published version number; this feature uses the next patch version so the existing v1.2.1 tag, archive and live deployment remain intact. No Replit Agent, publish, hosting or DNS action occurs in this task.
+
+Passed before freeze:
+
+- Application typecheck and production build.
+- 249 API regressions + all 33 unchanged privacy-scanner regressions; 196 source/public/client files scanned, including all new media and compiled browser bundles.
+- Submission: 132 canonical facts in rendered HTML and the three-page public PDF; all 17 entity answers/anchors, provider mocks and refusals. Public GitHub links, LinkedIn-only career sources and simulation disclosure are checked explicitly.
+- The v1.2.1 career dataset and all approved non-contact answers match byte-equivalent parsed data. The authorized contact link is restored in hero/contact, approved contact answers and the PDF. All three rebuilt PDF pages were visually reviewed without clipping.
+- Four silent, metadata-stripped H.264 1280x720/30fps faststart clips plus reduced-motion JPEGs. Videos total 7,007,648 bytes; only the active feed video loads.
+- Production Chrome at 1440x900 and 390x844: all four feeds play, three modes, gradient sampling, cursor vectors/lock, OFF/reduced/OS-preference behavior, blocked-autoplay poster fallback and offscreen pause. Short HUD-rate smoke samples measured about 61 and 60 frames/sec respectively; these are local samples, not a sustained or universal performance guarantee.
+- Exact 3-project/6-role/3-education/5-credential inventory, 120 decoded underground frames, no idle game request, working GitHub ambassador answer, valid PDF response, and no normal-path console/page errors.
+- CRT game launch/expand/collapse/exit preserved document height and scroll position at both viewports. Protected animation/CRT/game/scanner files and historical tags/ZIP archives retain their pre-change hashes. The authorized PDF is intentionally rebuilt.
+
+The hero is explicitly a visual simulation. Image gradients/motion guide authored zones and keypoints; labels/confidence are illustrative. No YOLO recognition, SLAM reconstruction, identity inference, PII redaction or security audit is claimed. Target telemetry uses DEMO/NOT RUN. The original scroll engine and CRT game remain unchanged.
+
+Reproducible browser scripts/results, screenshots and protected/media fingerprints remain in ignored .qa/v122; PDF renders are in .qa/resume-render. README.md, VERIFICATION.md, CLAIM_AUDIT.md and GEMINI_SYNC.md describe the current source/feature boundaries. The new-version freeze and root-level Replit export follow these checks; no historical package is replaced.
+
 ## v1.2.1 production deployment confirmed - November 5, 2026
 
 Under the user's explicit publishing request, Codex manually deployed the LinkedIn-only release to https://quantum-leap-interactive.replit.app/. No Replit Agent task or AI prompt was used. Replit's production build, 243 API + 33 scanner regressions and 132 HTML/PDF fact checks passed. Live checks confirmed the new headline, 3 projects, 6 roles, 3 education entries, 5 credentials, all 120 decoded frames, exact approved PDF bytes, the approved Project Hedgehog answer, canonical refusal for a removed Home SOC claim, and unchanged game asset bytes. Evidence is saved in ignored .qa/v121/live-verification.json and live/publishing screenshots.

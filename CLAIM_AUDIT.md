@@ -1,10 +1,10 @@
 # LinkedIn-only public claim audit
 
-Reconciliation: v1.2.1, November 5, 2026.
+Reconciliation: v1.2.1; public-link restoration in v1.2.2, November 5, 2026.
 
 ## Sole factual authority
 
-The candidate supplied the canonical LinkedIn specification in the v1.2.1 instruction. It is the only authority for career, education, projects, certifications and skills. Public URLs identify LinkedIn sections; this pass does not claim independently scraped or independently certified profile facts. All public factual copy, approved answers and the generated public PDF derive from src/data/verifiedSources.ts. Generic navigation, decorative visuals and the fictional CRT game are not career claims.
+The candidate supplied the canonical LinkedIn specification in the v1.2.1 instruction. It is the only authority for career, education, projects, certifications and skills. Public URLs identify LinkedIn sections; this pass does not claim independently scraped or independently certified profile facts. All public factual copy, approved answers and the generated public PDF derive from src/data/verifiedSources.ts. GitHub is restored by the candidate as a public contact link, not as career authority. Generic navigation, the surveillance visual simulation and the fictional CRT game are not career claims.
 
 ## Exact inventory and changes
 
@@ -34,6 +34,7 @@ The candidate supplied the canonical LinkedIn specification in the v1.2.1 instru
 | Albany, New York Metropolitan Area | `verifiedSources.candidate.location` | linkedin-profile / linkedin-education |
 | https://www.linkedin.com/in/johnashim/ | `verifiedSources.candidate.links.linkedin` | linkedin-profile / linkedin-education |
 | /resume-public.pdf | `verifiedSources.candidate.links.resume` | linkedin-profile / linkedin-education |
+| https://github.com/ashimcode | `verifiedSources.candidate.links.github` | Canonical LinkedIn facts; candidate-authorized GitHub contact link |
 | Security Information and Event Management (SIEM) | `verifiedSources.candidate.skills.0` | linkedin-profile / linkedin-education |
 | Identity and Access Management (IAM) | `verifiedSources.candidate.skills.1` | linkedin-profile / linkedin-education |
 | Threat Modeling & Frameworks | `verifiedSources.candidate.skills.2` | linkedin-profile / linkedin-education |
@@ -240,8 +241,8 @@ The candidate supplied the canonical LinkedIn specification in the v1.2.1 instru
 | University at Albany — Master of Science, Cyber Risk Management & Compliance; Aug 2026 – May 2028; grade: In-Progress. Graduate component of the university's combined 4+1 B.S./M.S. program. University at Albany — Bachelor of Science - BS, Cybersecurity (Defense); 2023 – 2027; grade: 3.4. Currently pursuing a Bachelor of Science in Cybersecurity (Defensive) as part of the combined 4+1 B.S./M.S. program. Chelsea Career And Technical Education High School — High School Diploma, C-Tech; Sep 2019 – Jun 2023; grade: 3.2. Completed hands-on C-Tech training in telecommunications. | `verifiedSources.answers.23.detail` | Canonical LinkedIn specification; linked page entry |
 | The five LinkedIn credentials are Wireless Technician; Grounding and Bonding Technician; Network Cabling Specialist Copper Systems; Telecommunications Technologies; sUAS Trust Certificate. | `verifiedSources.answers.24.text` | Canonical LinkedIn specification; linked page entry |
 | Wireless Technician — C-Tech Associates Inc.; issued Jun 2023. Grounding and Bonding Technician — C-Tech Associates Inc.; issued Jun 2023. Network Cabling Specialist Copper Systems — C-Tech Associates Inc.; issued Jun 2023. Telecommunications Technologies — C-Tech Associates Inc.; issued Jun 2023. sUAS Trust Certificate — Federal Aviation Administration; issued Aug 2026. | `verifiedSources.answers.24.detail` | Canonical LinkedIn specification; linked page entry |
-| Connect with Ashim through his LinkedIn profile or download the redacted public resume. | `verifiedSources.answers.25.text` | Canonical LinkedIn specification; linked page entry |
-| The contact section links to https://www.linkedin.com/in/johnashim/ and the public resume. Private phone numbers, street addresses, and personal email addresses are not supplied. | `verifiedSources.answers.25.detail` | Canonical LinkedIn specification; linked page entry |
+| Connect with Ashim through his LinkedIn profile, visit his public GitHub at https://github.com/ashimcode, or download the redacted public resume. | `verifiedSources.answers.25.text` | Canonical LinkedIn facts; candidate-authorized GitHub contact link |
+| The contact section links to https://www.linkedin.com/in/johnashim/, https://github.com/ashimcode, and the public resume. GitHub is a candidate-authorized public link, not career evidence. Only the canonical LinkedIn specification supports career claims. Private phone numbers, street addresses, and personal email addresses are not supplied. | `verifiedSources.answers.25.detail` | Canonical LinkedIn facts; candidate-authorized GitHub contact link |
 | I answer only from the canonical LinkedIn specification. If it does not support a detail, I cannot verify it. Ask about Profile Alignment, Projects, Work Experience, Leadership, Top Skills, Education, or Certifications. | `verifiedSources.answers.26.text` | Canonical LinkedIn specification; linked page entry |
 | Choose a listed role, project, education entry, certification, or top skill. I can expand an approved answer, but cannot infer new credentials, employment, metrics, completed degrees, or implementation experience. | `verifiedSources.answers.26.detail` | Canonical LinkedIn specification; linked page entry |
 | Ashim John (He/Him) — M.S Cybersecurity Risk & Management Compliance Student. University at Albany  /  ASIS&T. Location: Albany, New York Metropolitan Area. | `verifiedSources.answers.27.text` | Canonical LinkedIn specification; linked page entry |

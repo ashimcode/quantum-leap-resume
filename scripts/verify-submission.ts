@@ -26,6 +26,11 @@ async function main() {
     assert(visible.includes(normalize(fact)),`Missing rendered LinkedIn fact: ${fact}`);
     assert(pdf.includes(normalize(fact)),`Missing PDF LinkedIn fact: ${fact}`);
   }
+  assert(visible.includes('VISUAL SIMULATION / CAMERA STUDY'), 'Missing simulation disclosure');
+  assert(html.includes(`href="${data.candidate.links.github}"`), 'Missing authorized public GitHub link');
+  assert.equal(data.candidate.links.github, 'https://github.com/ashimcode');
+  assert(pdf.includes('github.com/ashimcode'), 'Missing authorized GitHub link in public PDF');
+  assert(data.sources.every(source => source.url.startsWith('https://www.linkedin.com/in/johnashim/')), 'Career authority must remain LinkedIn-only');
   for(const retired of ['Home SOC','Elastic SIEM Lab','Sysmon','Splunk','Urban Air','Walgreens','Jacob A. Riis','Spellman','Dean’s List','Coaxial Cabling','Ethernet','National Technical Honors Society']) {
     assert(!visible.includes(normalize(retired)),`Retired claim in page: ${retired}`);
     assert(!pdf.includes(normalize(retired)),`Retired claim in PDF: ${retired}`);

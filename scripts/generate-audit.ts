@@ -4,7 +4,8 @@ import { verifiedSources as d } from '../src/data/verifiedSources';
 const rows: string[] = [];
 function walk(value: unknown, path: string, source: string) {
   if (typeof value === 'string' && value && !/\.(id|answerId|anchor|source|link|url|number|label|category)$/.test(path)) {
-    rows.push(`| ${value.replaceAll('|', ' / ').replaceAll('\n', ' ')} | \`${path}\` | ${source} |`);
+    const authority = /candidate\.links\.github$/.test(path) || (/answers\./.test(path) && /GitHub/.test(value)) ? 'Canonical LinkedIn facts; candidate-authorized GitHub contact link' : source;
+    rows.push(`| ${value.replaceAll('|', ' / ').replaceAll('\n', ' ')} | \`${path}\` | ${authority} |`);
   } else if (Array.isArray(value)) value.forEach((item,i)=>walk(item,`${path}.${i}`,source));
   else if (value && typeof value === 'object') for (const [key,item] of Object.entries(value)) walk(item,`${path}.${key}`,source);
 }
@@ -14,11 +15,11 @@ for (const group of ['experience','education','certifications','projects','capab
 d.answers.forEach((item,i)=>walk({text:item.text,detail:item.detail},`verifiedSources.answers.${i}`,'Canonical LinkedIn specification; linked page entry'));
 writeFileSync('CLAIM_AUDIT.md',`# LinkedIn-only public claim audit
 
-Reconciliation: v1.2.1, November 5, 2026.
+Reconciliation: v1.2.1; public-link restoration in v1.2.2, November 5, 2026.
 
 ## Sole factual authority
 
-The candidate supplied the canonical LinkedIn specification in the v1.2.1 instruction. It is the only authority for career, education, projects, certifications and skills. Public URLs identify LinkedIn sections; this pass does not claim independently scraped or independently certified profile facts. All public factual copy, approved answers and the generated public PDF derive from src/data/verifiedSources.ts. Generic navigation, decorative visuals and the fictional CRT game are not career claims.
+The candidate supplied the canonical LinkedIn specification in the v1.2.1 instruction. It is the only authority for career, education, projects, certifications and skills. Public URLs identify LinkedIn sections; this pass does not claim independently scraped or independently certified profile facts. All public factual copy, approved answers and the generated public PDF derive from src/data/verifiedSources.ts. GitHub is restored by the candidate as a public contact link, not as career authority. Generic navigation, the surveillance visual simulation and the fictional CRT game are not career claims.
 
 ## Exact inventory and changes
 
