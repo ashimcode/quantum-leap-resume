@@ -1,5 +1,15 @@
 # Codex -> Gemini: Quantum Leap architecture sync prompt
 
+## v1.2.0 feature update (supersedes the historical game status below)
+
+The user authorized reintegration on feat/v1.2.0-carmechanicos, created from clean main at v1.1.1 (81da231). The active RetroNameTerminal now conditionally loads a virtual filesystem CLI and a sandboxed local CarMechanicOS game. No scroll-engine, canonical-data, ambassador component/API, or PDF changes were made. Old tags and ZIPs are protected.
+
+All feature gates passed in order: typecheck; production build; 142 API + 33 scanner regressions (186 files scanned); submission checks; desktop/mobile Playwright comparison against a separately built v1.1.1 control. Native modal expansion originally collapsed page flow; a reserved monitor footprint corrected that before acceptance. Idle geometry, scroll position, frame lifecycle, lazy fetching, save/relaunch, reset isolation, and CLI focus restoration were verified at 1440x900 and 390x844. Sandbox tests confirmed parent-document and direct storage access are blocked. Game achievements are fictional, not new resume claims.
+
+Save key: ql_carmechanicos_save_v1. Game assets are about 1.2 MB, fetched only after launch; the iframe is opaque origin, has no network access, and communicates with a source/session-checked parent bridge. Closing it destroys game timers/rAF context. EXPAND/COLLAPSE preserves iframe identity. The name signal, pause and tune remain the initial state. Source: quarantined game assets reviewed alongside carmechanicos-public 3af75da; local Chart.js license retained.
+
+The local v1.2.0 package/manifest freeze passed all 168 hashes. Changes are saved in a local feature-branch commit so main remains a clean v1.1.1 rollback point. The current task does not authorize a merge, new Git tag, push, hosting deployment, domain change, or overwrite of earlier upload archives. The required npm version command also updates package-lock version metadata to keep the lockfile consistent. Read README for controls and .qa/v12-acceptance.json for measured local evidence. Original integration/history folders stay where they were.
+
 > Historical handoff snapshot from before Phase 1. The user subsequently authorized the v1.1.1 scanner/release sequence: three adversarial cases were added (33 scanner cases total), and the maintenance release is prepared on sync/replit-reconciliation before merge to main. Use the current package version, release manifest, tags, and CI as the final release authority; statements below about pending verifier drift describe the earlier audit, not the new frozen release.
 
 Gemini, act as the architectural prompt planner for the next Quantum Leap engineering work. Treat this as an audited state report, not an instruction to rebuild the approved site. Distinguish verified observations, reported Replit findings, historical documents, and future plans. Produce bounded implementation prompts with explicit prerequisites, file scope, acceptance checks, and rollback steps.

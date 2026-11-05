@@ -1,0 +1,26 @@
+.aj-monitor-shell{display:block;position:relative;inset:auto;margin:0;padding:0;width:100%;max-width:none;max-height:none;border:0;background:transparent;color:inherit;overflow:visible}
+.aj-monitor-shell:modal{position:fixed;inset:0;margin:auto;width:min(96vw,1700px);max-height:96dvh;overflow:auto;padding:8px;background:#101610;border-radius:22px}
+.aj-monitor-shell::backdrop{background:#020603ed}
+.aj-monitor-shell:modal .name-terminal{transform:none!important;margin:0}
+.aj-monitor-shell:modal .terminal-screen{height:min(78dvh,950px);aspect-ratio:auto}
+.aj-monitor-shell .aj-screen-activate{position:absolute;inset:0;width:100%;height:100%;border:0;background:transparent;cursor:text;z-index:2}
+.aj-monitor-shell .aj-screen-activate:focus-visible{outline:3px solid #d4ff33;outline-offset:-7px}
+.aj-monitor-shell .terminal-controls .aj-bezel-action{border-radius:5px;min-height:32px;height:auto;width:52px;padding:5px 2px;font-size:8px;line-height:1.4;letter-spacing:0}
+.name-terminal[data-mode=cli],.name-terminal[data-mode=game]{transform:none!important}
+.name-terminal[data-mode=cli] .terminal-screen,.name-terminal[data-mode=game] .terminal-screen{filter:none}
+.aj-cli,.aj-game-host{position:absolute;inset:0;z-index:3;background:#080e09;color:#c7f798;font-family:var(--mono),monospace;text-shadow:0 0 6px #b6ec8444}
+.aj-cli-container[hidden]{display:none}
+.aj-cli{display:flex;flex-direction:column;padding:clamp(12px,2.5vw,28px);font-size:clamp(10px,1.1vw,15px);line-height:1.65;text-align:left}
+.aj-cli-output{flex:1;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;min-height:0}
+.aj-cli form{display:flex;gap:6px;align-items:center;border-top:1px solid #b3d69133;padding-top:7px}
+.aj-cli label{white-space:nowrap;font-size:inherit}
+.aj-cli input{flex:1;min-width:0;border:0;border-radius:0;outline:none;background:transparent;color:#ddffb0;font:inherit;caret-color:#e1ba65;padding:2px}
+.aj-cli input:focus-visible{outline:1px solid #a2c876;outline-offset:2px}
+.aj-cli button,.aj-game-status button{font:inherit;background:#253922;color:#d4ff99;border:1px solid #68815c;cursor:pointer;padding:2px 8px}
+.aj-game-host iframe{width:100%;height:100%;border:0;display:block;background:#080e09}
+.aj-game-status{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:12px;z-index:1;background:#080e09;pointer-events:none;font-size:12px}
+.aj-game-status button{pointer-events:auto}
+.aj-save-warning{position:absolute;bottom:0;left:0;right:0;background:#49351b;color:#ffda98;padding:4px;z-index:2;font-size:10px}
+@media(max-width:700px){.aj-monitor-shell .terminal-controls .aj-bezel-action{width:25px;font-size:5px;min-height:23px;padding:2px 0}.name-terminal[data-mode=cli] .terminal-screen,.name-terminal[data-mode=game] .terminal-screen{min-height:260px;aspect-ratio:auto;border-radius:5px}.aj-monitor-shell:modal{width:99vw;padding:3px}.aj-monitor-shell:modal .terminal-screen{height:76dvh;min-height:0}.aj-cli{padding:10px;font-size:10px}.aj-cli form{flex-wrap:wrap}.aj-cli label{width:100%}.aj-cli input{font-size:16px}.aj-monitor-shell .terminal-controls{gap:9px}}
+.aj-monitor-shell .terminal-controls{gap:20px}.aj-monitor-shell .terminal-controls .aj-bezel-action{width:52px;min-height:27px;font-size:7px;padding:4px 2px}
+@media(max-width:700px){.aj-monitor-shell:not(:modal) .name-terminal[data-mode] .terminal-screen{min-height:0;aspect-ratio:1.7;border-radius:7% / 12%}.aj-monitor-shell .terminal-controls{gap:10px}.aj-monitor-shell .terminal-controls .aj-bezel-action{width:23px;min-height:21px;font-size:5px;padding:2px 0}}
