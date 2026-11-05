@@ -60,7 +60,7 @@ async function main() {
       assert.equal(await query(question), approvedAnswer(id), `Starter: ${question}`);
     }
     const recruiterCases: [string, AnswerId][] = [
-      ['What is his location?', 'profile'], ['What are his pronouns?', 'profile'], ['What is his headline?', 'profile'], ['Tell me about HIA AI', 'hia'], ['What is the college access project?', 'hia'],
+      ['What is his location?', 'profile'], ['What is his headline?', 'profile'], ['Tell me about HIA AI', 'hia'], ['What is the college access project?', 'hia'],
       ['Tell me about Project Hedgehog', 'hedgehog'], ['What is the Goldman Sachs project?', 'goldman'],
       ['What awards has he received?', 'goldman'], ['What certifications does he have?', 'certifications'],
       ['Where has he demonstrated leadership?', 'leadership'], ['What did you measurably change?', 'impact'],
@@ -92,6 +92,7 @@ async function main() {
       assert.match(answer, /\]\(#[a-z-]+\)/);
     }
     const unsupported = [
+      'What are his pronouns?',
       'Tell me about his YOLO project', 'What SLAM deployment experience does he have?',
       'Does GitHub verify his Home SOC lab?',
       'What salary do you want?', 'Will you relocate?', 'What is your phone number?',

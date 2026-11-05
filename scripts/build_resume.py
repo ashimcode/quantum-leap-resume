@@ -19,7 +19,7 @@ def p(text, style='BodyX'):
 def bullets(items):
     return [p('- '+item) for item in items]
 
-story=[p(C['name']+' | '+C['pronouns'],'NameX'),p(C['headline'],'RoleX'),p(C['affiliation']+' | '+C['location'],'SmallX'),Paragraph('<link href="'+C['links']['linkedin']+'">linkedin.com/in/johnashim</link>',styles['SmallX']),p(C['summary']),Spacer(1,5),p('TOP SKILLS','HeadX'),p('; '.join(C['skills'])),Spacer(1,5),p('EDUCATION','HeadX')]
+story=[p(C['name'],'NameX'),p(C['headline'],'RoleX'),p(C['affiliation']+' | '+C['location'],'SmallX'),Paragraph('<link href="'+C['links']['linkedin']+'">linkedin.com/in/johnashim</link>',styles['SmallX']),p(C['summary']),Spacer(1,5),p('TOP SKILLS','HeadX'),p('; '.join(C['skills'])),Spacer(1,5),p('EDUCATION','HeadX')]
 for e in D['education']:
     story.append(KeepTogether([p(e['degree'],'TitleX'),p(e['institution']+' | '+e['dates']+' | Grade: '+e['grade'],'SmallX'),p(e['details'])]+([p('Skills: '+', '.join(e['skills']),'SmallX')] if e['skills'] else [])))
 story.extend([Spacer(1,5),p('LICENSES & CERTIFICATIONS','HeadX')])

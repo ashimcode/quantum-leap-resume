@@ -1,4 +1,4 @@
-# Quantum Leap — visual resume v1.2.3
+# Ashim John visual resume v1.2.4
 
 Ashim John's visual resume, grounded exclusively in his candidate-supplied canonical LinkedIn specification. Next.js and TypeScript power a full-viewport, four-camera surveillance visual simulation, a sandboxed retro CRT game, and a Virtual Ambassador restricted to approved excerpts.
 
@@ -10,9 +10,9 @@ Ashim John's visual resume, grounded exclusively in his candidate-supplied canon
 | Local security checks | Static analysis, dependency audit, credential checks, configuration and production HTTP tests. |
 | Grounded Virtual Ambassador | 249 API regressions; deterministic pre/post checks; optional server model |
 | CarMechanicOS Easter egg | Preserved on-demand CLI and opaque-origin sandbox; isolated save/reset and modal expansion |
-| Claim Audit | 224 field-to-source rows; LinkedIn-only career authority; GitHub authorized as public contact only |
+| Claim Audit | 223 field-to-source rows; LinkedIn-only career authority; GitHub authorized as public contact only |
 | Redacted Public PDF | Three regenerated and visually reviewed pages; LinkedIn facts and public GitHub link |
-| Replit Core Packaging | v1.2.3 root-level ZIP with checksum and manifest. Live deployment is v1.2.1. |
+| Replit Core Packaging | v1.2.4 root-level ZIP with checksum and manifest. |
 
 ## How this repository is used
 
@@ -47,7 +47,7 @@ To rebuild the public PDF, install reportlab, pypdf and pypdfium2 in your Python
 
 `QuantumHeroBackground.tsx` renders one fixed camera and canvas from hero to footer. Scroll depth adjusts the camera framing and keeps the canvas aligned. The chapter HUD reports the current section, and the `SIM / CAM` button opens the camera study throughout the page. One camera is randomly selected after hydration, and only the active camera is requested. Four silent, metadata-stripped H.264 files plus JPEG stills live under `public/surveillance/`; the videos total 7,007,648 bytes.
 
-HYBRID_CV, YOLO_BOXES and SLAM_KEYPOINTS are visualization modes, not inference models. A small offscreen luminance/motion sample guides authored per-camera zones and image-gradient keypoints. The high-DPI canvas interpolates between samples and targets 60 fps without React updates on each frame. Percentages and class labels are authored, explicitly marked SIM. Target-lock telemetry labels redaction as DEMO and model audit as NOT RUN. No recognition model, biometric identification, PII redaction or security audit actually runs.
+HYBRID_CV, YOLO_BOXES and SLAM_KEYPOINTS select visualization layers. `motion-study.ts` measures luminance changes after aligning the dominant camera translation. Boxes follow connected regions of motion and keypoints follow image gradients. The high-DPI canvas draws between samples without React updates on each frame. Percentages measure motion evidence and carry a SIM label. The study performs no semantic classification, biometric identification, redaction, or security audit.
 
 The canvas leaves foreground controls and links interactive. Header FX cycles through FULL, REDUCED, and OFF. System reduced-motion preferences take precedence and use a still. Playback and animation pause when the document is hidden. Blocked playback displays a still and a retry control.
 

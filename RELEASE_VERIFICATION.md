@@ -1,5 +1,13 @@
 # Quantum Leap release verification
 
+## v1.2.4 camera study and public copy cleanup
+
+The public site and résumé display Ashim John. The header, hero, footer, CRT media, grounded answers, and public PDF reflect the requested copy cleanup. LinkedIn remains the authority for career facts, and GitHub remains a public link.
+
+- All four camera feeds produced frame-derived motion regions and image-gradient keypoints in desktop Chromium and iPhone-profile WebKit. The test followed one video and canvas through the page and exercised the collapsible topbar, modes, reduced motion, playback recovery, PDF download, Ambassador and garage. All 14 browser tests passed. Physical iPhone playback was outside this test.
+- A synthetic frame probe confirmed no boxes for identical frames or dominant camera translation and localized moving edges at three positions. The rendered boxes are motion evidence, with no semantic object classification.
+- Typecheck and production build passed. Verification passed 249 API regressions, 33 scanner cases, five security checks, 131 HTML/PDF fact checks, and 17 grounded entity answers and anchors. All three PDF pages were visually reviewed.
+
 ## v1.2.3 unified camera study and local security checks
 
 The release branch is `feat/v1.2.3-unified-surveillance-and-security`, based on v1.2.2 at `38a96cd`. One fixed video element and tracking canvas now span the whole document. The visual simulation keeps all four feeds, three modes, cursor inspection, camera controls, and reduced-motion stills. The header camera control can reopen the study from any chapter. Scroll telemetry tracks the chapter and adjusts the camera framing.

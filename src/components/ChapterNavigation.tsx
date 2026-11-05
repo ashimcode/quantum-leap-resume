@@ -14,18 +14,16 @@ type NavigationProps = {
   camera: string;
   chapter: string;
   percent: number;
-  atTop: boolean;
   children: ReactNode;
 };
 
-export default function ChapterNavigation({ motion, cycleMotion, camera, chapter, percent, atTop, children }: NavigationProps) {
+export default function ChapterNavigation({ motion, cycleMotion, camera, chapter, percent, children }: NavigationProps) {
   const dialog = useRef<HTMLDialogElement>(null);
   const indexButton = useRef<HTMLButtonElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
   const cameraButton = useRef<HTMLButtonElement>(null);
   const [indexOpen, setIndexOpen] = useState(false);
-  const [cameraOpen, setCameraOpen] = useState<boolean | null>(null);
-  const showCamera = cameraOpen ?? atTop;
+  const [cameraOpen, setCameraOpen] = useState(false);
 
   useEffect(() => {
     let frame = 0;
@@ -48,6 +46,18 @@ export default function ChapterNavigation({ motion, cycleMotion, camera, chapter
       cancelAnimationFrame(frame);
     };
   }, []);
+
+  useEffect(() => {
+    if (!cameraOpen) return;
+    function dismissCamera(event: globalThis.KeyboardEvent) {
+      if (event.key !== 'Escape' || event.defaultPrevented || document.querySelector('dialog:modal')) return;
+      event.preventDefault();
+      setCameraOpen(false);
+      cameraButton.current?.focus({ preventScroll: true });
+    }
+    window.addEventListener('keydown', dismissCamera);
+    return () => window.removeEventListener('keydown', dismissCamera);
+  }, [cameraOpen]);
 
   function openIndex() {
     dialog.current?.showModal();
@@ -88,32 +98,29 @@ export default function ChapterNavigation({ motion, cycleMotion, camera, chapter
         </nav>
         <span className="rail-coordinate" aria-hidden="true">40° / FIELD NOTES</span>
       </div>
-      <div className="hud-top">
-        <a className="hud-brand" href="#top">QUANTUM LEAP <span>/ ASHIM JOHN</span></a>
-        <div className="hud-actions">
-          <button className="fx-toggle" onClick={cycleMotion} aria-label={`Effects ${motion}. Cycle effects`}>FX <span>{motion.toUpperCase()}</span></button>
-          <a className="hud-resume" href="/resume-public.pdf" download>RESUME <Download size={12}/></a>
-          <a className="hud-connect" href="#ambassador">CONNECT <ArrowUpRight size={13}/></a>
-          <button ref={cameraButton} className="camera-toggle" aria-label={`Camera study controls, ${camera}`} aria-expanded={showCamera} aria-controls="camera-study" onClick={() => setCameraOpen(!showCamera)}>SIM / {camera}</button>
-        </div>
-      </div>
-      <div id="camera-study" className="surveillance-controls" role="group" aria-label="Surveillance visual simulation controls" hidden={!showCamera}
-        onFocus={event => { if (event.target.matches(':focus-visible')) setCameraOpen(true); }} onKeyDown={event => {
-          if (event.key !== 'Escape') return;
-          setCameraOpen(false);
-          cameraButton.current?.focus({ preventScroll: true });
-        }}>
-        {children}
-      </div>
       <span className="hud-line hud-line-a" aria-hidden="true"/><span className="hud-line hud-line-b" aria-hidden="true"/>
       <span className="hud-cross cross-one" aria-hidden="true">✦</span><span className="hud-cross cross-two" aria-hidden="true">✦</span>
       <div className="scroll-telemetry" aria-label={`Scroll progress ${percent}%`}><span>{String(percent).padStart(3, '0')}%</span><span aria-hidden="true">+</span></div>
     </div>
+    <header className="hud-header">
+      <div className="hud-top">
+        <a className="hud-brand" href="#top">ASHIM JOHN</a>
+        <div className="hud-actions">
+          <button className="fx-toggle" onClick={cycleMotion} aria-label={`Effects ${motion}. Cycle effects`}>FX <span>{motion.toUpperCase()}</span></button>
+          <a className="hud-resume" href="/resume-public.pdf" download>RESUME <Download size={12}/></a>
+          <a className="hud-connect" href="#ambassador">CONNECT <ArrowUpRight size={13}/></a>
+          <button ref={cameraButton} className="camera-toggle" aria-label={`Camera study controls, ${camera}`} aria-expanded={cameraOpen} aria-controls="camera-study" onClick={() => setCameraOpen(open => !open)}>SIM / {camera}</button>
+        </div>
+      </div>
+      <div id="camera-study" className="surveillance-controls" role="group" aria-label="Surveillance visual simulation controls" hidden={!cameraOpen}>
+        {children}
+      </div>
+    </header>
     <dialog id="chapter-index" className="chapter-drawer" ref={dialog} aria-labelledby="index-heading"
       onCancel={event => { event.preventDefault(); dismissIndex(); }} onClose={() => setIndexOpen(false)}
       onKeyDown={keepTabInIndex} onClick={event => { if (event.target === event.currentTarget) dismissIndex(); }}>
       <div className="drawer-inner">
-        <div className="drawer-top"><span id="index-heading">QUANTUM LEAP / CHAPTER INDEX</span>
+        <div className="drawer-top"><span id="index-heading">CHAPTER INDEX</span>
           <button ref={closeButton} aria-label="Close chapter index" onClick={() => dismissIndex()}><X size={21}/></button>
         </div>
         <nav aria-label="Main navigation">

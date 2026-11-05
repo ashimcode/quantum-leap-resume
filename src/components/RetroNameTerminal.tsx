@@ -95,7 +95,7 @@ export default function RetroNameTerminal() {
       <div className="terminal-top"><span><i/> AJ-01 / PERSONAL TERMINAL</span><span>COLOR · CRT</span></div>
       <div className="terminal-housing"><div className="terminal-screen">
         <h2 id="terminal-name-heading" className="sr-only">Ashim John</h2>
-        <div className="terminal-fallback" aria-hidden="true">ASHIM JOHN<span>QUANTUM LEAP // PERSONAL SIGNAL</span></div>
+        <div className="terminal-fallback" aria-hidden="true">ASHIM JOHN<span>PERSONAL SIGNAL</span></div>
         {!failed && <video ref={video} src="/name-signal.mp4" poster="/name-signal-poster.jpg" muted loop playsInline preload="metadata" aria-hidden="true" onError={()=>setFailed(true)}/>}
         <div className="terminal-rgb" aria-hidden="true">ASHIM JOHN</div><div className="terminal-static" aria-hidden="true"/><div className="terminal-tracking" aria-hidden="true"/><div className="terminal-glass" aria-hidden="true"/>
         <span className="terminal-osd" aria-hidden="true">AV 1 <span>●</span></span>
@@ -103,7 +103,7 @@ export default function RetroNameTerminal() {
         {mode!=='idle'&&<div hidden={mode!=='cli'} className="aj-cli-container"><CarMechanicCLI active={mode==='cli'} onPlay={()=>setMode('game')} onExit={exitCLI} onReset={resetSave}/></div>}
         {mode==='game'&&<CarMechanicEasterEgg key={gameSession} onExit={exitGame}/>}
       </div><div className="terminal-controls"><span>AJ.</span><button aria-label={paused?'Play name animation':'Pause name animation'} aria-pressed={paused} onClick={()=>setPaused(!paused)}>{paused?'▶':'Ⅱ'}</button><button className="tune-knob" aria-label="Retune terminal signal" onClick={()=>setTuned(!tuned)}>◉</button><div className="aj-bezel-extras"><button className="aj-bezel-action" ref={cliControl} aria-label={mode==='idle'?'Open CLI':mode==='game'?'Exit game':'Exit CLI'} onClick={()=>mode==='idle'?setMode('cli'):mode==='game'?exitGame():exitCLI()}>{mode==='idle'?'>_ CLI':mode==='game'?'ESC / EXIT GAME':'EXIT CLI'}</button><button className="aj-bezel-action" ref={expandControl} aria-label={expanded?'Collapse monitor':'Expand monitor'} onClick={toggleExpand}>{expanded?'COLLAPSE':'EXPAND'}</button>{mode!=='idle'&&<button className="aj-bezel-action" aria-label="Reset game save" onClick={resetSave}>RESET SAVE</button>}</div><div className="speaker-grille" aria-hidden="true"/><span className="power-led" aria-hidden="true"/></div></div>
-      <div className="terminal-chin"><span>ASHIM JOHN / QUANTUM LEAP</span><span>EST. IN THE EVIDENCE</span></div>
+      <div className="terminal-chin"><span>ASHIM JOHN</span><span>EST. IN THE EVIDENCE</span></div>
     </div>
     </dialog></div>
     <p className="terminal-hint">Move closer to tune the signal. <a href="#top">Return to the surface ↗</a></p>

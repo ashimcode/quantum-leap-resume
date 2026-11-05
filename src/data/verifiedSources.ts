@@ -3,7 +3,6 @@
 export const verifiedSources = {
   "candidate": {
     "name": "Ashim John",
-    "pronouns": "He/Him",
     "target": "M.S Cybersecurity Risk & Management Compliance Student",
     "headline": "M.S Cybersecurity Risk & Management Compliance Student",
     "affiliation": "University at Albany | ASIS&T",
@@ -784,8 +783,8 @@ export const verifiedSources = {
     },
     {
       "id": "profile",
-      "text": "Ashim John (He/Him) — M.S Cybersecurity Risk & Management Compliance Student. University at Albany | ASIS&T. Location: Albany, New York Metropolitan Area.",
-      "detail": "Ashim John (He/Him) — M.S Cybersecurity Risk & Management Compliance Student. University at Albany | ASIS&T. Location: Albany, New York Metropolitan Area. About: Translating technical vulnerabilities into actionable business strategies and ethical AI deployment.",
+      "text": "Ashim John — M.S Cybersecurity Risk & Management Compliance Student. University at Albany | ASIS&T. Location: Albany, New York Metropolitan Area.",
+      "detail": "Ashim John — M.S Cybersecurity Risk & Management Compliance Student. University at Albany | ASIS&T. Location: Albany, New York Metropolitan Area. About: Translating technical vulnerabilities into actionable business strategies and ethical AI deployment.",
       "links": [
         {
           "label": "View profile",

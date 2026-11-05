@@ -18,7 +18,7 @@ function normalize(message: string): string {
 }
 
 // Privacy/injection and unsupported detail gates precede all entity routing, including follow-ups.
-const privateOrUnsupported = /\b(?:salary|compensation|pay|wage|earnings|relocat\w*|phone|telephone|cellphone|mobile\s+number|email|e-mail|citizen\w*|visa|sponsor\w*|schedule|availability|available|birthday|birthdate|married|religio\w*|ssn|social\s+security|passport|password|secret|api\s*key)\b|\b(?:home|street|mailing|physical|personal|his|your)\s+address\b|^what.*\baddress\b|\b(?:percent\w*|percentage|savings|dollars|headcount|team\s+size|direct.report\s+count)\b/i;
+const privateOrUnsupported = /\b(?:pronouns?|salary|compensation|pay|wage|earnings|relocat\w*|phone|telephone|cellphone|mobile\s+number|email|e-mail|citizen\w*|visa|sponsor\w*|schedule|availability|available|birthday|birthdate|married|religio\w*|ssn|social\s+security|passport|password|secret|api\s*key)\b|\b(?:home|street|mailing|physical|personal|his|your)\s+address\b|^what.*\baddress\b|\b(?:percent\w*|percentage|savings|dollars|headcount|team\s+size|direct.report\s+count)\b/i;
 const injection = /\b(?:ignore|override|pretend|roleplay|fabricate|invent|assume|confirm|jailbreak|obey|disregard|forget|reveal|hidden|decode|encode|base64|translate)\b|\bact\s+as\b|\b(?:system|developer)\s+(?:prompt|message|instructions?|rules?)\b|\b(?:previous|prior|new|these|your)\s+(?:instructions?|rules?|prompt)\b|\b(?:prompt|instructions?)\b/i;
 const unsupportedEvidence = /\b(?:home|enterprise)\s+(?:soc|siem)\b|\bsiem\s+lab\b|\b(?:soc|sysmon|splunk|elastic|kibana|docker|vmware|graphiti|openclaw|urban\s+air|walgreens|riis|spellman|dean|honors\s+society|coaxial|ethernet|kubernetes|cissp|terraform|ztna|atlas|smb|hardening|soldering|cricut|carmechanicos)\b|security\+|part\s*107|\b(?:phone|email|street)\b|\b(?:ten|twenty|\d+)\s+years?\b|\bhow\s+many\s+years\b|\b(?:deployed|deployment|production|expert|advanced\s+proficiency|certified\s+in)\b|\b(?:aws|iam|linux|siem)\b.*\b(?:certificat\w*|certif\w*|implementation|implement\w*|built|configured)\b|\b(?:certificat\w*|certif\w*|implementation|implement\w*|built|configured)\b.*\b(?:aws|iam|linux|siem)\b|\b(?:awarded|completed|finished|earned)\b.*\b(?:masters?|bachelors?|degree|m\.s|b\.s)\b|\b(?:masters?|bachelors?|degree)\b.*\b(?:awarded|completed|finished|earned)\b/i;
 const followUp = /^(?:what do you mean(?: by that)?|what does that mean|can you (?:please )?(?:elaborate|expand|explain|clarify)(?: (?:on that|that|more|further))?|could you (?:please )?(?:elaborate|expand|explain|clarify)(?: (?:on that|that|more|further))?|tell me more(?: about (?:that|it))?|(?:please )?(?:elaborate|expand|explain|clarify)(?: (?:on that|that|more|further))?)(?: please)?$/;
@@ -39,7 +39,7 @@ function knownSubjectScope(text: string): boolean {
 }
 
 function scoreIntent(text: string): AnswerId | null {
-  if (/\b(?:headline|about statement|affiliation|pronouns|location|name)\b/.test(text)) return 'profile';
+  if (/\b(?:headline|about statement|affiliation|location|name)\b/.test(text)) return 'profile';
   if (/\bhedgehog\b/.test(text)) return 'hedgehog';
   if (/\bhia\b|\bcollege access\b/.test(text)) return 'hia';
   if (/\bgoldman\b|\bvr\b|\bforecast\w*\b|\bcreativity\b|\bawards?\b/.test(text)) return 'goldman';
@@ -59,7 +59,7 @@ function scoreIntent(text: string): AnswerId | null {
   if (/\bchelsea\b|\bhigh.?school\b|\bfiber optics\b/.test(text)) return 'highschool';
   if (/\b(?:certifications?|credentials?|certificates?|licenses?)\b/.test(text)) return 'certifications';
   if (/\b(?:education|degree|graduation|school|stud\w*|gpa|grade)\b/.test(text)) return 'education';
-  if (/\b(?:fit\w*|hire|hiring|align\w*|match\w*|strength\w*|qualifications?|headline|affiliation|pronouns|location)\b/.test(text)) return 'fit';
+  if (/\b(?:fit\w*|hire|hiring|align\w*|match\w*|strength\w*|qualifications?|headline|affiliation|location)\b/.test(text)) return 'fit';
   if (/\b(?:lead|leads|led|leading|leadership|initiative\w*|ownership|owning|owned)\b/.test(text)) return 'leadership';
   if (/\b(?:measur\w*|impact\w*|outcomes?|results?|change\w*|deliver\w*|achiev\w*|accomplish\w*|difference)\b/.test(text)) return 'impact';
   if (/\b(?:skills?|tools?|abilities|ability|siem|iam|identity and access management|security information and event management|threat|linux|aws|amazon|cloud)\b/.test(text)) return 'skills';

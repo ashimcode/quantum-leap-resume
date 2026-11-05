@@ -17,7 +17,7 @@ async function main() {
   const normalize=(s:string)=>s.replace(/[–—]/g,'-').replace(/[’‘]/g,"'").replace(/·/g,'|').replace(/\s+/g,' ').trim();
   const visible=normalize(html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,' ').replace(/<[^>]*>/g,' ').replaceAll('&amp;','&').replaceAll('&quot;','"').replaceAll('&#x27;',"'").replaceAll('&#39;',"'"));
   const pdf=normalize(execFileSync(process.env.PYTHON_BIN || (process.platform==='win32'?'python':'python3'),['-c','import sys;sys.path.insert(0,".qa/python");from pypdf import PdfReader;r=PdfReader("public/resume-public.pdf");assert len(r.pages)==3;print(" ".join(p.extract_text() or "" for p in r.pages))'],{encoding:'utf8'}));
-  const facts:string[]=[data.candidate.name,data.candidate.pronouns,data.candidate.headline,data.candidate.affiliation,data.candidate.location,data.candidate.summary,...data.candidate.skills];
+  const facts:string[]=[data.candidate.name,data.candidate.headline,data.candidate.affiliation,data.candidate.location,data.candidate.summary,...data.candidate.skills];
   for(const e of data.experience) facts.push(e.title,e.organization,e.dates,e.employmentType,e.location,...e.bullets,...e.skills,...('artifact' in e?[e.artifact]:[]));
   for(const e of data.education) facts.push(e.institution,e.degree,e.dates,e.grade,e.details,...e.skills);
   for(const c of data.certifications) facts.push(c.title,c.issuer,c.issued,...c.skills);
@@ -26,6 +26,9 @@ async function main() {
     assert(visible.includes(normalize(fact)),`Missing rendered LinkedIn fact: ${fact}`);
     assert(pdf.includes(normalize(fact)),`Missing PDF LinkedIn fact: ${fact}`);
   }
+  const retiredBranding = /he\s*\/\s*him|quantum\s+leap|start of transmission/i;
+  assert(!retiredBranding.test(visible) && !retiredBranding.test(pdf), 'Retired labels are visible');
+  assert.match(html, /<p class="intro-name">Ashim John<\/p>/);
   assert(visible.includes('VISUAL SIMULATION / CAMERA STUDY'), 'Missing simulation disclosure');
   assert(html.includes(`href="${data.candidate.links.github}"`), 'Missing authorized public GitHub link');
   assert.equal(data.candidate.links.github, 'https://github.com/ashimcode');

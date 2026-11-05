@@ -44,14 +44,26 @@ test('one playing camera and canvas follow the entire document', async ({ page, 
   await expect(video).toHaveAttribute('src', /^\/surveillance\/cam-0[1-4]-.+\.mp4$/);
   // WebKit's media process does not report all range requests as page events.
   if (browserName === 'chromium') expect(new Set(requests.filter(url => /\/surveillance\/.+\.mp4$/.test(url))).size).toBe(1);
-  await expect(page.getByText('VISUAL SIMULATION / CAMERA STUDY')).toBeVisible();
+  const cameraControl = page.getByRole('button', { name: /^Camera study controls/ });
+  const cameraPanel = page.locator('#camera-study');
+  await expect(cameraControl).toHaveAttribute('aria-expanded', 'false');
+  await expect(cameraPanel).toBeHidden();
   await page.screenshot({ path: info.outputPath('hero.png') });
+  await cameraControl.click();
+  await expect(page.getByText('VISUAL SIMULATION / CAMERA STUDY')).toBeVisible();
+  const panelBounds = (await cameraPanel.boundingBox())!;
+  const panelBottom = panelBounds.y + panelBounds.height;
+  await expect.poll(async () => (await page.locator('.scroll-telemetry').boundingBox())!.y).toBeGreaterThan(panelBottom);
+  expect((await page.locator('main').boundingBox())!.y).toBeGreaterThanOrEqual(panelBottom - 1);
+  await page.screenshot({ path: info.outputPath('camera-row.png') });
 
   const seen = new Set<string>();
   const switchFeed = page.getByRole('button', { name: /^Switch surveillance camera/ });
   for (let i = 0; i < 4; i++) {
     seen.add((await stage.getAttribute('data-feed'))!);
     await playing(video);
+    await expect.poll(() => stage.evaluate(element => Number((element as HTMLElement).dataset.keypoints))).toBeGreaterThan(0);
+    await expect.poll(() => stage.evaluate(element => Number((element as HTMLElement).dataset.blobs)), { timeout: 8_000 }).toBeGreaterThan(0);
     if (i < 3) await switchFeed.click();
   }
   expect(seen.size).toBe(4);
@@ -62,6 +74,9 @@ test('one playing camera and canvas follow the entire document', async ({ page, 
     await button.click();
     await expect(button).toHaveAttribute('aria-pressed', 'true');
   }
+  await page.keyboard.press('Escape');
+  await expect(cameraPanel).toBeHidden();
+  await expect(cameraControl).toBeFocused();
 
   for (const [selector, section] of [
     ['.hero-grid-strip', 'FOUNDATION'], ['#role-match', 'VERIFIABLE EVIDENCE'],
@@ -89,8 +104,8 @@ test('one playing camera and canvas follow the entire document', async ({ page, 
   expect(requests.some(url => /\/underground-(?:frames|reel)/.test(url))).toBe(false);
   expect(requests.some(url => /\/carmechanicos\//.test(url))).toBe(false);
 
-  const cameraControl = page.getByRole('button', { name: /^Camera study controls/ });
-  if (await cameraControl.getAttribute('aria-expanded') === 'false') await cameraControl.click();
+  await cameraControl.click();
+  await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
   await expect(page.locator('.surveillance-section')).toHaveText('100% / FOOTER');
   await page.getByRole('button', { name: 'Pause surveillance effects' }).click();
   await expect(stage).toHaveAttribute('data-motion', 'off');
@@ -121,6 +136,7 @@ test('reduced motion requests a poster and takes precedence over the header cycl
   await expect(stage.locator('img')).toBeVisible();
   await expect.poll(() => stage.locator('img').evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
   await expect(stage.locator('video')).not.toHaveAttribute('src');
+  await page.getByRole('button', { name: /^Camera study controls/ }).click();
   const canvas = stage.locator('canvas');
   const hybrid = await canvas.evaluate((element: HTMLCanvasElement) => element.toDataURL());
   await page.getByRole('button', { name: 'SLAM_KEYPOINTS', exact: true }).click();
@@ -149,6 +165,7 @@ test('blocked autoplay uses a still and a user can retry playback', async ({ pag
   await page.goto('/');
   await ready(page);
   const stage = page.locator(cameraStage);
+  await page.getByRole('button', { name: /^Camera study controls/ }).click();
   const retry = page.getByRole('button', { name: /Retry playback/ });
   await expect(retry).toBeVisible();
   await expect(stage).toHaveAttribute('data-playback', 'fallback');
@@ -174,7 +191,7 @@ test('keyboard skip link, chapter modal, focus wrap, Escape and destination focu
   const trigger = page.getByRole('button', { name: 'Open chapter index' });
   await tabTo(page, trigger);
   await page.keyboard.press('Enter');
-  const dialog = page.getByRole('dialog', { name: 'QUANTUM LEAP / CHAPTER INDEX' });
+  const dialog = page.getByRole('dialog', { name: 'CHAPTER INDEX' });
   const close = dialog.getByRole('button', { name: 'Close chapter index' });
   await expect(dialog).toBeVisible();
   await expect(close).toBeFocused();

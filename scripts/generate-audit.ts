@@ -15,7 +15,7 @@ for (const group of ['experience','education','certifications','projects','capab
 d.answers.forEach((item,i)=>walk({text:item.text,detail:item.detail},`verifiedSources.answers.${i}`,'Canonical LinkedIn specification; linked page entry'));
 writeFileSync('CLAIM_AUDIT.md',`# LinkedIn-only public claim audit
 
-Reconciliation: v1.2.1; public-link restoration in v1.2.2, November 5, 2026.
+Reconciliation: v1.2.1; public-link restoration in v1.2.2 and public identity cleanup in v1.2.4, November 5, 2026.
 
 ## Sole factual authority
 

@@ -1,6 +1,6 @@
 # LinkedIn-only public claim audit
 
-Reconciliation: v1.2.1; public-link restoration in v1.2.2, November 5, 2026.
+Reconciliation: v1.2.1; public-link restoration in v1.2.2 and public identity cleanup in v1.2.4, November 5, 2026.
 
 ## Sole factual authority
 
@@ -24,7 +24,6 @@ The candidate supplied the canonical LinkedIn specification in the v1.2.1 instru
 | Claim / approved answer | Exact field | LinkedIn source |
 | --- | --- | --- |
 | Ashim John | `verifiedSources.candidate.name` | linkedin-profile / linkedin-education |
-| He/Him | `verifiedSources.candidate.pronouns` | linkedin-profile / linkedin-education |
 | M.S Cybersecurity Risk & Management Compliance Student | `verifiedSources.candidate.target` | linkedin-profile / linkedin-education |
 | M.S Cybersecurity Risk & Management Compliance Student | `verifiedSources.candidate.headline` | linkedin-profile / linkedin-education |
 | University at Albany  /  ASIS&T | `verifiedSources.candidate.affiliation` | linkedin-profile / linkedin-education |
@@ -245,5 +244,5 @@ The candidate supplied the canonical LinkedIn specification in the v1.2.1 instru
 | The contact section links to https://www.linkedin.com/in/johnashim/, https://github.com/ashimcode, and the public resume. GitHub is a candidate-authorized public link, not career evidence. Only the canonical LinkedIn specification supports career claims. Private phone numbers, street addresses, and personal email addresses are not supplied. | `verifiedSources.answers.25.detail` | Canonical LinkedIn facts; candidate-authorized GitHub contact link |
 | I answer only from the canonical LinkedIn specification. If it does not support a detail, I cannot verify it. Ask about Profile Alignment, Projects, Work Experience, Leadership, Top Skills, Education, or Certifications. | `verifiedSources.answers.26.text` | Canonical LinkedIn specification; linked page entry |
 | Choose a listed role, project, education entry, certification, or top skill. I can expand an approved answer, but cannot infer new credentials, employment, metrics, completed degrees, or implementation experience. | `verifiedSources.answers.26.detail` | Canonical LinkedIn specification; linked page entry |
-| Ashim John (He/Him) — M.S Cybersecurity Risk & Management Compliance Student. University at Albany  /  ASIS&T. Location: Albany, New York Metropolitan Area. | `verifiedSources.answers.27.text` | Canonical LinkedIn specification; linked page entry |
-| Ashim John (He/Him) — M.S Cybersecurity Risk & Management Compliance Student. University at Albany  /  ASIS&T. Location: Albany, New York Metropolitan Area. About: Translating technical vulnerabilities into actionable business strategies and ethical AI deployment. | `verifiedSources.answers.27.detail` | Canonical LinkedIn specification; linked page entry |
+| Ashim John — M.S Cybersecurity Risk & Management Compliance Student. University at Albany  /  ASIS&T. Location: Albany, New York Metropolitan Area. | `verifiedSources.answers.27.text` | Canonical LinkedIn specification; linked page entry |
+| Ashim John — M.S Cybersecurity Risk & Management Compliance Student. University at Albany  /  ASIS&T. Location: Albany, New York Metropolitan Area. About: Translating technical vulnerabilities into actionable business strategies and ethical AI deployment. | `verifiedSources.answers.27.detail` | Canonical LinkedIn specification; linked page entry |
