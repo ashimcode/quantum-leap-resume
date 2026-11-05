@@ -1,4 +1,4 @@
-# Quantum Leap — visual resume v1.1.0
+# Quantum Leap — visual resume v1.1.1
 
 Ashim John's evidence-backed visual resume for an Entry-Level Cybersecurity & Cyber Risk Analyst role. Next.js, TypeScript, a continuous decoded-frame Canvas stage, retro CRT terminal, and a Virtual Ambassador limited to approved source excerpts.
 
@@ -24,7 +24,7 @@ Node 20.9+ and Python 3 are required. CI uses Node 20 and Python 3.12.
 npm ci
 python -m pip install pypdf==6.21.4
 npm run dev
-# In another terminal, or after stopping dev:
+# Stop the preview server before building in the same checkout:
 npm run verify
 npm run build
 npm run verify
@@ -37,12 +37,12 @@ The second grounding run scans built browser bundles. Windows can set PYTHON_BIN
 
 ## Release and submission
 
-`v1.1.0` is the annotated official baseline. `RELEASE_BASELINE.json` records source/public hashes; `npm run verify:baseline` detects drift. Preserve the tag and make future changes on a new branch/version. The visual design, layout, CSS, media, canonical facts, and grounding verifier were not changed for packaging. A small server-only provider adapter adds managed Replit credentials without changing approved answer text or guards.
+`v1.1.1` is the privacy-scanner maintenance release. Runtime files under src/ and public/ match the preserved `v1.1.0` tag. The scanner has 142 API regressions and 33 scanner regressions, including minified CSS adjacency, adjacent private content, and custom-property spoofing. `RELEASE_BASELINE.json` now covers source, assets, verification scripts, workflows, and release configuration. Future releases require an explicit new package version and `npm run release:freeze -- --version X.Y.Z`; existing tags and same-version manifests cannot be overwritten by that command.
 
-Read HANDSHAKE_SUBMISSION_PACKET.md for verified lists, adapted Agent prompts, the complete existing claim audit, publishing steps, and submission text. Prompt templates and exact original source line references are not claimed as available when absent. Replit publication and the live one-minute review are still required before submission.
+Read HANDSHAKE_SUBMISSION_PACKET.md for the historical v1.1.0 submission lists, adapted Agent prompts, existing claim audit, and Replit testing steps. Its application content remains applicable because runtime files are unchanged. Replit is a testing/submission environment; permanent hosting and a custom domain remain a separate decision. GEMINI_SYNC.md is the architectural handoff snapshot. Prompt templates and exact original source line references are not claimed as available when absent.
 
 ```sh
-python scripts/export-replit.py --output ../replit-quantum-leap-handshake.zip
+python scripts/export-replit.py --output ../quantum-leap-v1.1.1.zip
 ```
 
 The ZIP has application files at its root and an adjacent SHA-256 checksum and manifest. Dependencies, build output, Git metadata, QA artifacts, archives, and secrets are excluded. Only the approved public PDF is included. See V1_1_VERIFICATION.md for the measured engine behavior; rare timing outliers mean a universally locked 60 fps is not asserted.

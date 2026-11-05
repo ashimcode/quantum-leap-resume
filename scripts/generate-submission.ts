@@ -1,5 +1,4 @@
-import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
-import { createHash } from 'node:crypto';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { verifiedSources as d } from '../src/data/verifiedSources';
 const audit=readFileSync('CLAIM_AUDIT.md','utf8');
 const capabilities=d.capabilities.map((c,i)=>`${i+1}. **${c.title}** — ${c.proof} Source: ${c.source}.`).join('\n');
@@ -93,8 +92,4 @@ Live site: LIVE_URL
 Local compliance results and remaining deployment gates are recorded in RELEASE_VERIFICATION.md.
 `;
 writeFileSync('HANDSHAKE_SUBMISSION_PACKET.md',packet);
-const files: Record<string,string>={};
-function walk(folder:string){for(const e of readdirSync(folder,{withFileTypes:true})){const path=`${folder}/${e.name}`;if(e.isDirectory())walk(path);else{const raw=readFileSync(path);const bytes=path.startsWith('src/')?Buffer.from(raw.toString('utf8').replace(/\r\n/g,'\n')):raw;files[path]=createHash('sha256').update(bytes).digest('hex');}}}
-walk('src');walk('public');const verifier='scripts/verify-grounding.ts';files[verifier]=createHash('sha256').update(readFileSync(verifier,'utf8').replace(/\r\n/g,'\n')).digest('hex');
-writeFileSync('RELEASE_BASELINE.json',JSON.stringify({version:'1.1.0',textNormalization:'LF for source and verifier; binary assets exact',files},null,2)+'\n');
-console.log('Generated sanitized submission packet and release manifest');
+console.log('Generated submission packet only. Release manifests require the explicit freeze-release command.');

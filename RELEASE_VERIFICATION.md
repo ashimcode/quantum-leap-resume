@@ -1,4 +1,12 @@
-# Quantum Leap v1.1.0 release verification
+# Quantum Leap release verification
+
+## v1.1.1 maintenance release - November 5, 2026
+
+Release scope: scanner/release tooling and documentation only. No src/ or public/ changes. Verification sequence: version bump, typecheck, production build, 142 API + 33 scanner regressions, submission checks, explicit new-version freeze, baseline check, and versioned ZIP export. Release completion is evidenced by the v1.1.1 commit/tag and GitHub Actions results.
+
+The additional scanner cases cover minified adjacent rules, private content adjacent to an allowed rounded-full rule, and a spoofed custom property. The supplied private number is constructed at test runtime rather than stored verbatim in the repository. The v1.1.0 tag and original replit-quantum-leap-handshake.zip remain preserved. Permanent hosting is not being assigned to Replit.
+
+## Historical v1.1.0 verification
 
 Release date: November 4, 2026. This is an official source baseline and upload package, not a claimed live Replit deployment.
 

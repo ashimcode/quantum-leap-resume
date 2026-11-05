@@ -6,14 +6,9 @@ import { POST, checkRate } from '../src/app/api/ambassador/route';
 import { verifiedSources as data } from '../src/data/verifiedSources';
 import { approvedAnswer, postCheck, REFUSAL, type AnswerId } from '../src/lib/grounding';
 import { completedHistory, type ConversationTurn } from '../src/lib/conversation';
+import { privacyViolation } from './privacy-scanner';
+import { verifyPrivacyScanner } from './verify-privacy-scanner';
 
-const patterns = [
-  /(?<!\d)\d{3}[-.\s]?\d{3}[-.\s]?\d{4}(?!\d)/,
-  /\b\d{1,6}\s+(?:[A-Za-z]+\s+){1,5}(?:Street|St\b|Avenue|Ave\b|Road|Rd\b|Drive|Lane|Boulevard|Blvd|Apartment|Apt\b)/i,
-  /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i,
-  /sk-(?:proj-)?[A-Za-z0-9_-]{20,}/,
-  /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/,
-];
 let files = 0;
 function scan(folder: string) {
   for (const entry of readdirSync(folder, { withFileTypes: true })) {
@@ -24,15 +19,13 @@ function scan(folder: string) {
       text = execFileSync(process.env.PYTHON_BIN || (process.platform === 'win32' ? 'python' : 'python3'), ['-c',
         'import sys; sys.path.insert(0, ".qa/python"); from pypdf import PdfReader; r=PdfReader(sys.argv[1]); print("\\n".join(p.extract_text() or "" for p in r.pages)); print(str(r.metadata))', path], { encoding: 'utf8' });
     } else { text = readFileSync(path, 'utf8'); }
-    if (path.replaceAll('\\', '/').startsWith('.next/static/') && path.endsWith('.js')) {
-      text = text.replace(/\b(?:4294967295|2147483647|0123456789)\b/g, 'FRAMEWORK_NUMERIC_CONSTANT');
-    }
-    for (const pattern of patterns) assert(!pattern.test(text), `Privacy pattern detected in ${path}`);
+    assert(!privacyViolation(path,text), `Privacy pattern detected in ${path}`);
     files++;
   }
 }
 
 async function main() {
+  const scannerRegressions=verifyPrivacyScanner();
   scan('src'); scan('public');
   if (existsSync('.next/static')) scan('.next/static');
   const savedKey = process.env.OPENAI_API_KEY;
@@ -214,7 +207,7 @@ async function main() {
       globalThis.fetch = async () => { throw Error('offline'); };
       assert.equal(await query(data.starterQuestions[1]), approvedAnswer('soc'));
     } finally { globalThis.fetch = originalFetch; delete process.env.OPENAI_API_KEY; }
-    console.log(`PASS: ${requests} API regressions; ${files} source/public/client files scanned. Recruiter intents, contextual follow-ups, exact refusals, history tampering, input bounds, rate limits, and model post-checks passed.`);
+    console.log(`PASS: ${requests} API regressions + ${scannerRegressions} scanner regressions; ${files} source/public/client files scanned. Recruiter intents, contextual follow-ups, exact refusals, history tampering, input bounds, rate limits, and model post-checks passed.`);
   } finally {
     Date.now = originalNow;
     if (savedKey === undefined) delete process.env.OPENAI_API_KEY; else process.env.OPENAI_API_KEY = savedKey;

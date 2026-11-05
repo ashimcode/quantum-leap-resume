@@ -1,6 +1,6 @@
 {
-  "version": "1.1.0",
-  "textNormalization": "LF for source and verifier; binary assets exact",
+  "version": "1.1.1",
+  "textNormalization": "LF for text; binary assets exact",
   "files": {
     "src/app/api/ambassador/route.ts": "855cbad627a7d96253a8d48f3a8ad76e6c403ea6ce7d21a2c645b164dfb4ffe7",
     "src/app/globals.css": "92b4decf2376325b2c243ec3aa21cad22d6fe3018a51d49b5991c28fffc172b9",
@@ -140,6 +140,25 @@
     "public/underground-frames/frame-118.jpg": "a0b1f5d9237c4cfce962ca0c8c4a977302ac0d35694a97b38a82a38673038d24",
     "public/underground-frames/frame-119.jpg": "dcd522ef9f4fa89f86c01fe543272b492e17cd7afa34d4653f792d3ecf46df45",
     "public/underground-reel.mp4": "685db15d48636b97c8846c4dc62fb30e40abac163ea04cf44ab5fa559f08a247",
-    "scripts/verify-grounding.ts": "67d828171ec7cbbc8bffb03ec37b390475b45ca18f11d97318e377d0f0a4d303"
+    "scripts/benchmark-scroll.mjs": "03d7e7e77ff37acfd527ef3f64acde39e09de585220ff33a11288533ebfe4654",
+    "scripts/build_resume.py": "d020e9b47094dffb9e17c2c682a8af799ccc3aa3384e3eba0087cb9545ff742b",
+    "scripts/export-replit.py": "e8a5901c995403bf87a9d3e93966d5e4a63c7f05d95b1c444d87185582d10ec8",
+    "scripts/export-resume.ts": "4faca1b1d0e97cdd7fdc0b92eea2745b30514ae34debe1928135772c4253e0fc",
+    "scripts/extract-underground-frames.py": "b0158e8adfa9e5b9d3c4c7e34709c5acfacff27d0fecdd7585452404997f311f",
+    "scripts/freeze-release.mjs": "197cf11ee71842ac2bcf8229d1fda892bae6d0f46484f705f09857b7470514b6",
+    "scripts/generate-audit.ts": "5610296b120b5bdee1e6d82d57845dcd8db2a07c679fb0c1df2aa1c20d42f59f",
+    "scripts/generate-submission.ts": "d658d05866da9eab05b9bbc394e20d01fade142e41ff71532e4f31828e4599bb",
+    "scripts/privacy-scanner.ts": "ca1c5c15c52fa29ebb9a1da8c6a8babdd4c4590f26a7b16fdaf010e1364348b6",
+    "scripts/verify-baseline.mjs": "d5e20af0aa8ea6e39e10eebd2b321d0293ec716deb24c9a6b1a5e79032bdf1bc",
+    "scripts/verify-grounding.ts": "411c70e3871d4d2567858bb540fd60ab6bca79c20ff7da0eb245a5e83c394491",
+    "scripts/verify-privacy-scanner.ts": "aca49fd2b31de385541b247b9311b4479c3edf831178f5e2636419e9ea1d2b96",
+    "scripts/verify-submission.ts": "f6005fdf37431bf90b94bbd263f48d58df1dc632560edbd2286e2ed4a1f46354",
+    ".github/workflows/verify.yml": "2a3d7f0297440483a7c5cce94d4858cc6795591c0b6699aaad4ead2d800a646e",
+    "package.json": "8433ab9b4d4fb8df784afc422b2870b3bede43a568deade4d7ec160bb8ee39f5",
+    "package-lock.json": "9c2c6c4952c1e97f38500f12dab42c9ba1434b7880cadc2f418bebf85756794d",
+    "next.config.mjs": "0732806603edd6c67c1537521d14dff8581cb70f06bd30abad1b2ffe9a498108",
+    "tsconfig.json": "828ef4c142d8e6aad46d5ac122dad78af09b022a84087536d292aa723c43c4e6",
+    ".replit": "eb0c543c78f0a72b4ae38f2215b0cdb4f9f0da3091e1c3b884b78423204a322f",
+    "replit.nix": "8ebba5b3ef480fb8bd3299cb41286614834fcf1599f9a2bd7dbce89ffd89947b"
   }
 }
