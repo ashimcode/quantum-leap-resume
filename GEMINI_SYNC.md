@@ -1,5 +1,11 @@
 # Codex -> Gemini: v1.2.1 LinkedIn-only reconciliation
 
+## Deployment confirmed - November 5, 2026
+
+The user explicitly authorized publishing the next version. Codex manually deployed v1.2.1 to https://quantum-leap-interactive.replit.app/ without Replit Agent actions. The live headline and exact 3-project/6-role/3-education/5-credential inventory were verified, with all 120 scroll frames decoded. The live PDF byte hash matches the approved release; Project Hedgehog receives the exact approved ambassador answer and removed Home SOC claims receive the canonical refusal. The live game asset also matches approved bytes. Replit's build, 243 API + 33 scanner cases and 132 HTML/PDF fact checks passed before publishing; GitHub's source-branch verification passed too.
+
+The scoped transfer retained Replit's existing port-5000 package scripts, .replit workflows and preview-only next.config.mjs settings. All other 165 frozen files match the canonical release. The three platform overlays are explicitly recorded with canonical/deployed hashes in Replit's ignored .qa/deploy-v121-20261105-074409/deployment-overlay.json; the canonical release baseline was not rewritten to hide them. The source was promoted to main and the release is recorded under the new v1.2.1 tag. Historical tags and archives remain intact. This confirmed deployment supersedes the preparation-only status below.
+
 ## Current authority
 
 The candidate-supplied canonical LinkedIn specification in the v1.2.1 task is now the sole authority for career, education, projects, certifications and skills. The former resume, cover letter, repository facts, honors and candidate date confirmations are retired as current evidence. This is a supplied canonical specification, not a claimed independent LinkedIn scrape.
@@ -28,13 +34,13 @@ Passed: typecheck; production build; 243 API regressions; all 33 unchanged scann
 
 CLAIM_AUDIT.md is regenerated with 223 field-to-source rows. VERIFICATION.md is regenerated with inventory and reproducible checks. RELEASE_VERIFICATION.md records current evidence. Historical Handshake documents outside the allowed edit scope are preserved but are not current factual authority.
 
-The release sequence sets package/lock version 1.2.1, explicitly freezes a new RELEASE_BASELINE.json, verifies the baseline and exports ../quantum-leap-v1.2.1-replit.zip with checksum/manifest. The branch is for review; no merge to main, old-tag rewrite, Replit operation or deployment is part of this task. Check the actual branch, version and manifest rather than interpreting this report as a production-deployment claim.
+The content preparation set package/lock version 1.2.1, explicitly froze a new RELEASE_BASELINE.json, verified the baseline and exported ../quantum-leap-v1.2.1-replit.zip with checksum/manifest. The subsequent publishing request authorized deployment and promotion to main. The deployment confirmation above records that completed follow-up; no old tag was rewritten.
 
 ## Protected features and deployment status
 
 The existing scroll engine, all 120 frames, CRT terminal/game components/assets, all 33 scanner cases, old tags and historical ZIPs are protected by pre-change fingerprints. The OpenSSL repair and scoped TypeScript config from main remain intact. No visual stylesheet or protected component changes are made.
 
-The user previously confirmed v1.2.0 live at https://quantum-leap-interactive.replit.app/. This reconciliation is local release preparation, not a claim that the live site already serves v1.2.1. Replit Agent credit usage remains prohibited without explicit authorization. Existing Replit-specific workflow/port settings need separate care before any future deployment import; a full canonical ZIP is not permission to overwrite live platform configuration blindly.
+The public website now serves verified v1.2.1 at https://quantum-leap-interactive.replit.app/. Replit Agent credit usage remains prohibited without explicit authorization. Existing Replit-specific workflow/port settings need separate care before any future deployment import; a full canonical ZIP is not permission to overwrite live platform configuration blindly.
 
 ## Requested Gemini response
 

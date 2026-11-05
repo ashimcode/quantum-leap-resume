@@ -1,5 +1,11 @@
 # Quantum Leap release verification
 
+## v1.2.1 production deployment confirmed - November 5, 2026
+
+Under the user's explicit publishing request, Codex manually deployed the LinkedIn-only release to https://quantum-leap-interactive.replit.app/. No Replit Agent task or AI prompt was used. Replit's production build, 243 API + 33 scanner regressions and 132 HTML/PDF fact checks passed. Live checks confirmed the new headline, 3 projects, 6 roles, 3 education entries, 5 credentials, all 120 decoded frames, exact approved PDF bytes, the approved Project Hedgehog answer, canonical refusal for a removed Home SOC claim, and unchanged game asset bytes. Evidence is saved in ignored .qa/v121/live-verification.json and live/publishing screenshots.
+
+The scoped transfer backed up the existing workspace and preserved the three intentional platform overlays: port-5000 package scripts, .replit workflow/port mapping and preview-only next.config.mjs. All other 165 frozen entries match canonical v1.2.1. The platform overlay record is in Replit's .qa/deploy-v121-20261105-074409/deployment-overlay.json; the frozen canonical baseline remains unchanged. The corrected OpenSSL/Nix setting is preserved. Source-branch GitHub Actions passed before promotion to main. Existing release tags and historical archives remain rollback points; the new v1.2.1 tag records this release.
+
 ## v1.2.1 LinkedIn-only reconciliation - November 5, 2026
 
 Branch: `feat/v1.2.1-linkedin-reconciliation`, based on clean main at `2a602e9`. The candidate-supplied canonical LinkedIn specification replaces every prior resume, cover-letter, repository and candidate-confirmation career source. It is not represented as an independently scraped or certified LinkedIn record.
