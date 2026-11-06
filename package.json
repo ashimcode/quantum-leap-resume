@@ -1,6 +1,6 @@
 {
   "name": "ashim-john-resume",
-  "version": "1.4.4",
+  "version": "1.0.14",
   "private": true,
   "scripts": {
     "dev": "next dev -H 0.0.0.0 -p 3000",
@@ -15,7 +15,8 @@
     "release:freeze": "node scripts/freeze-release.mjs",
     "typecheck": "tsc --noEmit",
     "audit:claims": "tsx scripts/generate-audit.ts",
-    "resume": "tsx scripts/export-resume.ts"
+    "resume": "tsx scripts/export-resume.ts",
+    "release:next": "node scripts/freeze-release.mjs --next"
   },
   "dependencies": {
     "@fontsource/fira-code": "5.3.0",

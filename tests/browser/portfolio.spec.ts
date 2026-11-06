@@ -302,6 +302,9 @@ test('CRT browses the virtual root and opens the museum without host file access
   await expect(output).toContainText('sophomore-year final project at UAlbany');
   await command.press('ArrowUp');
   await expect(command).toHaveValue('cat origins.txt');
+  await run('cat exhibits.txt');
+  await expect(output).toContainText('v1.0.9 added the ASCII portal');
+  await expect(output).toContainText('v1.0.10 opens the CRT filesystem');
   await run('cd ~');
   await expect(prompt).toHaveText('aj@crt:~$');
   await run('cd Desktop/carmechanicos');

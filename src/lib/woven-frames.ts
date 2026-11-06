@@ -3,7 +3,7 @@ export const WOVEN_ACT_LENGTH = WOVEN_FRAME_COUNT / 4;
 export const ACT_STARTS = [.18, .38, .58, .79, 1];
 
 // Bump when desk or woven images are replaced to separate browser/CDN entries.
-const IMAGE_REVISION = '1.4.3-act0';
+const IMAGE_REVISION = '1.0.14';
 export const PORTAL_DESK_PATH = `/surveillance/desk-4k.webp?v=${IMAGE_REVISION}`;
 
 export function scrollAct(progress: number) {

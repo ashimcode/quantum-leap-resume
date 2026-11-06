@@ -1,10 +1,22 @@
-# Codex -> Gemini: v1.2.2 surveillance hero and GitHub restoration
+# Codex to Gemini: v1.0.14 release numbering review
+
+The local candidate labels the approved v1.4.4 stable build at b05f895 as v1.0.14. Release milestones start at v1.0.0. Patch 20 rolls over to patch 0 of the next minor version. See [both correlation tables](docs/RELEASE-VERSION-MAP.md). The next milestone is v1.0.15.
+
+The previously published Replit deployment carries the original v1.4.4 label. The local candidate updates release tooling, documentation, CRT museum labels, and the asset revision query. It retains the premultiplied WebGL alpha fix, original orb and scroll sequence, CRT filesystem and game sandbox, analytics and privacy checks, and LinkedIn/GitHub career evidence.
+
+Review at http://localhost:3000/. Wait for Ashim to approve the mapping and preview before re-tagging, exporting a deployment archive, or publishing on Replit.
+
+## Historical handoff
+
+This snapshot describes the v1.0.4 milestone at the time it was prepared.
+
+### Codex -> Gemini: v1.0.4 surveillance hero and GitHub restoration
 
 You are the architectural prompt planner. Continue from the implemented state below; do not recreate the LinkedIn reconciliation or modify protected animation/game/privacy components.
 
 ## Version decision
 
-Your Master v1.2.1 brief arrived after v1.2.1 had already been reconciled, tagged and published. Codex preserved that release and implemented the new hero and restored GitHub as v1.2.2 on feat/v1.2.2-cv-surveillance, based on clean main at bdc117e. No historical tag or ZIP is overwritten. The live Replit site remains v1.2.1; this task prepares local source and a new deployment ZIP only.
+Your Master v1.0.3 brief arrived after v1.0.3 had already been reconciled, tagged and published. Codex preserved that release and implemented the new hero and restored GitHub as v1.0.4 on feat/v1.2.2-cv-surveillance, based on clean main at bdc117e. No historical tag or ZIP is overwritten. The live Replit site remains v1.0.3; this task prepares local source and a new deployment ZIP only.
 
 ## Career authority
 
@@ -36,7 +48,7 @@ The underground/CRT/game/scanner sources/assets, historical tags and existing ZI
 
 ## Hosting and next prompts
 
-Local source and private GitHub remain authoritative. Replit currently serves v1.2.1 at https://quantum-leap-interactive.replit.app/. The new quantum-leap-v1.2.2-replit.zip is a root-level application package with adjacent checksum/manifest. It has not been uploaded or published by this task, and no Replit Agent credits were used.
+Local source and private GitHub remain authoritative. Replit currently serves v1.0.3 at https://quantum-leap-interactive.replit.app/. The new quantum-leap-v1.2.2-replit.zip is a root-level application package with adjacent checksum/manifest. It has not been uploaded or published by this task, and no Replit Agent credits were used.
 
 For a subsequent deployment prompt, preserve Replit's existing port-5000 scripts/workflows and preview-only configuration overlays rather than blindly overwriting them with canonical port-3000 settings. Preserve the fixed platform-managed Node/empty replit.nix configuration; do not reintroduce LD_LIBRARY_PATH/OpenSSL overrides. Run production build, grounding/submission checks and a source-hash comparison before a separately authorized manual publish. Keep the current live release as rollback.
 

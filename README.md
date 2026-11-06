@@ -1,4 +1,4 @@
-# Ashim John visual resume v1.4.0
+# Ashim John visual resume v1.0.14
 
 Ashim John's visual resume, grounded exclusively in his candidate-supplied canonical LinkedIn specification. Next.js and TypeScript power a full-viewport, four-camera surveillance visual simulation, a sandboxed retro CRT game, and a Virtual Ambassador restricted to approved excerpts.
 
@@ -12,7 +12,7 @@ Ashim John's visual resume, grounded exclusively in his candidate-supplied canon
 | CRT filesystem and museum | FHS-inspired root, readable exhibits, and an on-demand sandboxed garage |
 | Claim Audit | 223 field-to-source rows; LinkedIn-only career authority; GitHub authorized as public contact only |
 | Redacted Public PDF | Three regenerated and visually reviewed pages; LinkedIn facts and public GitHub link |
-| Replit Core Packaging | v1.4.0 root-level ZIP with checksum and manifest. |
+| Replit Core Packaging | Root-level ZIP with checksum and manifest. The deployed archive carries its original v1.4.4 label. |
 
 ## How this repository is used
 
@@ -89,16 +89,16 @@ Quantum Leap began as Ashim's sophomore-year final project at UAlbany. The origi
     <td><strong>The services page</strong><br>The original HTML and shared stylesheet organized student support into a dedicated page.</td>
   </tr>
   <tr>
-    <td><a href="assets/screenshots/v130-portal.jpg"><img src="assets/screenshots/v130-portal.jpg" alt="v1.3.0 portfolio intro with the desk and ASCII portal" /></a></td>
-    <td><a href="assets/screenshots/v130-crt-desktop.jpg"><img src="assets/screenshots/v130-crt-desktop.jpg" alt="v1.3.0 terminal listing the Desktop directory" /></a></td>
+    <td><a href="assets/screenshots/v130-portal.jpg"><img src="assets/screenshots/v130-portal.jpg" alt="v1.0.9 portfolio intro with the desk and ASCII portal" /></a></td>
+    <td><a href="assets/screenshots/v130-crt-desktop.jpg"><img src="assets/screenshots/v130-crt-desktop.jpg" alt="v1.0.9 terminal listing the Desktop directory" /></a></td>
   </tr>
   <tr>
-    <td><strong>The portfolio takes shape</strong><br>v1.3.0 introduced the desk, the red ASCII portal, and four camera acts.</td>
+    <td><strong>The portfolio takes shape</strong><br>v1.0.9 introduced the desk, the red ASCII portal, and four camera acts.</td>
     <td><strong>The first CRT shell</strong><br>The Desktop folder provided a route into the hidden garage.</td>
   </tr>
   <tr>
-    <td><a href="assets/screenshots/v140-crt-root.jpg"><img src="assets/screenshots/v140-crt-root.jpg" alt="v1.4.0 terminal listing the filesystem root and /usr" /></a></td>
-    <td><a href="assets/screenshots/v140-crt-museum.jpg"><img src="assets/screenshots/v140-crt-museum.jpg" alt="v1.4.0 terminal displaying the UAlbany classroom and portfolio exhibits" /></a></td>
+    <td><a href="assets/screenshots/v140-crt-root.jpg"><img src="assets/screenshots/v140-crt-root.jpg" alt="v1.0.10 terminal listing the filesystem root and /usr" /></a></td>
+    <td><a href="assets/screenshots/v140-crt-museum.jpg"><img src="assets/screenshots/v140-crt-museum.jpg" alt="v1.0.10 terminal displaying the UAlbany classroom and portfolio exhibits" /></a></td>
   </tr>
   <tr>
     <td><strong>A filesystem to explore</strong><br>The CRT now opens at / and supports browsing, completion, and reading.</td>
@@ -110,11 +110,13 @@ Quantum Leap began as Ashim's sophomore-year final project at UAlbany. The origi
 
 Open the current build on [Quantum Leap](https://quantum-leap-interactive.replit.app/).
 
-After explicit versioning, use a new version for every freeze. The freeze script refuses existing tags or same-version manifests.
+The [release history](docs/RELEASE-VERSION-MAP.md) counts release milestones. Patch 20 rolls over to patch 0 of the next minor version. Freeze refuses skipped versions and existing tags.
 
 ```sh
+npm run release:next --silent
+# Bump to the version printed above.
 npm version X.Y.Z --no-git-tag-version
-npm run release:freeze -- --version X.Y.Z
+npm run release:freeze
 npm run verify:baseline
 python scripts/export-replit.py --output ../quantum-leap-vX.Y.Z-replit.zip
 ```
