@@ -1,4 +1,4 @@
-# Ashim John visual resume v1.2.5
+# Ashim John visual resume v1.2.6
 
 Ashim John's visual resume, grounded exclusively in his candidate-supplied canonical LinkedIn specification. Next.js and TypeScript power a full-viewport, four-camera surveillance visual simulation, a sandboxed retro CRT game, and a Virtual Ambassador restricted to approved excerpts.
 
@@ -12,7 +12,7 @@ Ashim John's visual resume, grounded exclusively in his candidate-supplied canon
 | CarMechanicOS Easter egg | Preserved on-demand CLI and opaque-origin sandbox; isolated save/reset and modal expansion |
 | Claim Audit | 223 field-to-source rows; LinkedIn-only career authority; GitHub authorized as public contact only |
 | Redacted Public PDF | Three regenerated and visually reviewed pages; LinkedIn facts and public GitHub link |
-| Replit Core Packaging | v1.2.5 root-level ZIP with checksum and manifest. |
+| Replit Core Packaging | v1.2.6 root-level ZIP with checksum and manifest. |
 
 ## How this repository is used
 
@@ -45,7 +45,7 @@ To rebuild the public PDF, install reportlab, pypdf and pypdfium2 in your Python
 
 ## Surveillance visual simulation
 
-Four original feeds map to four equal scroll bands. Run `python scripts/build-woven-surveillance-reel.py` with FFmpeg, FFprobe and Pillow to regenerate the 192 metadata-free WebP frames and silent H.264 reel. Fourteen-frame optical dissolves bridge each act. The page uses the frames, a bounded decode cache and a damped scroll playhead with small idle movement. Camera controls jump to 0%, 28%, 55%, and 80%. The first two acts retain native color.
+Four original feeds map to four equal scroll bands. Run `python scripts/build-woven-surveillance-reel.py` with FFmpeg, FFprobe and Pillow to regenerate the 192 metadata-free WebP frames and silent H.264 reel. Fourteen-frame optical dissolves bridge each act. A damped scroll playhead settles on one frame and holds its motion boxes and keypoints until the visitor scrolls again. Pointer inspection stays interactive. Camera controls jump to 0%, 28%, 55%, and 80%. The first two acts retain native color.
 
 HYBRID_CV, YOLO_BOXES and SLAM_KEYPOINTS select simulation layers. Named subjects are hand-marked and interpolated within visible ranges. The motion study also measures luminance changes and gradient keypoints on the displayed frame. Motion percentages describe pixel evidence. The system performs no model inference, biometric identification, redaction, or audit. Reduced Motion uses stills, OFF hides the overlays, and failed frame requests expose a retry action.
 

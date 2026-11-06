@@ -1,5 +1,11 @@
 # Quantum Leap release verification
 
+## v1.2.6 scroll and idle stability
+
+The woven playhead locks to the nearest scroll-selected frame and its tracking sample. A settled stage wakes for input, resize, or asset completion. The film and CV overlay share a pixel-aligned crop. The HUD reserves space for counters and the root keeps a consistent vertical scrollbar.
+
+The idle regression requires identical samples for both canvases and zero DOM geometry drift at 0% and 55% scroll on desktop Chromium and iPhone-profile WebKit. Each check samples every 250 ms for five seconds with the camera controls open.
+
 ## v1.2.5 woven camera study and custom analytics
 
 The scroll stage uses a 192-frame timeline with three 14-frame optical dissolves. Both color sources retain their color. The overlay samples the displayed frame and uses hand-marked landmarks within verified visibility ranges. All 16 browser checks passed in desktop Chromium and iPhone-profile WebKit. The suite covered both scrub directions, RGB pixels, frame alignment, retry, keyboard navigation, grounding, analytics and the garage.

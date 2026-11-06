@@ -34,8 +34,8 @@
 .surveillance-modes { display: flex; flex-wrap: wrap; gap: 4px; }
 .surveillance-modes button { flex: 1 0 auto; padding: 7px 8px; background: #0b141a; border: 1px solid #ffffff25; color: #a7b4b8; font-size: 7px; font-family: inherit; }
 .surveillance-modes button[aria-pressed=true] { color: #a3e635; border-color: #a3e63588; background: #a3e6350c; }
-.surveillance-readout { grid-column: 2 / -1; color: #aabac1; font-size: 7px; line-height: 1.5; overflow-wrap: anywhere; }
-.surveillance-section { color: #a3e635; font-size: 8px; letter-spacing: .06em; }
+.surveillance-readout { grid-column: 2 / -1; min-inline-size: 0; color: #aabac1; font-size: 7px; block-size: 1.5em; line-height: 1.5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.surveillance-section { color: #a3e635; font-size: 8px; letter-spacing: .06em; inline-size: 27ch; white-space: nowrap; }
 .surveillance-retry { grid-column: 1 / -1; justify-self: start; color: #dce4db; background: #0b141a; border: 1px solid var(--line); padding: 6px; font-size: 8px; }
 .surveillance-stage[data-motion=off] .surveillance-picture canvas, .surveillance-stage[data-motion=off] .surveillance-scanlines { display: none; }
 .surveillance-stage[data-motion=reduced] .surveillance-scanlines { display: none; }

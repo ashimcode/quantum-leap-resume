@@ -90,7 +90,8 @@ test('woven frames follow all four acts in both directions and preserve source c
   await expect(film).toHaveAttribute('data-qa-identity', 'same-film');
   expect(await stage.evaluate(element => {
     const box = element.getBoundingClientRect();
-    return box.x === 0 && box.y === 0 && box.width === innerWidth && document.documentElement.scrollWidth === innerWidth;
+    const root = document.documentElement;
+    return box.x === 0 && box.y === 0 && box.width === root.clientWidth && root.scrollWidth === root.clientWidth;
   })).toBe(true);
   expect(requests.some(url => /\/surveillance\/.+\.mp4|\/underground-(?:frames|reel)|\/carmechanicos\//.test(url))).toBe(false);
   await cameraControl.click();
@@ -99,6 +100,52 @@ test('woven frames follow all four acts in both directions and preserve source c
   await page.getByRole('button', { name: 'Resume surveillance effects' }).click();
   await expect(stage).toHaveAttribute('data-playback', 'active');
   expect(errors).toEqual([]);
+});
+
+test('woven film, CV overlays and HUD have zero drift during five seconds idle', async ({ page, isMobile }) => {
+  await page.goto('/');
+  const stage = page.locator(cameraStage);
+  await page.getByRole('button', { name: /^Camera study controls/ }).click();
+  await page.evaluate(async () => { await document.fonts.ready; });
+  if (!isMobile) await page.mouse.move(900, 350);
+
+  for (const [progress, expectedFrame] of [[0, 0], [.55, 106]]) {
+    await scrollToProgress(page, progress);
+    await expect(stage).toHaveAttribute('data-frame', String(expectedFrame));
+    await expect(stage).toHaveAttribute('data-settled', 'true');
+    const result = await stage.evaluate(async element => {
+      const stage = element as HTMLElement;
+      const canvases = [...stage.querySelectorAll('canvas')];
+      const sample = document.createElement('canvas');
+      sample.width = 96;
+      sample.height = 54;
+      const ctx = sample.getContext('2d', { willReadFrequently: true })!;
+      const measured = ['.hero', '.hero h1', '.hud-header', '.hud-top', '.hud-actions', '.scroll-telemetry',
+        '.surveillance-controls', '.surveillance-section', '.surveillance-readout'].map(selector => document.querySelector(selector)!);
+      const pixels = () => canvases.map(canvas => {
+        ctx.clearRect(0, 0, sample.width, sample.height);
+        ctx.drawImage(canvas, 0, 0, sample.width, sample.height);
+        return ctx.getImageData(0, 0, sample.width, sample.height).data;
+      });
+      const geometry = () => JSON.stringify({
+        scrollY, width: document.documentElement.clientWidth, height: document.documentElement.scrollHeight,
+        rects: [...measured, ...canvases].map(node => node.getBoundingClientRect().toJSON()),
+      });
+      const frame = () => [stage.dataset.frame, stage.dataset.trackingFrame, stage.dataset.frames, stage.dataset.settled].join('/');
+      const start = { pixels: pixels(), geometry: geometry(), frame: frame(), scrollY };
+      const changed: string[] = [];
+      for (let i = 1; i <= 20; i++) {
+        await new Promise(resolve => setTimeout(resolve, 250));
+        if (pixels().some((data, index) => data.some((byte, j) => byte !== start.pixels[index][j]))) changed.push(`canvas at sample ${i}`);
+        if (geometry() !== start.geometry) changed.push(`geometry at sample ${i}`);
+        if (frame() !== start.frame) changed.push(`frame or draw count at sample ${i}`);
+      }
+      return { scrollY: start.scrollY, changed };
+    });
+    if (progress === 0) expect(result.scrollY).toBe(0);
+    else expect(result.scrollY).toBeGreaterThan(0);
+    expect(result.changed, `idle at ${progress * 100}% scroll`).toEqual([]);
+  }
 });
 
 test('reduced motion requests stills and takes precedence over the header cycle', async ({ page }) => {

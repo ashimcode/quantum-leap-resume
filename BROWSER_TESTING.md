@@ -4,7 +4,9 @@ Build the production app with npm run build, install Playwright Chromium and Web
 
 The projects use desktop Chromium at 1440 × 900 and Playwright WebKit with the iPhone 13 device profile. This profile emulates the viewport, touch, scale, and user agent. Physical iPhone testing is a separate check for hardware decoding, Safari browser controls, and the device download and share UI. See the [Playwright browser documentation](https://playwright.dev/docs/browsers#webkit) and [device emulation documentation](https://playwright.dev/docs/emulation).
 
-The v1.2.5 suite covers all four acts in forward and reverse order, canvas RGB color, matching image and tracking frame indexes, fixed camera jumps, reduced motion, asset failure and retry, keyboard focus, actual Ambassador grounding, exact analytics labels and failure tolerance, PDF bytes, and the sandboxed garage. The current WebKit project uses a 390 × 844 CSS-pixel viewport.
+The suite covers all four acts in forward and reverse order, canvas RGB color, matching image and tracking frame indexes, fixed camera jumps, reduced motion, asset failure and retry, keyboard focus, actual Ambassador grounding, exact analytics labels and failure tolerance, PDF bytes, and the sandboxed garage. The current WebKit project uses a 390 × 844 CSS-pixel viewport.
+
+The v1.2.6 idle regression opens the camera controls and holds the top and 55% scroll positions for five seconds each. At 250 ms intervals it compares pixel samples from both canvases, hero and HUD bounding rectangles, the scroll position, document dimensions, and the frame and draw counters.
 
 ## v1.2.3 results
 

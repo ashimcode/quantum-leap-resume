@@ -12,7 +12,7 @@ export function wovenFramePath(frame: number) {
 /** Fetch near the playhead, keep compressed bytes for reverse scrubbing,
  * and cap decoded images so the stage stays usable on mobile.
  */
-export function createWovenFrameCache() {
+export function createWovenFrameCache(onSettled: () => void) {
   const bytes = new Map<number, Blob>();
   const decoded = new Map<number, ImageBitmap>();
   const loading = new Set<number>();
@@ -53,6 +53,7 @@ export function createWovenFrameCache() {
     } finally {
       loading.delete(index);
       pump();
+      if (!controller.signal.aborted) onSettled();
     }
   }
 
