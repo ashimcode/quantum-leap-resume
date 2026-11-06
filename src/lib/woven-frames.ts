@@ -1,5 +1,6 @@
 export const WOVEN_FRAME_COUNT = 192;
 export const WOVEN_ACT_LENGTH = WOVEN_FRAME_COUNT / 4;
+export const WOVEN_ENTRY_FRAME = 35;
 export const ACT_STARTS = [.18, .38, .58, .79, 1];
 
 export function scrollAct(progress: number) {
@@ -10,7 +11,9 @@ export function scrollAct(progress: number) {
 export function scrollFrame(progress: number) {
   const act = Math.max(0, scrollAct(progress));
   const fraction = Math.max(0, Math.min(1, (progress - ACT_STARTS[act]) / (ACT_STARTS[act + 1] - ACT_STARTS[act])));
-  return Math.min(WOVEN_FRAME_COUNT - 1, Math.round((act + fraction) * WOVEN_ACT_LENGTH));
+  const first = act === 0 ? WOVEN_ENTRY_FRAME : act * WOVEN_ACT_LENGTH;
+  const end = (act + 1) * WOVEN_ACT_LENGTH;
+  return Math.min(WOVEN_FRAME_COUNT - 1, Math.round(first + fraction * (end - first)));
 }
 
 export function frameAct(frame: number) {
@@ -90,7 +93,12 @@ export function createWovenFrameCache(onSettled: () => void) {
       ...first, frame - 1, target - 1,
       ...Array.from({ length: decodeLimit }, (_, i) => frame + (i + 1) * direction),
       ...Array.from({ length: 3 }, (_, i) => frame - (i + 1) * direction),
-    ])].filter(index => index >= 0 && index < WOVEN_FRAME_COUNT).slice(0, decodeLimit);
+    ])].filter(index => index >= WOVEN_ENTRY_FRAME && index < WOVEN_FRAME_COUNT).slice(0, decodeLimit);
+    pump();
+  }
+
+  function prepareEntry() {
+    if (queue.length !== 1 || queue[0] !== WOVEN_ENTRY_FRAME) queue = [WOVEN_ENTRY_FRAME];
     pump();
   }
 
@@ -101,7 +109,7 @@ export function createWovenFrameCache(onSettled: () => void) {
   }
 
   async function requestPlate(frame: number, isCurrent: () => boolean) {
-    if (plateTarget === frame || plates.has(frame) || failedPlates.has(frame)) return;
+    if (frame < WOVEN_ENTRY_FRAME || plateTarget === frame || plates.has(frame) || failedPlates.has(frame)) return;
     cancelPlate();
     plateRequest = new AbortController();
     const request = plateRequest;
@@ -136,6 +144,7 @@ export function createWovenFrameCache(onSettled: () => void) {
 
   return {
     prioritize, nearest, requestPlate, cancelPlate, plateFailed: (index: number) => failedPlates.has(index), plate: (index: number) => plates.get(index),
+    prepareEntry,
     get: (index: number) => decoded.get(index),
     failed: (index: number) => failed.has(index),
     retry() { failed.clear(); failedPlates.clear(); cancelPlate(); pump(); },

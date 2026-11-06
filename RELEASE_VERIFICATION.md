@@ -1,5 +1,11 @@
 # Quantum Leap release verification
 
+## v1.4.2 sparse ASCII intro
+
+Act 0 uses the original charcoal desk plate and a transparent Canvas 2D layer that draws individual ASCII characters. The compact monitor orb expands into a sparse annulus. The desk zooms toward the monitor and dissolves into the first eligible full-color SOC frame from 13% to 18%. Frames 000–034 are excluded from playback and prefetch. The stale 4K request guard remains active for Acts I–IV.
+
+Browser checks sample the actual canvas pixels at 0%, 2%, 5%, 8%, 12%, and 15%, including dark monitor corners, dark room pixels between glyphs, and the clearing center. The idle and rapid reversal test also checks the monitor corners while delayed 4K responses are released.
+
 ## v1.4.1 intro stability
 
 The existing 4K desk plate has no baked red rings. The renderer confines idle glyphs to the monitor in both the shader and the canvas clip. Scroll progress releases the clip for the breach. Woven 4K enhancement is reserved for Acts I–IV. Pending requests are canceled on scroll, and a decode must still belong to the current scroll position before it can enter the cache.

@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import ChapterNavigation from './ChapterNavigation';
 import { inspectFrame, SAMPLE_WIDTH, SAMPLE_HEIGHT } from '@/lib/motion-study';
-import { createWovenFrameCache, frameAct, scrollAct, scrollFrame, ACT_STARTS } from '@/lib/woven-frames';
-import { createBreachRenderer } from '@/lib/ascii-breach';
+import { createWovenFrameCache, frameAct, scrollAct, scrollFrame, ACT_STARTS, WOVEN_ENTRY_FRAME } from '@/lib/woven-frames';
+import { createBreachRenderer, smoothStep } from '@/lib/ascii-breach';
 import { annotatedBoxes } from '@/lib/woven-annotations';
 import { trackEvent } from '@/lib/analytics';
 
@@ -129,6 +129,8 @@ export default function QuantumHeroBackground() {
     const desk = new Image();
     desk.onload = () => { filmDirty = true; invalidate(); };
     desk.src = '/surveillance/desk-4k.webp';
+    const socStill = new Image();
+    socStill.onload = desk.onload;
     const sampler = document.createElement('canvas');
     sampler.width = SAMPLE_WIDTH;
     sampler.height = SAMPLE_HEIGHT;
@@ -256,7 +258,8 @@ export default function QuantumHeroBackground() {
       lastTick = now;
       const ratio = progress.current;
       const intro = ratio < ACT_STARTS[0];
-      const room = ratio < .14;
+      const dissolve = smoothStep(.13, ACT_STARTS[0], ratio);
+      const revealing = intro && dissolve > 0;
       const epoch = scrollEpoch.current;
       if (epoch !== lastEpoch) {
         lastEpoch = epoch;
@@ -275,12 +278,17 @@ export default function QuantumHeroBackground() {
       }
       let current: number | undefined;
       let bitmap: ImageBitmap | undefined;
-      if (cache) {
+      if (intro) {
+        cache?.prepareEntry();
+        bitmap = revealing ? cache?.get(WOVEN_ENTRY_FRAME) : undefined;
+        if (bitmap) current = WOVEN_ENTRY_FRAME;
+        stage.dataset.playback = motion === 'off' ? 'off' : 'desk';
+      } else if (cache) {
         playhead = mix(playhead, target, 1 - Math.exp(-elapsed / 78));
         if (Math.abs(playhead - target) < .15) playhead = target;
         const desired = Math.round(playhead);
         cache.prioritize(desired, target, direction);
-        const trackingReady = desired === 0 || !!cache.get(desired - 1) || cache.failed(desired - 1);
+        const trackingReady = desired === WOVEN_ENTRY_FRAME || !!cache.get(desired - 1) || cache.failed(desired - 1);
         if (desired === target) {
           // Present the destination and its tracking data together. Late cache
           // arrivals must never step through nearby frames after scrolling stops.
@@ -304,11 +312,11 @@ export default function QuantumHeroBackground() {
 
       const previous = current === undefined ? undefined : cache?.get(current - 1);
       const still = posterRef.current;
-      if (intro !== sampledIntro || current !== sampled || (!bitmap && still?.complete && still.currentSrc !== posterSource)) {
+      if (intro !== sampledIntro || (!intro && (current !== sampled || (!bitmap && still?.complete && still.currentSrc !== posterSource)))) {
         sampled = current;
         sampledIntro = intro;
         posterSource = still?.complete ? still.currentSrc : undefined;
-        const source = bitmap ?? (still?.complete && still.naturalWidth ? still : undefined);
+        const source = intro ? undefined : bitmap ?? (still?.complete && still.naturalWidth ? still : undefined);
         const values = source && luma(source);
         analysis = values && motion !== 'off' && !intro ? inspectFrame(values, previous && luma(previous)) : { boxes: [], keypoints: [] };
         dirty = true;
@@ -322,51 +330,54 @@ export default function QuantumHeroBackground() {
       }
       const plate = enhance ? cache?.plate(target) : undefined;
       if (plate !== renderedPlate) { renderedPlate = plate; filmDirty = true; }
-      const zoomProgress = Math.min(1, ratio / .14);
-      const zoom = 1 + zoomProgress * zoomProgress * 5;
+      const zoomProgress = smoothStep(0, ACT_STARTS[0], ratio);
+      const zoom = 1 + zoomProgress * 1.6;
       const deskX = width < height ? width / 2 - .647 * crop.width : crop.x;
       const focus = {
         x: mix(deskX + .647 * crop.width, width / 2, zoomProgress),
         y: mix(crop.y + .432 * crop.height, height / 2, zoomProgress),
       };
+      const deskReady = desk.complete && desk.naturalWidth > 0;
+      if (revealing && motion !== 'off' && (!cache || cache.failed(WOVEN_ENTRY_FRAME)) && !socStill.getAttribute('src')) {
+        socStill.src = `/surveillance/${FEEDS[0].file}.jpg`;
+      }
+      const incoming = revealing ? bitmap ?? (socStill.complete && socStill.naturalWidth ? socStill : undefined) : undefined;
       if (filmDirty || frameChanged) {
-        if (room && desk.complete && desk.naturalWidth) {
-          film.clearRect(0, 0, width, height);
+        film.clearRect(0, 0, width, height);
+        if (intro && deskReady) {
           film.drawImage(desk, Math.round(focus.x - .647 * crop.width * zoom), Math.round(focus.y - .432 * crop.height * zoom),
             Math.round(crop.width * zoom), Math.round(crop.height * zoom));
-        } else if (!room && (plate || bitmap)) {
+          if (incoming) {
+            film.globalAlpha = dissolve;
+            film.drawImage(incoming, crop.x, crop.y, crop.width, crop.height);
+            film.globalAlpha = 1;
+          }
+        } else if (!intro && (plate || bitmap)) {
           film.drawImage(plate || bitmap!, crop.x, crop.y, crop.width, crop.height);
-        } else {
-          film.clearRect(0, 0, width, height);
         }
+        if (still) still.style.visibility = motion !== 'off' && (intro ? deskReady : !!bitmap) ? 'hidden' : '';
         rendered = current;
         stage.dataset.frame = current === undefined ? '' : String(current);
         stage.dataset.trackingFrame = stage.dataset.frame;
-        stage.dataset.sampling = room ? 'desk-plate' : bitmap ? 'woven-frame' : 'still-edges';
-        stage.dataset.resolution = room || plate ? '4k' : 'hd';
+        stage.dataset.sampling = intro ? incoming ? 'desk-soc-dissolve' : 'desk-plate' : bitmap ? 'woven-frame' : 'still-edges';
+        stage.dataset.resolution = intro || plate ? '4k' : 'hd';
         filmDirty = false;
       }
       if (dirty || frameChanged) {
         draw();
         dirty = false;
       }
-      stage.dataset.intro = room ? ratio < .02 ? 'desk' : 'breach' : intro ? 'reveal' : 'complete';
+      stage.dataset.intro = intro ? revealing ? 'reveal' : ratio < .01 ? 'desk' : 'breach' : 'complete';
       if (breachCanvas) {
         breachCanvas.style.visibility = intro && motion !== 'off' ? 'visible' : 'hidden';
         if (intro && motion !== 'off') {
-          const time = motion === 'full' ? ((now - animationStart) / 1000) % (100 * Math.PI) : 0;
-          // Interior of the screen in the original desk plate's coordinates.
-          const monitor = { x: crop.width * zoom * .14, y: crop.height * zoom * .136 };
-          const clip = ratio <= .02
-            ? `inset(${Math.max(0, focus.y - monitor.y)}px ${Math.max(0, width - focus.x - monitor.x)}px ${Math.max(0, height - focus.y - monitor.y)}px ${Math.max(0, focus.x - monitor.x)}px)`
-            : 'none';
-          if (breachCanvas.style.clipPath !== clip) breachCanvas.style.clipPath = clip;
-          breach?.draw(ratio, time, focus, monitor, pointer, breachCanvas.width / width);
+          const time = motion === 'full' ? (now - animationStart) / 1000 : 0;
+          breach?.draw(ratio, time, focus, crop.height * 624 / 2160, pointer, width, height);
           stage.dataset.orbFrames = String(++introPaints);
         }
       }
-      stage.dataset.settled = String(room ? desk.complete && desk.naturalWidth > 0
-        : !!cache && playhead === target && rendered === target && (intro || !!plate || cache.plateFailed(target)));
+      stage.dataset.settled = String(intro ? deskReady && (!revealing || !!incoming || motion === 'off')
+        : !!cache && playhead === target && rendered === target && (!!plate || cache.plateFailed(target)));
       if (cache && (playhead !== target || intro)) schedule();
       else lastTick = undefined;
     }
@@ -395,10 +406,9 @@ export default function QuantumHeroBackground() {
         surface.width = pixelWidth;
         surface.height = pixelHeight;
       }
-      // Glyph cells carry no extra detail at Retina resolution. Keep the room/CV
-      // native-DPR while avoiding millions of redundant shader fragments.
+      // Keep the plate at native DPR and cap the independent text layer's buffer.
       if (breachCanvas) {
-        const effectRatio = Math.min(dpr, 1, 1920 / Math.max(width, height));
+        const effectRatio = Math.min(dpr, 1.5);
         breachCanvas.width = Math.round(width * effectRatio);
         breachCanvas.height = Math.round(height * effectRatio);
       }
@@ -443,7 +453,8 @@ export default function QuantumHeroBackground() {
       cancelAnimationFrame(raf);
       clearTimeout(plateTimer);
       desk.onload = null;
-      breach?.dispose();
+      socStill.onload = null;
+      if (still) still.style.visibility = '';
       cache?.dispose();
       redraw.current = null;
       retry.current = null;
@@ -459,7 +470,7 @@ export default function QuantumHeroBackground() {
   const camera = `CAM_0${scroll.act + 1}`;
   function jumpToAct(act: number) {
     const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-    window.scrollTo({ top: Math.round(maxScroll * ANCHORS[act]), behavior: motion === 'full' ? 'smooth' : 'instant' });
+    window.scrollTo({ top: Math.ceil(maxScroll * ANCHORS[act]), behavior: motion === 'full' ? 'smooth' : 'instant' });
   }
   function changeMotion(request: Motion) {
     const next = request === 'full' && systemReduced ? 'reduced' : request;

@@ -42,7 +42,7 @@ test('woven frames follow all four acts in both directions and preserve source c
   const cameraControl = page.getByRole('button', { name: /^Camera study controls/ });
   const cameraPanel = page.locator('#camera-study');
   await expect(cameraPanel).toBeHidden();
-  await frameNear(stage, 0);
+  await expect(stage).toHaveAttribute('data-frame', '');
   await expect(stage).toHaveAttribute('data-sampling', 'desk-plate');
   await expect(stage).toHaveAttribute('data-resolution', '4k');
 
@@ -56,7 +56,7 @@ test('woven frames follow all four acts in both directions and preserve source c
   for (const progress of [.24, .44, .66, .88, .66, .44, .24]) {
     await scrollToProgress(page, progress);
     await expect(stage).toHaveAttribute('data-feed', `CAM_0${progress < .38 ? 1 : progress < .58 ? 2 : progress < .79 ? 3 : 4}`);
-    await frameNear(stage, progress === .24 ? 14 : progress === .44 ? 62 : progress === .66 ? 114 : 165);
+    await frameNear(stage, progress === .24 ? 39 : progress === .44 ? 62 : progress === .66 ? 114 : 165);
     await expect.poll(() => stage.evaluate(element => Number((element as HTMLElement).dataset.keypoints))).toBeGreaterThan(0);
     if (progress === .44) await expect(stage).toHaveAttribute('data-annotations', /Billboard_Display Pedestrian/);
     if (progress === .88) await expect(stage).toHaveAttribute('data-annotations', /Spherical_Vehicle/);
@@ -75,7 +75,7 @@ test('woven frames follow all four acts in both directions and preserve source c
   for (const [camera, progress] of [[2, 40], [3, 60], [4, 81], [1, 18]]) {
     await cameraPanel.getByRole('button', { name: new RegExp(`^CAM_0${camera} /`) }).click();
     await expect(stage).toHaveAttribute('data-progress', String(progress));
-    await frameNear(stage, camera === 1 ? 0 : camera === 2 ? 53 : camera === 3 ? 101 : 149);
+    await frameNear(stage, camera === 1 ? 35 : camera === 2 ? 53 : camera === 3 ? 101 : 149);
   }
   for (const mode of ['YOLO_BOXES', 'SLAM_KEYPOINTS', 'HYBRID_CV']) {
     const button = page.getByRole('button', { name: mode, exact: true });
@@ -95,6 +95,7 @@ test('woven frames follow all four acts in both directions and preserve source c
     return box.x === 0 && box.y === 0 && box.width === root.clientWidth && root.scrollWidth === root.clientWidth;
   })).toBe(true);
   expect(requests.some(url => /\/surveillance\/.+\.mp4|\/underground-(?:frames|reel)|\/carmechanicos\//.test(url))).toBe(false);
+  expect(requests.filter(url => /\/woven-(?:frames|4k)\/0(?:[0-2]\d|3[0-4])\.webp/.test(url))).toEqual([]);
   await cameraControl.click();
   await page.getByRole('button', { name: 'Pause surveillance effects' }).click();
   await expect(stage).toHaveAttribute('data-playback', 'off');
@@ -111,7 +112,7 @@ test('woven film, CV overlays and HUD have zero drift during five seconds idle',
   await expect.poll(() => page.evaluate(() => parseFloat(document.querySelector<HTMLElement>('.site')!.style.getPropertyValue('--hud-height')) === document.querySelector<HTMLElement>('.hud-header')!.offsetHeight)).toBe(true);
   if (!isMobile) await page.mouse.move(900, 350);
 
-  for (const [progress, expectedFrame] of [[0, 0], [.55, 89]]) {
+  for (const [progress, expectedFrame] of [[0, ''], [.55, '89']] as const) {
     await scrollToProgress(page, progress);
     await expect(stage).toHaveAttribute('data-frame', String(expectedFrame));
     await expect(stage).toHaveAttribute('data-settled', 'true');
@@ -158,7 +159,8 @@ test('reduced motion requests stills and takes precedence over the header cycle'
   await ready(page);
   const stage = page.locator(cameraStage);
   await expect(stage).toHaveAttribute('data-motion', 'reduced');
-  await expect(stage.locator('img')).toBeVisible();
+  await expect(stage).toHaveAttribute('data-sampling', 'desk-plate');
+  await expect(stage).toHaveAttribute('data-settled', 'true');
   await expect.poll(() => stage.locator('img').evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
   await page.getByRole('button', { name: /^Camera study controls/ }).click();
   await page.getByRole('button', { name: /^CAM_01 / }).click();
@@ -183,13 +185,15 @@ test('missing frame assets fall back to the still and can be retried', async ({ 
   await page.route(pattern, route => available ? route.continue() : route.abort());
   await page.goto('/');
   const stage = page.locator(cameraStage);
+  await scrollToProgress(page, .44);
   await page.getByRole('button', { name: /^Camera study controls/ }).click();
   const retry = page.getByRole('button', { name: /Retry footage/ });
   await expect(retry).toBeVisible();
   await expect(stage).toHaveAttribute('data-playback', 'fallback');
   await expect(stage.locator('img')).toBeVisible();
+  await retry.evaluate((button: HTMLButtonElement) => button.focus({ preventScroll: true }));
   available = true;
-  await retry.click();
+  await retry.press('Enter');
   await expect(stage).toHaveAttribute('data-playback', 'active');
   await expect(retry).toBeHidden();
 });
@@ -379,7 +383,62 @@ test('portfolio actions emit one fixed-label event each and tolerate tracker err
 });
 
 
-test('desk stays sharp while the ASCII portal animates, engulfs and reveals', async ({ page }, info) => {
+async function introPixels(stage: Locator, progress: number) {
+  return stage.evaluate((element, ratio) => {
+    const film = element.querySelector<HTMLCanvasElement>('.surveillance-film')!;
+    const glyphs = element.querySelector<HTMLCanvasElement>('.surveillance-breach')!;
+    const w = element.clientWidth, h = element.clientHeight;
+    const cropWidth = Math.max(w, h * 16 / 9), cropHeight = cropWidth * 9 / 16;
+    const t = ratio / .18;
+    const zoomProgress = t * t * (3 - 2 * t);
+    const cx = w / 2 + (w < h ? 0 : .147 * cropWidth * (1 - zoomProgress));
+    const cy = h / 2 - .068 * cropHeight * (1 - zoomProgress);
+    const sample = document.createElement('canvas');
+    sample.width = w;
+    sample.height = h;
+    const ctx = sample.getContext('2d', { willReadFrequently: true })!;
+    ctx.drawImage(film, 0, 0, w, h);
+    const room = ctx.getImageData(0, 0, w, h).data;
+    ctx.clearRect(0, 0, w, h);
+    ctx.drawImage(glyphs, 0, 0, w, h);
+    const letters = ctx.getImageData(0, 0, w, h).data;
+    const corners: number[] = [];
+    let darkRoom = 0, clearRoom = 0, redWash = 0, glyphCount = 0, centerCount = 0, outsideCount = 0;
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const i = (y * w + x) * 4;
+        if (letters[i + 3] > 10) {
+          glyphCount++;
+          const distance = Math.hypot(x - cx, y - cy);
+          if (distance < cropHeight * .035) centerCount++;
+          if (distance > cropHeight * .112) outsideCount++;
+        } else {
+          clearRoom++;
+          if (room[i + 3] > 250 && room[i] < 60) darkRoom++;
+          if (room[i] >= 60 && room[i] - Math.max(room[i + 1], room[i + 2]) > 20) redWash++;
+        }
+      }
+    }
+    const dx = Math.min(cx - 8, w - cx - 8, .122 * cropWidth);
+    for (const x of [cx - dx, cx + dx]) {
+      for (const y of [cy - .11 * cropHeight, cy + .11 * cropHeight]) {
+        // Check a patch near each visible corner, including any overlay ink.
+        let maxRed = 0;
+        for (let yy = -3; yy <= 3; yy++) {
+          for (let xx = -3; xx <= 3; xx++) {
+            const i = ((Math.round(y) + yy) * w + Math.round(x) + xx) * 4;
+            const alpha = letters[i + 3] / 255;
+            maxRed = Math.max(maxRed, letters[i] * alpha + room[i] * (1 - alpha));
+          }
+        }
+        corners.push(maxRed);
+      }
+    }
+    return { corners, darkRoom: darkRoom / clearRoom, redWash, coverage: glyphCount / (w * h), glyphCount, centerCount, outsideCount };
+  }, progress);
+}
+
+test('desk stays sharp while sparse ASCII expands and dissolves into SOC footage', async ({ page }, info) => {
   await page.goto('/');
   const stage = page.locator(cameraStage);
   const film = stage.locator('.surveillance-film');
@@ -401,9 +460,32 @@ test('desk stays sharp while the ASCII portal animates, engulfs and reveals', as
   });
   await info.attach('intro-cadence.json', { body: JSON.stringify(cadence), contentType: 'application/json' });
   await page.screenshot({ path: info.outputPath('portal-desk.png') });
-  for (const [ratio, state] of [[.09, 'breach'], [.13, 'breach'], [.155, 'reveal'], [.24, 'complete']] as const) {
+  for (const [ratio, state] of [[0, 'desk'], [.02, 'breach'], [.05, 'breach'], [.08, 'breach'], [.12, 'breach'], [.15, 'reveal'], [.24, 'complete']] as const) {
     await scrollToProgress(page, ratio);
+    await expect(stage).toHaveAttribute('data-progress', String(Math.round(ratio * 100)));
     await expect(stage).toHaveAttribute('data-intro', state);
+    await expect(stage).toHaveAttribute('data-settled', 'true');
+    // Adjacent checkpoints can share a stage label. Wait for the canvas to paint
+    // the scroll update before sampling a pixel from the new position.
+    await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+    if (ratio < .18) {
+      await expect(stage).toHaveAttribute('data-sampling', ratio < .13 ? 'desk-plate' : 'desk-soc-dissolve');
+      await expect(stage).toHaveAttribute('data-frame', ratio < .13 ? '' : '35');
+      const pixels = await introPixels(stage, ratio);
+      expect(pixels.glyphCount, `visible glyphs at ${ratio}`).toBeGreaterThan(25);
+      expect(pixels.coverage, `sparse glyph coverage at ${ratio}`).toBeLessThan(.12);
+      if (ratio === 0) {
+        expect(Math.max(...pixels.corners), 'monitor corners remain dark').toBeLessThan(45);
+        expect(pixels.outsideCount, 'orb remains compact').toBe(0);
+      }
+      if (ratio <= .12) {
+        // At the deeper zoom, the desk's lighter neutral trim takes up more of
+        // a portrait viewport. The separate red-wash check still covers it.
+        expect(pixels.darkRoom, `unpainted room at ${ratio}`).toBeGreaterThan(.95);
+        expect(pixels.redWash, `red wash outside glyphs at ${ratio}`).toBe(0);
+      }
+      if (ratio >= .12) expect(pixels.centerCount, `clearing center at ${ratio}`).toBe(0);
+    }
     await page.screenshot({ path: info.outputPath(`portal-${ratio}.png`) });
   }
   await expect(stage).toHaveAttribute('data-resolution', '4k');
@@ -435,36 +517,12 @@ test('idle desk contains the red orb through rapid scroll and late 4K responses'
   async function checkDesk() {
     await expect(stage).toHaveAttribute('data-intro', 'desk');
     await expect(stage).toHaveAttribute('data-settled', 'true');
-    // Sample the composited page. Reading the WebGL backing buffer after the
-    // browser presents it can miss the very overlay this test is looking for.
-    const shot = await page.screenshot({ scale: 'css' });
-    const pixels = await page.evaluate(async base64 => {
-      const bytes = Uint8Array.from(atob(base64), value => value.charCodeAt(0));
-      const bitmap = await createImageBitmap(new Blob([bytes], { type: 'image/png' }));
-      const canvas = document.createElement('canvas');
-      const w = canvas.width = 320, h = canvas.height = 180;
-      const context = canvas.getContext('2d')!;
-      context.drawImage(bitmap, 0, 0, w, h);
-      bitmap.close();
-      const data = context.getImageData(0, 0, w, h).data;
-      const imageWidth = Math.max(innerWidth, innerHeight * 16 / 9);
-      const imageHeight = imageWidth * 9 / 16;
-      const cx = innerWidth < innerHeight ? .5 : .5 + .147 * imageWidth / innerWidth;
-      const cy = .5 - .068 * imageHeight / innerHeight;
-      let inside = 0, outside = 0;
-      for (let y = 0; y < h; y++) {
-        for (let x = 0; x < w; x++) {
-          const i = (y * w + x) * 4;
-          if (data[i] < 52 || data[i] - Math.max(data[i + 1], data[i + 2]) < 26) continue;
-          const dx = Math.abs((x + .5) / w - cx), dy = Math.abs((y + .5) / h - cy);
-          if (dx < .14 * imageWidth / innerWidth && dy < .136 * imageHeight / innerHeight) inside++;
-          else outside++;
-        }
-      }
-      return { inside, outside };
-    }, shot.toString('base64'));
-    expect(pixels.outside, 'bright red pixels outside the monitor').toBeLessThan(12);
-    return pixels.inside;
+    await expect(stage).toHaveAttribute('data-frame', '');
+    const pixels = await introPixels(stage, 0);
+    expect(Math.max(...pixels.corners), 'monitor corners remain dark after idling or scrolling').toBeLessThan(45);
+    expect(pixels.outsideCount, 'glyphs outside the compact orb').toBe(0);
+    expect(pixels.darkRoom).toBeGreaterThan(.985);
+    return pixels.glyphCount;
   }
 
   try {
