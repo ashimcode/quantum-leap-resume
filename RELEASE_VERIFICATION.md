@@ -1,5 +1,11 @@
 # Quantum Leap release verification
 
+## v1.4.3 approved ASCII intro with reload palettes
+
+This release restores the approved v1.4.0 workstation scene, WebGL glyph animation, and scroll transitions. A fresh page load selects one of six equally likely palettes; the monitor orb, bloom, room breach, and glow share that palette until the next reload. No media, résumé evidence, garage, or analytics changes are included.
+
+Typecheck, production build, 249 API regressions, 33 privacy scanner cases, six analytics events, five security checks, and 131 HTML/PDF fact checks passed. Chromium desktop, Chromium 4K, and iPhone-profile WebKit verified the portal and all six palettes by sampling rendered glyph pixels through the intro and checking that toggling effects retains the chosen color.
+
 ## v1.4.2 sparse ASCII intro
 
 Act 0 uses the original charcoal desk plate and a transparent Canvas 2D layer that draws individual ASCII characters. The compact monitor orb expands into a sparse annulus. The desk zooms toward the monitor and dissolves into the first eligible full-color SOC frame from 13% to 18%. Frames 000–034 are excluded from playback and prefetch. The stale 4K request guard remains active for Acts I–IV.
