@@ -2,6 +2,12 @@
 
 Release labels follow the [milestone correlation table](docs/RELEASE-VERSION-MAP.md). Historical artifact filenames, branch names, and commit identities retain their original names. The notes below use the proposed labels for past milestones. Actual Git refs are listed in the original-tag column.
 
+## v1.0.17 full woven scroll fix
+
+The earlier performance test ended in the first SOC act. A continuous 12-second desktop sweep from the hero to the footer and back, with 200 ms added per HD frame request, exposed stalls and temporary poster fallback in the later acts. All four acts now use the bounded directional prefetch queue. The renderer retains the last displayed bitmap and its annotations through a normal handoff, avoids redrawing an unchanged woven frame, and cancels a pending 4K download when its destination changes. It still uses the exact 4K frame at rest. The desk, ASCII orb, palette selection and baked dissolves are unchanged.
+
+The full-page desktop regression checks the desk, breach and reveal, then measures every act in both directions. It requires a minimum of 30 displayed frames per act, no frame hold reaching 250 ms, no temporary poster or tracking mismatch, and exact 4K settlement at the footer and back at the hero. The separate first SOC test still exercises the faster 1.4-second scroll.
+
 ## v1.0.16 first SOC act scroll fix
 
 Act I requests the next frames in the direction of travel and cancels obsolete downloads, with a bounded limit of five concurrent jobs on desktop and four on touch. The desk, ASCII orb, reveal, six palettes, later acts and media are unchanged.

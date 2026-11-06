@@ -1,6 +1,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { BREACH_PALETTES } from '../../src/lib/ascii-breach';
+import { ACT_STARTS } from '../../src/lib/woven-frames';
 
 const cameraStage = '.surveillance-stage';
 
@@ -153,6 +154,74 @@ test('SOC scroll stays close to the playhead on a cold connection', async ({ pag
   await scrollToProgress(page, .21);
   await expect(stage).toHaveAttribute('data-frame', '7');
   await expect(stage).toHaveAttribute('data-playback', 'active');
+});
+
+test('a cold continuous scroll keeps the film visible through all four acts in both directions', async ({ page }, info) => {
+  test.skip(info.project.name !== 'chromium-desktop', 'Enforce cadence at a repeatable desktop viewport');
+  await page.route(/\/surveillance\/woven-frames\/\d+\.webp/, async route => {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    await route.continue().catch(() => {}); // Obsolete downloads can be cancelled.
+  });
+  const errors: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  const stage = page.locator(cameraStage);
+  await expect(stage).toHaveAttribute('data-desk-buffer', 'ready');
+
+  for (const [from, to] of [[0, 1], [1, 0]]) {
+    const sweep = await stage.evaluate((element, { from, to, boundaries }) => {
+      const stage = element as HTMLElement;
+      const end = document.documentElement.scrollHeight - innerHeight;
+      const acts = boundaries.slice(1).map(() => ({
+        frames: new Set<number>(), posterTicks: 0, trackingMismatches: 0, maxHold: 0, last: '', changedAt: 0,
+      }));
+      const intro = new Set<string>();
+      const duration = 12_000;
+      return new Promise(resolve => {
+        let start: number | undefined;
+        function step(now: number) {
+          start ??= now;
+          const progress = scrollY / end;
+          const i = Math.min(acts.length - 1, boundaries.findLastIndex(ratio => progress >= ratio));
+          const { frame, trackingFrame, playback, intro: phase } = stage.dataset;
+          if (i < 0) intro.add(phase ?? '');
+          else {
+            const act = acts[i];
+            if (!frame || playback !== 'active') act.posterTicks++;
+            if (frame !== trackingFrame) act.trackingMismatches++;
+            if (frame) act.frames.add(Number(frame));
+            if (frame !== act.last || !act.changedAt) {
+              act.changedAt = now;
+              act.last = frame ?? '';
+            }
+            act.maxHold = Math.max(act.maxHold, now - act.changedAt);
+          }
+          const fraction = Math.min(1, (now - start) / duration);
+          window.scrollTo({ top: Math.round(end * (from + (to - from) * fraction)), behavior: 'instant' });
+          if (fraction < 1) requestAnimationFrame(step);
+          else resolve({ intro: [...intro], acts: acts.map(act => ({ ...act, frames: act.frames.size })) });
+        }
+        requestAnimationFrame(step);
+      });
+    }, { from, to, boundaries: ACT_STARTS }) as {
+      intro: string[];
+      acts: { frames: number; posterTicks: number; trackingMismatches: number; maxHold: number }[];
+    };
+
+    expect(sweep.intro).toEqual(expect.arrayContaining(['desk', 'breach', 'reveal']));
+    for (const [index, act] of sweep.acts.entries()) {
+      const context = `Act ${index + 1}, ${from === 0 ? 'down' : 'up'}`;
+      expect(act.frames, context).toBeGreaterThanOrEqual(30);
+      expect(act.maxHold, context).toBeLessThan(250);
+      expect(act.posterTicks, context).toBe(0);
+      expect(act.trackingMismatches, context).toBe(0);
+    }
+    await expect(stage).toHaveAttribute('data-frame', to === 1 ? '191' : '0');
+    await expect(stage).toHaveAttribute('data-resolution', '4k');
+    await expect(stage).toHaveAttribute('data-settled', 'true');
+    if (to === 1) await expect(stage).toHaveAttribute('data-section', 'FOOTER');
+  }
+  expect(errors).toEqual([]);
 });
 
 test('woven film, CV overlays and HUD have zero drift during five seconds idle', async ({ page, isMobile }) => {

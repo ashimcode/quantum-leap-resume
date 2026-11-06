@@ -42,9 +42,16 @@ export function createWovenFrameCache(onSettled: () => void) {
   let plateTarget = -1;
   let queue: number[] = [];
   let concurrentLimit = 2;
+  let displayed: number | undefined;
+
+  function preloadOrder() {
+    if (displayed === undefined) return queue;
+    return queue.filter(index => index !== displayed).slice(0, decodeLimit - 1);
+  }
 
   function trim() {
-    const needed = new Set(queue.slice(0, decodeLimit));
+    const needed = new Set(preloadOrder());
+    if (displayed !== undefined) needed.add(displayed);
     for (const [index, bitmap] of decoded) {
       if (decoded.size <= decodeLimit) break;
       if (!needed.has(index)) {
@@ -86,17 +93,17 @@ export function createWovenFrameCache(onSettled: () => void) {
 
   function pump() {
     if (controller.signal.aborted || document.hidden) return;
-    for (const index of queue) {
+    for (const index of preloadOrder()) {
       if (loading.size >= concurrentLimit) return;
       if (!decoded.has(index) && !loading.has(index) && !failed.has(index)) void load(index);
     }
   }
 
-  function prioritize(frame: number, target: number, direction: number, scrubbingSoc: boolean) {
-    // Preserve the existing intro and later acts' preload behavior. Act I needs
-    // more overlapping requests to keep up with a cold network while scrolling.
-    concurrentLimit = scrubbingSoc ? (desktop ? 5 : 4) : 2;
-    const priority = scrubbingSoc && frame !== target
+  function prioritize(frame: number, target: number, direction: number, scrubbingWoven: boolean) {
+    // Keep the intro preload unchanged. All four woven acts need overlapping
+    // requests to feed the moving playhead, including the cross-dissolves.
+    concurrentLimit = scrubbingWoven ? (desktop ? 5 : 4) : 2;
+    const priority = scrubbingWoven && frame !== target
       ? [frame, frame + direction, frame + 2 * direction, target, target - 1, frame - 1]
       : [frame, target, frame - 1, target - 1];
     queue = [...new Set([
@@ -104,10 +111,11 @@ export function createWovenFrameCache(onSettled: () => void) {
       ...Array.from({ length: decodeLimit }, (_, i) => frame + (i + 1) * direction),
       ...Array.from({ length: 3 }, (_, i) => frame - (i + 1) * direction),
     ])].filter(index => index >= 0 && index < WOVEN_FRAME_COUNT).slice(0, decodeLimit);
-    if (scrubbingSoc) {
+    if (scrubbingWoven) {
+      const wanted = preloadOrder();
       for (const [index, job] of loading) {
         // A decode is already in progress. Cancel only downloads we no longer need.
-        if (!job.decoding && !queue.includes(index)) job.request.abort();
+        if (!job.decoding && !wanted.includes(index)) job.request.abort();
       }
     }
     pump();
@@ -147,6 +155,7 @@ export function createWovenFrameCache(onSettled: () => void) {
 
   return {
     cancelPlate() { plateRequest?.abort(); plateRequest = undefined; plateTarget = -1; },
+    keepDisplayed(index: number | undefined) { displayed = index; },
     prioritize, nearest, requestPlate, plateFailed: (index: number) => failedPlates.has(index), plate: (index: number) => plates.get(index),
     get: (index: number) => decoded.get(index),
     failed: (index: number) => failed.has(index),

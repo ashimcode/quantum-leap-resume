@@ -270,14 +270,17 @@ export default function QuantumHeroBackground() {
       lastTick = now;
       const ratio = progress.current;
       const intro = ratio < ACT_STARTS[0];
-      const scrubbingSoc = !intro && ratio < ACT_STARTS[1];
       const room = ratio < .14;
       if (ratio !== lastScroll) {
-        if (intro) cache?.cancelPlate();
+        if (intro || selectedFrame() !== target) cache?.cancelPlate();
+        // The desk dolly changes with every scroll tick. Once woven playback
+        // begins, only a new bitmap or 4K plate needs another full-size draw.
+        if (intro || lastScroll < ACT_STARTS[0]) {
+          filmDirty = true;
+          dirty = true;
+        }
         lastScroll = ratio;
         stillSince = now;
-        filmDirty = true;
-        dirty = true;
         clearTimeout(plateTimer);
         plateTimer = window.setTimeout(schedule, 180);
       }
@@ -292,7 +295,7 @@ export default function QuantumHeroBackground() {
         playhead = mix(playhead, target, 1 - Math.exp(-elapsed / 78));
         if (Math.abs(playhead - target) < .15) playhead = target;
         const desired = Math.round(playhead);
-        cache.prioritize(desired, target, direction, scrubbingSoc);
+        cache.prioritize(desired, target, direction, !intro);
         const trackingReady = desired === 0 || !!cache.get(desired - 1) || cache.failed(desired - 1);
         if (desired === target) {
           // Present the destination and its tracking data together. Late cache
@@ -304,8 +307,16 @@ export default function QuantumHeroBackground() {
           if (current === target) current = rendered;
         }
         bitmap = current === undefined ? undefined : cache.get(current);
-        if (!bitmap) current = undefined;
         const unavailable = cache.failed(desired);
+        // During a normal handoff, keep the film and its matching tracking
+        // data visible until the next act has a decoded frame. Real fetch
+        // failures still surface the existing fallback and retry control.
+        if (!intro && !bitmap && !unavailable && rendered !== undefined) {
+          bitmap = cache.get(rendered);
+          if (bitmap) current = rendered;
+        }
+        if (!bitmap) current = undefined;
+        cache.keepDisplayed(intro ? undefined : current);
         stage.dataset.playback = unavailable ? 'fallback' : bitmap ? 'active' : 'loading';
         if (fallback !== unavailable) {
           fallback = unavailable;
