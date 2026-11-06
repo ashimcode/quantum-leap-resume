@@ -18,6 +18,17 @@ function scan(folder: string) {
     if (path.endsWith('.pdf')) {
       text = execFileSync(process.env.PYTHON_BIN || (process.platform === 'win32' ? 'python' : 'python3'), ['-c',
         'import sys; sys.path.insert(0, ".qa/python"); from pypdf import PdfReader; r=PdfReader(sys.argv[1]); print("\\n".join(p.extract_text() or "" for p in r.pages)); print(str(r.metadata))', path], { encoding: 'utf8' });
+    } else if (/^public\/surveillance\/woven-frames\/\d{3}\.webp$/.test(path.replaceAll('\\', '/'))) {
+      // The generator emits a single VP8 image chunk with no metadata. Compressed
+      // pixels can coincidentally contain byte runs that look like text.
+      const raw = readFileSync(path);
+      assert(raw.length >= 20 && raw.toString('ascii', 0, 4) === 'RIFF'
+        && raw.toString('ascii', 8, 16) === 'WEBPVP8 '
+        && raw.readUInt32LE(4) === raw.length - 8, `Invalid woven frame: ${path}`);
+      const size = raw.readUInt32LE(16);
+      assert.equal(raw.length, 20 + size + (size % 2), `Unexpected WebP metadata or trailing data: ${path}`);
+      files++;
+      continue;
     } else { text = readFileSync(path, 'utf8'); }
     assert(!privacyViolation(path,text), `Privacy pattern detected in ${path}`);
     files++;

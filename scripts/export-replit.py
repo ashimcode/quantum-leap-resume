@@ -31,7 +31,9 @@ for folder in ('src', 'public', 'scripts', 'tests'):
 files.extend((ROOT / '.github' / 'workflows').glob('*.yml'))
 files = sorted(set(files), key=lambda p: p.relative_to(ROOT).as_posix())
 required = {'.replit', 'package.json', 'package-lock.json', 'src/app/page.tsx',
-            'src/app/api/ambassador/route.ts', 'public/resume-public.pdf'}
+            'src/app/api/ambassador/route.ts', 'public/resume-public.pdf',
+            'scripts/verify-analytics.ts', 'scripts/build-woven-surveillance-reel.py',
+            'public/surveillance/woven-scroll-reel.mp4'}
 # Public assets are recursively allowlisted above. Fail closed if a camera or its
 # reduced-motion poster is missing, rather than exporting a partially working hero.
 surveillance = (
@@ -40,6 +42,8 @@ surveillance = (
 )
 required.update(f'public/surveillance/{name}.{ext}'
                 for name in surveillance for ext in ('mp4', 'jpg'))
+required.update(f'public/surveillance/woven-frames/{index:03}.webp' for index in range(192))
+assert sum((ROOT / name).stat().st_size for name in required if '/woven-' in name) < 16 * 1024 * 1024, 'Woven media exceeds release budget'
 assert sum((ROOT / f'public/surveillance/{name}.mp4').stat().st_size
            for name in surveillance) < 12 * 1024 * 1024, 'Camera payload exceeds release budget'
 assert all(p.is_file() and not p.is_symlink() and p.resolve().is_relative_to(ROOT) for p in files), 'Missing file or unsafe export path'

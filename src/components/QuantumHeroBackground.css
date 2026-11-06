@@ -1,11 +1,12 @@
 /* Shared camera layer behind the entire document. */
 .surveillance-stage { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; contain: strict; }
 .surveillance-picture { position: absolute; inset: 0; pointer-events: none; background: #07080a; }
-.surveillance-picture video, .surveillance-picture img, .surveillance-picture canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.surveillance-picture video, .surveillance-picture img { filter: grayscale(.94) sepia(.24) hue-rotate(116deg) contrast(1.18); opacity: .82; transform: translateY(var(--camera-offset, 0px)) scale(var(--camera-zoom, 1)); }
-.surveillance-picture canvas { opacity: .76; mask-image: linear-gradient(90deg, #0006, #0009 50%, #000 78%); }
-.surveillance-shade { position: absolute; inset: 0; background: linear-gradient(90deg, #07080af2 0%, #07080acf 32%, #07080a68 65%, #07080a35), linear-gradient(0deg, #07080a 0%, transparent 35%, transparent 78%, #07080a99); }
-.surveillance-stage:not([data-section=HERO]) .surveillance-shade { background: linear-gradient(90deg, #07080ae8, #07080abf 48%, #07080a8c); }
+.surveillance-picture img, .surveillance-picture canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.surveillance-film, .surveillance-poster { opacity: .94; }
+.surveillance-stage[data-frame]:not([data-frame=""]) .surveillance-poster { visibility: hidden; }
+.surveillance-overlay { opacity: .76; mask-image: linear-gradient(90deg, #0006, #0009 50%, #000 78%); }
+.surveillance-shade { position: absolute; inset: 0; background: linear-gradient(90deg, #07080ae8 0%, #07080abf 32%, #07080a4a 65%, #07080a20), linear-gradient(0deg, #07080a 0%, transparent 35%, transparent 78%, #07080a99); }
+.surveillance-stage:not([data-section=HERO]) .surveillance-shade { background: linear-gradient(90deg, #07080adb, #07080aad 48%, #07080a66); }
 .surveillance-scanlines { position: absolute; inset: 0; opacity: .12; background: repeating-linear-gradient(0deg, transparent 0 3px, #050608 3px 4px); }
 .hero-coordinate, .hero-copy, .hero-grid-strip { position: relative; z-index: 1; }
 .hero-coordinate { max-width: 52%; }
@@ -27,8 +28,9 @@
 .camera-toggle[aria-expanded=true] { border-color: #a3e63588; }
 .surveillance-caption { display: flex; align-items: center; gap: 7px; color: #a3e635; font-size: 7px; letter-spacing: 1px; }
 .surveillance-caption > span { width: 4px; height: 4px; flex-shrink: 0; background: currentColor; border-radius: 50%; }
-.surveillance-feed { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 6px 8px; background: #111f23ad; border: 1px solid var(--line); color: #dde5de; text-align: left; font-family: inherit; font-size: 8px; line-height: 1.7; }
-.surveillance-feed:hover { color: #a3e635; }
+.surveillance-feeds { display: flex; flex-wrap: wrap; gap: 4px; }
+.surveillance-feed { flex: 1 0 auto; padding: 6px 8px; background: #111f23ad; border: 1px solid var(--line); color: #dde5de; text-align: left; font-family: inherit; font-size: 8px; line-height: 1.7; }
+.surveillance-feed:hover, .surveillance-feed[aria-pressed=true] { color: #a3e635; border-color: #a3e63588; }
 .surveillance-modes { display: flex; flex-wrap: wrap; gap: 4px; }
 .surveillance-modes button { flex: 1 0 auto; padding: 7px 8px; background: #0b141a; border: 1px solid #ffffff25; color: #a7b4b8; font-size: 7px; font-family: inherit; }
 .surveillance-modes button[aria-pressed=true] { color: #a3e635; border-color: #a3e63588; background: #a3e6350c; }
@@ -40,7 +42,7 @@
 @media (max-width: 900px) {
   .surveillance-controls:not([hidden]) { grid-template-columns: minmax(0, 1fr) auto; gap: 6px 8px; padding: 8px 14px; }
   .surveillance-section { grid-column: 2; grid-row: 1; text-align: right; }
-  .surveillance-feed, .surveillance-modes, .surveillance-readout { grid-column: 1 / -1; }
+  .surveillance-feeds, .surveillance-modes, .surveillance-readout { grid-column: 1 / -1; }
 }
 @media (max-width: 700px) {
   .scroll-telemetry { right: 4px; transform: none; }
@@ -50,7 +52,6 @@
   .surveillance-feed { font-size: 7px; }
   .surveillance-modes button { padding: 8px 4px; }
   .hero-coordinate { max-width: 100%; }
-  .surveillance-picture video, .surveillance-picture img { opacity: .65; }
   .surveillance-shade { background: linear-gradient(90deg, #07080abd, #07080a40), linear-gradient(0deg, #07080a 0%, #07080a55 35%, #07080a80 70%, #07080a55); }
   .hero h1 { font-size: 55px; }
 }

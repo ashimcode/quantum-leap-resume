@@ -29,7 +29,7 @@ async function main() {
   const retiredBranding = /he\s*\/\s*him|quantum\s+leap|start of transmission/i;
   assert(!retiredBranding.test(visible) && !retiredBranding.test(pdf), 'Retired labels are visible');
   assert.match(html, /<p class="intro-name">Ashim John<\/p>/);
-  assert(visible.includes('VISUAL SIMULATION / CAMERA STUDY'), 'Missing simulation disclosure');
+  assert(visible.includes('VISUAL SIMULATION / WOVEN CAMERA STUDY'), 'Missing simulation disclosure');
   assert(html.includes(`href="${data.candidate.links.github}"`), 'Missing authorized public GitHub link');
   assert.equal(data.candidate.links.github, 'https://github.com/ashimcode');
   assert(pdf.includes('github.com/ashimcode'), 'Missing authorized GitHub link in public PDF');

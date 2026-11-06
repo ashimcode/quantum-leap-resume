@@ -1,10 +1,10 @@
 # Browser testing
 
-Build the production app with npm run build, install Playwright Chromium and WebKit with npx playwright install chromium webkit, then run npm run verify:browser. The suite starts an isolated production server on loopback port 3123, with model-provider credentials disabled. Browser specs and their configuration stay outside the application TypeScript project. Traces and screenshots are written under the ignored .qa/v123/playwright directory.
+Build the production app with npm run build, install Playwright Chromium and WebKit with npx playwright install chromium webkit, then run npm run verify:browser. The suite starts an isolated production server on loopback port 3123, with model-provider credentials disabled. Browser specs and their configuration stay outside the application TypeScript project. Traces and screenshots are written under the ignored .qa/v125/playwright directory.
 
 The projects use desktop Chromium at 1440 × 900 and Playwright WebKit with the iPhone 13 device profile. This profile emulates the viewport, touch, scale, and user agent. Physical iPhone testing is a separate check for hardware decoding, Safari browser controls, and the device download and share UI. See the [Playwright browser documentation](https://playwright.dev/docs/browsers#webkit) and [device emulation documentation](https://playwright.dev/docs/emulation).
 
-The checks cover each camera's decoded frames and advancing playback time, camera and canvas identity across chapter changes, reduced motion, pause and resume, autoplay recovery, keyboard focus, real Ambassador submission, PDF download bytes, and the sandboxed garage.
+The v1.2.5 suite covers all four acts in forward and reverse order, canvas RGB color, matching image and tracking frame indexes, fixed camera jumps, reduced motion, asset failure and retry, keyboard focus, actual Ambassador grounding, exact analytics labels and failure tolerance, PDF bytes, and the sandboxed garage. The current WebKit project uses a 390 × 844 CSS-pixel viewport.
 
 ## v1.2.3 results
 

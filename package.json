@@ -1,12 +1,13 @@
 {
   "name": "ashim-john-resume",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "private": true,
   "scripts": {
     "dev": "next dev -H 0.0.0.0 -p 3000",
     "build": "next build",
     "start": "next start -H 0.0.0.0 -p 3000",
-    "verify": "ts-node scripts/verify-grounding.ts && npm run verify:security",
+    "verify": "ts-node scripts/verify-grounding.ts && npm run verify:analytics && npm run verify:security",
+    "verify:analytics": "tsx scripts/verify-analytics.ts",
     "verify:security": "tsx scripts/verify-security.ts",
     "verify:browser": "playwright test",
     "verify:submission": "ts-node scripts/verify-submission.ts",

@@ -7,14 +7,20 @@ async function ready(page: Page) {
   await expect(page.locator(cameraStage)).toHaveAttribute('data-feed', /^CAM_0[1-4]$/);
 }
 
-async function playing(video: Locator) {
-  await expect.poll(() => video.evaluate((media: HTMLVideoElement) => ({
-    playing: !media.paused && media.currentTime > .05,
-    decodedFrame: media.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA && media.videoWidth > 0 && media.videoHeight > 0,
-    error: media.error?.code ?? null,
-  })), { timeout: 12_000 }).toEqual({ playing: true, decodedFrame: true, error: null });
-  const initialTime = await video.evaluate((media: HTMLVideoElement) => media.currentTime);
-  await expect.poll(() => video.evaluate((media: HTMLVideoElement, time) => Math.abs(media.currentTime - time), initialTime)).toBeGreaterThan(.03);
+async function frameNear(stage: Locator, expected: number) {
+  await expect.poll(async () => {
+    const value = await stage.getAttribute('data-frame');
+    return value ? Math.abs(Number(value) - expected) : Infinity;
+  }).toBeLessThanOrEqual(3);
+  await expect.poll(async () => stage.evaluate(element =>
+    element.getAttribute('data-frame') === element.getAttribute('data-tracking-frame'))).toBe(true);
+}
+
+async function scrollToProgress(page: Page, progress: number) {
+  await page.evaluate(ratio => window.scrollTo({
+    top: Math.round((document.documentElement.scrollHeight - window.innerHeight) * ratio),
+    behavior: 'instant',
+  }), progress);
 }
 
 async function tabTo(page: Page, locator: Locator, key = 'Tab') {
@@ -25,50 +31,51 @@ async function tabTo(page: Page, locator: Locator, key = 'Tab') {
   await expect(locator).toBeFocused();
 }
 
-test('one playing camera and canvas follow the entire document', async ({ page, browserName }, info) => {
+test('woven frames follow all four acts in both directions and preserve source color', async ({ page }, info) => {
   const requests: string[] = [];
   const errors: string[] = [];
   page.on('request', request => requests.push(request.url()));
   page.on('pageerror', error => errors.push(error.message));
-  page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
-
   await page.goto('/');
-  await ready(page);
   const stage = page.locator(cameraStage);
-  const video = stage.locator('video');
-  const canvas = stage.locator('canvas');
-  await expect(video).toHaveCount(1);
-  await expect(canvas).toHaveCount(1);
-  await playing(video);
-  await expect(stage).toHaveAttribute('data-sampling', 'luminance-motion');
-  await expect(video).toHaveAttribute('src', /^\/surveillance\/cam-0[1-4]-.+\.mp4$/);
-  // WebKit's media process does not report all range requests as page events.
-  if (browserName === 'chromium') expect(new Set(requests.filter(url => /\/surveillance\/.+\.mp4$/.test(url))).size).toBe(1);
+  const film = stage.locator('.surveillance-film');
   const cameraControl = page.getByRole('button', { name: /^Camera study controls/ });
   const cameraPanel = page.locator('#camera-study');
-  await expect(cameraControl).toHaveAttribute('aria-expanded', 'false');
   await expect(cameraPanel).toBeHidden();
-  await page.screenshot({ path: info.outputPath('hero.png') });
+  await frameNear(stage, 0);
+  await expect(stage).toHaveAttribute('data-sampling', 'woven-frame');
+  await expect(stage).toHaveAttribute('data-annotations', /Monitor_Wall/);
+  await film.evaluate(element => { element.dataset.qaIdentity = 'same-film'; });
+  await page.screenshot({ path: info.outputPath('woven-hero.png') });
   await cameraControl.click();
-  await expect(page.getByText('VISUAL SIMULATION / CAMERA STUDY')).toBeVisible();
-  const panelBounds = (await cameraPanel.boundingBox())!;
-  const panelBottom = panelBounds.y + panelBounds.height;
-  await expect.poll(async () => (await page.locator('.scroll-telemetry').boundingBox())!.y).toBeGreaterThan(panelBottom);
-  expect((await page.locator('main').boundingBox())!.y).toBeGreaterThanOrEqual(panelBottom - 1);
-  await page.screenshot({ path: info.outputPath('camera-row.png') });
+  await expect(page.getByText('VISUAL SIMULATION / WOVEN CAMERA STUDY')).toBeVisible();
+  const panel = (await cameraPanel.boundingBox())!;
+  await expect.poll(async () => (await page.locator('.scroll-telemetry').boundingBox())!.y).toBeGreaterThan(panel.y + panel.height);
 
-  const seen = new Set<string>();
-  const switchFeed = page.getByRole('button', { name: /^Switch surveillance camera/ });
-  for (let i = 0; i < 4; i++) {
-    seen.add((await stage.getAttribute('data-feed'))!);
-    await playing(video);
+  for (const progress of [0, .30, .60, .90, .60, .30, 0]) {
+    await scrollToProgress(page, progress);
+    await expect(stage).toHaveAttribute('data-feed', `CAM_0${1 + Math.floor(progress * 4)}`);
+    await frameNear(stage, Math.round(progress * 192));
     await expect.poll(() => stage.evaluate(element => Number((element as HTMLElement).dataset.keypoints))).toBeGreaterThan(0);
-    await expect.poll(() => stage.evaluate(element => Number((element as HTMLElement).dataset.blobs)), { timeout: 8_000 }).toBeGreaterThan(0);
-    if (i < 3) await switchFeed.click();
+    if (progress === .30) await expect(stage).toHaveAttribute('data-annotations', /Billboard_Display Pedestrian/);
+    if (progress === .90) await expect(stage).toHaveAttribute('data-annotations', /Spherical_Vehicle/);
+    if (progress < .5) {
+      await expect.poll(() => film.evaluate((canvas: HTMLCanvasElement) => {
+        const { data } = canvas.getContext('2d')!.getImageData(0, 0, canvas.width, canvas.height);
+        let colored = 0;
+        for (let i = 0; i < data.length; i += 68) {
+          const spread = Math.max(data[i], data[i + 1], data[i + 2]) - Math.min(data[i], data[i + 1], data[i + 2]);
+          if (spread > 14 && data[i + 3] === 255) colored++;
+        }
+        return colored / (data.length / 68);
+      })).toBeGreaterThan(.03);
+    }
   }
-  expect(seen.size).toBe(4);
-  await video.evaluate(element => { element.dataset.qaIdentity = 'same-camera-element'; });
-  await canvas.evaluate(element => { element.dataset.qaIdentity = 'same-canvas-element'; });
+  for (const [camera, progress] of [[2, 28], [3, 55], [4, 80], [1, 0]]) {
+    await cameraPanel.getByRole('button', { name: new RegExp(`^CAM_0${camera} /`) }).click();
+    await expect(stage).toHaveAttribute('data-progress', String(progress));
+    await frameNear(stage, Math.round(progress * 1.92));
+  }
   for (const mode of ['YOLO_BOXES', 'SLAM_KEYPOINTS', 'HYBRID_CV']) {
     const button = page.getByRole('button', { name: mode, exact: true });
     await button.click();
@@ -77,102 +84,62 @@ test('one playing camera and canvas follow the entire document', async ({ page, 
   await page.keyboard.press('Escape');
   await expect(cameraPanel).toBeHidden();
   await expect(cameraControl).toBeFocused();
-
-  for (const [selector, section] of [
-    ['.hero-grid-strip', 'FOUNDATION'], ['#role-match', 'VERIFIABLE EVIDENCE'],
-    ['#projects', 'PROJECTS'], ['#experience', 'EXPERIENCE'],
-    ['#credentials', 'CREDENTIALS'], ['#ambassador', 'AMBASSADOR'],
-  ]) {
-    await page.locator(selector).evaluate(element => {
-      window.scrollTo({ top: window.scrollY + element.getBoundingClientRect().top - 100, behavior: 'instant' });
-    });
-    await expect(stage).toHaveAttribute('data-section', section);
-  }
-  await page.screenshot({ path: info.outputPath('ambassador.png') });
-  await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
-  await expect(stage).toHaveAttribute('data-progress', '100');
+  await scrollToProgress(page, 1);
   await expect(stage).toHaveAttribute('data-section', 'FOOTER');
-  await expect.poll(() => stage.evaluate(element => Number(element.style.getPropertyValue('--camera-zoom')))).toBeGreaterThan(1.04);
-  await expect(video).toHaveAttribute('data-qa-identity', 'same-camera-element');
-  await expect(canvas).toHaveAttribute('data-qa-identity', 'same-canvas-element');
-  await playing(video);
-  const bounds = await stage.evaluate(element => {
+  await frameNear(stage, 191);
+  await expect(film).toHaveAttribute('data-qa-identity', 'same-film');
+  expect(await stage.evaluate(element => {
     const box = element.getBoundingClientRect();
-    return { x: box.x, y: box.y, width: box.width, viewport: innerWidth, scrollWidth: document.documentElement.scrollWidth };
-  });
-  expect(bounds).toEqual({ x: 0, y: 0, width: bounds.viewport, viewport: bounds.viewport, scrollWidth: bounds.viewport });
-  expect(requests.some(url => /\/underground-(?:frames|reel)/.test(url))).toBe(false);
-  expect(requests.some(url => /\/carmechanicos\//.test(url))).toBe(false);
-
+    return box.x === 0 && box.y === 0 && box.width === innerWidth && document.documentElement.scrollWidth === innerWidth;
+  })).toBe(true);
+  expect(requests.some(url => /\/surveillance\/.+\.mp4|\/underground-(?:frames|reel)|\/carmechanicos\//.test(url))).toBe(false);
   await cameraControl.click();
-  await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
-  await expect(page.locator('.surveillance-section')).toHaveText('100% / FOOTER');
   await page.getByRole('button', { name: 'Pause surveillance effects' }).click();
-  await expect(stage).toHaveAttribute('data-motion', 'off');
-  await expect.poll(() => video.evaluate((media: HTMLVideoElement) => media.paused)).toBe(true);
+  await expect(stage).toHaveAttribute('data-playback', 'off');
   await page.getByRole('button', { name: 'Resume surveillance effects' }).click();
-  await playing(video);
-
-  const fx = page.getByRole('button', { name: /^Effects / });
-  await fx.click();
-  await expect(stage).toHaveAttribute('data-motion', 'reduced');
-  await expect(video).not.toHaveAttribute('src');
-  await fx.click();
-  await expect(stage).toHaveAttribute('data-motion', 'off');
-  await fx.click();
-  await expect(stage).toHaveAttribute('data-motion', 'full');
-  await playing(video);
+  await expect(stage).toHaveAttribute('data-playback', 'active');
   expect(errors).toEqual([]);
 });
 
-test('reduced motion requests a poster and takes precedence over the header cycle', async ({ page }) => {
+test('reduced motion requests stills and takes precedence over the header cycle', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  const movies: string[] = [];
-  page.on('request', request => { if (/\/surveillance\/.+\.mp4$/.test(request.url())) movies.push(request.url()); });
+  const frames: string[] = [];
+  page.on('request', request => { if (/\/surveillance\/woven-frames\//.test(request.url())) frames.push(request.url()); });
   await page.goto('/');
   await ready(page);
   const stage = page.locator(cameraStage);
   await expect(stage).toHaveAttribute('data-motion', 'reduced');
   await expect(stage.locator('img')).toBeVisible();
   await expect.poll(() => stage.locator('img').evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
-  await expect(stage.locator('video')).not.toHaveAttribute('src');
   await page.getByRole('button', { name: /^Camera study controls/ }).click();
-  const canvas = stage.locator('canvas');
+  const canvas = stage.locator('.surveillance-overlay');
   const hybrid = await canvas.evaluate((element: HTMLCanvasElement) => element.toDataURL());
   await page.getByRole('button', { name: 'SLAM_KEYPOINTS', exact: true }).click();
   await expect.poll(() => canvas.evaluate((element: HTMLCanvasElement) => element.toDataURL())).not.toBe(hybrid);
-  await page.getByRole('button', { name: /^Switch surveillance camera/ }).click();
+  await page.getByRole('button', { name: /^CAM_03 / }).click();
+  await expect(stage.locator('img')).toHaveAttribute('src', /cam-03/);
   const fx = page.getByRole('button', { name: /^Effects / });
   await fx.click();
   await expect(stage).toHaveAttribute('data-motion', 'off');
   await fx.click();
   await expect(stage).toHaveAttribute('data-motion', 'reduced');
-  expect(movies).toEqual([]);
+  expect(frames).toEqual([]);
 });
 
-test('blocked autoplay uses a still and a user can retry playback', async ({ page }) => {
-  await page.addInitScript(() => {
-    const play = HTMLMediaElement.prototype.play;
-    let firstAttempt = true;
-    HTMLMediaElement.prototype.play = function () {
-      if (firstAttempt && this.closest('.surveillance-stage')) {
-        firstAttempt = false;
-        return Promise.reject(new DOMException('Autoplay disabled for this test', 'NotAllowedError'));
-      }
-      return play.call(this);
-    };
-  });
+test('missing frame assets fall back to the still and can be retried', async ({ page }) => {
+  const pattern = '**/surveillance/woven-frames/**';
+  let available = false;
+  await page.route(pattern, route => available ? route.continue() : route.abort());
   await page.goto('/');
-  await ready(page);
   const stage = page.locator(cameraStage);
   await page.getByRole('button', { name: /^Camera study controls/ }).click();
-  const retry = page.getByRole('button', { name: /Retry playback/ });
+  const retry = page.getByRole('button', { name: /Retry footage/ });
   await expect(retry).toBeVisible();
   await expect(stage).toHaveAttribute('data-playback', 'fallback');
-  await expect(stage.locator('video')).toBeHidden();
   await expect(stage.locator('img')).toBeVisible();
+  available = true;
   await retry.click();
-  await playing(stage.locator('video'));
+  await expect(stage).toHaveAttribute('data-playback', 'active');
   await expect(retry).toBeHidden();
 });
 
@@ -263,4 +230,57 @@ test('garage loads on demand and exits without shifting the document', async ({ 
   await page.getByRole('button', { name: /exit game/i }).click();
   await expect(command).toBeFocused();
   expect(await geometry()).toEqual(before);
+});
+
+test('portfolio actions emit one fixed-label event each and tolerate tracker errors', async ({ context, page }) => {
+  await context.route(/https:\/\/(?:www\.linkedin\.com|github\.com)\//, route => route.abort());
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.addInitScript(() => {
+    const events: { name: string; data?: Record<string, string> }[] = [];
+    Object.assign(window, { analyticsEvents: events, umami: {
+      track: (name: string, data?: Record<string, string>) => { events.push({ name, data }); },
+    } });
+  });
+  let status = 200;
+  await page.route('**/api/ambassador', route => route.fulfill({ status, json: { answer: 'Private answer fixture.' } }));
+  await page.goto('/');
+  await expect(page.locator(cameraStage)).toHaveAttribute('data-motion', 'reduced');
+  const download = page.waitForEvent('download');
+  await page.getByRole('link', { name: 'Download Redacted Resume' }).click();
+  await download;
+  await page.getByRole('link', { name: 'LinkedIn profile' }).click();
+  await page.locator('.hero-actions').getByRole('link', { name: 'GitHub' }).click();
+  await page.getByRole('button', { name: /Tell me about Project Hedgehog/ }).click();
+  await expect(page.getByText('Private answer fixture.')).toBeVisible();
+  const question = page.getByRole('textbox', { name: /Ask about Ashim/ });
+  status = 429;
+  await question.fill('Private typed fixture with https://example.com/private');
+  await question.press('Enter');
+  await expect(page.getByText('Please wait a minute before asking again.')).toBeVisible();
+  await page.getByRole('button', { name: 'Clear conversation' }).click();
+  await page.getByRole('button', { name: /^Effects / }).click();
+  await expect(page.locator(cameraStage)).toHaveAttribute('data-motion', 'off');
+  const actual = await page.evaluate(() => (window as Window & { analyticsEvents: unknown[] }).analyticsEvents);
+  expect(actual).toEqual([
+    { name: 'resume_download_click', data: { location: 'top' } },
+    { name: 'profile_link_click', data: { platform: 'linkedin' } },
+    { name: 'profile_link_click', data: { platform: 'github' } },
+    { name: 'ambassador_question_submitted', data: { source: 'starter' } },
+    { name: 'ambassador_response_outcome', data: { outcome: 'success' } },
+    { name: 'ambassador_question_submitted', data: { source: 'typed' } },
+    { name: 'ambassador_response_outcome', data: { outcome: 'rate_limited' } },
+    { name: 'ambassador_conversation_cleared', data: undefined },
+    { name: 'fx_changed', data: { mode: 'off' } },
+  ]);
+  const errors: Error[] = [];
+  page.on('pageerror', error => errors.push(error));
+  await page.evaluate(() => { window.umami = { track: () => { throw new Error('Blocked'); } }; });
+  status = 200;
+  await question.fill('Another private fixture.');
+  await question.press('Enter');
+  await expect(page.getByText('Private answer fixture.')).toBeVisible();
+  await page.evaluate(() => { window.umami = { track: () => Promise.reject(new Error('Unavailable')) }; });
+  await page.getByRole('button', { name: 'Clear conversation' }).click();
+  await expect(question).toBeFocused();
+  expect(errors).toEqual([]);
 });

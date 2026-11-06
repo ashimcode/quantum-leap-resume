@@ -1,4 +1,4 @@
-# Ashim John visual resume v1.2.4
+# Ashim John visual resume v1.2.5
 
 Ashim John's visual resume, grounded exclusively in his candidate-supplied canonical LinkedIn specification. Next.js and TypeScript power a full-viewport, four-camera surveillance visual simulation, a sandboxed retro CRT game, and a Virtual Ambassador restricted to approved excerpts.
 
@@ -6,13 +6,13 @@ Ashim John's visual resume, grounded exclusively in his candidate-supplied canon
 
 | Item | Status |
 | --- | --- |
-| Camera study | One fixed camera and tracking canvas from hero to footer. Four silent H.264 feeds, three modes, scroll optics and pointer inspection. |
+| Camera study | Four woven acts in one scroll timeline with native color, tracked overlays, three modes and direct act jumps. |
 | Local security checks | Static analysis, dependency audit, credential checks, configuration and production HTTP tests. |
 | Grounded Virtual Ambassador | 249 API regressions; deterministic pre/post checks; optional server model |
 | CarMechanicOS Easter egg | Preserved on-demand CLI and opaque-origin sandbox; isolated save/reset and modal expansion |
 | Claim Audit | 223 field-to-source rows; LinkedIn-only career authority; GitHub authorized as public contact only |
 | Redacted Public PDF | Three regenerated and visually reviewed pages; LinkedIn facts and public GitHub link |
-| Replit Core Packaging | v1.2.4 root-level ZIP with checksum and manifest. |
+| Replit Core Packaging | v1.2.5 root-level ZIP with checksum and manifest. |
 
 ## How this repository is used
 
@@ -45,11 +45,13 @@ To rebuild the public PDF, install reportlab, pypdf and pypdfium2 in your Python
 
 ## Surveillance visual simulation
 
-`QuantumHeroBackground.tsx` renders one fixed camera and canvas from hero to footer. Scroll depth adjusts the camera framing and keeps the canvas aligned. The chapter HUD reports the current section, and the `SIM / CAM` button opens the camera study throughout the page. One camera is randomly selected after hydration, and only the active camera is requested. Four silent, metadata-stripped H.264 files plus JPEG stills live under `public/surveillance/`; the videos total 7,007,648 bytes.
+Four original feeds map to four equal scroll bands. Run `python scripts/build-woven-surveillance-reel.py` with FFmpeg, FFprobe and Pillow to regenerate the 192 metadata-free WebP frames and silent H.264 reel. Fourteen-frame optical dissolves bridge each act. The page uses the frames, a bounded decode cache and a damped scroll playhead with small idle movement. Camera controls jump to 0%, 28%, 55%, and 80%. The first two acts retain native color.
 
-HYBRID_CV, YOLO_BOXES and SLAM_KEYPOINTS select visualization layers. `motion-study.ts` measures luminance changes after aligning the dominant camera translation. Boxes follow connected regions of motion and keypoints follow image gradients. The high-DPI canvas draws between samples without React updates on each frame. Percentages measure motion evidence and carry a SIM label. The study performs no semantic classification, biometric identification, redaction, or security audit.
+HYBRID_CV, YOLO_BOXES and SLAM_KEYPOINTS select simulation layers. Named subjects are hand-marked and interpolated within visible ranges. The motion study also measures luminance changes and gradient keypoints on the displayed frame. Motion percentages describe pixel evidence. The system performs no model inference, biometric identification, redaction, or audit. Reduced Motion uses stills, OFF hides the overlays, and failed frame requests expose a retry action.
 
-The canvas leaves foreground controls and links interactive. Header FX cycles through FULL, REDUCED, and OFF. System reduced-motion preferences take precedence and use a still. Playback and animation pause when the document is hidden. Blocked playback displays a still and a retry control.
+## Custom analytics
+
+Six custom events send fixed labels through the optional Replit Umami tracker. Résumé downloads use a location label, profile links use a platform label, Ambassador events use submission mode and outcome, clearing sends no data, and FX sends the effective mode. The application excludes chat text, full URLs and personal data from custom event data. Actions work with the tracker absent or failing. Run `npm run verify:analytics` for the event contract.
 
 ## Hidden garage
 

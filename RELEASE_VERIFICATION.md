@@ -1,5 +1,11 @@
 # Quantum Leap release verification
 
+## v1.2.5 woven camera study and custom analytics
+
+The scroll stage uses a 192-frame timeline with three 14-frame optical dissolves. Both color sources retain their color. The overlay samples the displayed frame and uses hand-marked landmarks within verified visibility ranges. All 16 browser checks passed in desktop Chromium and iPhone-profile WebKit. The suite covered both scrub directions, RGB pixels, frame alignment, retry, keyboard navigation, grounding, analytics and the garage.
+
+Production checks passed 249 API regressions, 33 privacy cases, the six-event analytics contract, all five security checks, 131 HTML/PDF fact checks, and 17 entity answers and anchors. Generated WebP frames must be single image chunks without metadata. The public PDF, LinkedIn dataset, and protected garage files match v1.2.4.
+
 ## v1.2.4 camera study and public copy cleanup
 
 The public site and résumé display Ashim John. The header, hero, footer, CRT media, grounded answers, and public PDF reflect the requested copy cleanup. LinkedIn remains the authority for career facts, and GitHub remains a public link.
