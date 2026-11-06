@@ -1,8 +1,8 @@
 {
-  "version": "1.0.14",
+  "version": "1.0.15",
   "textNormalization": "LF for text; binary assets exact",
   "files": {
-    "src/app/api/ambassador/route.ts": "65b1bd66c1ce6e62c7b162ce742ec7fe01cf33f185ffa4cd5e06174c4baf428d",
+    "src/app/api/ambassador/route.ts": "e5f7e4fa3deed0be3483580ad13b620859b6f272276eaa5aacf7ca4ac4690d1f",
     "src/app/globals.css": "89901c28d0952e72b36896ae8ec0415f06b2630f7491e6ab2bb2efb6de556869",
     "src/app/icon.svg": "103cbe7bfe97b557299f71d4de7a9fa78d91c4d0fe1f72f2afadfaa5efb97574",
     "src/app/layout.tsx": "b3ca43537f0ab42da984389cd6671b0219f2d93fe921ce2932da50a1284bfe7a",
@@ -565,18 +565,18 @@
     "scripts/privacy-scanner.ts": "ca1c5c15c52fa29ebb9a1da8c6a8babdd4c4590f26a7b16fdaf010e1364348b6",
     "scripts/verify-analytics.ts": "3af4afa20a790cdc6bb5c1bcb5ef56b12f4afac919b77fab53e4e38b3c2a4fdc",
     "scripts/verify-baseline.mjs": "d5e20af0aa8ea6e39e10eebd2b321d0293ec716deb24c9a6b1a5e79032bdf1bc",
-    "scripts/verify-grounding.ts": "94ac506d896e598af86d5f015c790a7eda23e3b84d531699818233040eadb019",
+    "scripts/verify-grounding.ts": "85578f6252f7f954f7bd1fbe4f6c38e143a5e43618860139dc2104c63b379a79",
     "scripts/verify-privacy-scanner.ts": "aca49fd2b31de385541b247b9311b4479c3edf831178f5e2636419e9ea1d2b96",
-    "scripts/verify-security.ts": "b4d66e3f0691ab6234a28756b2c9df153794b3ad5001957cfe537512c3d69c73",
+    "scripts/verify-security.ts": "ff6944dc0c1d0d374c2e25cce496c02283e47093c4050314e15c3cb89b9e3fed",
     "scripts/verify-submission.ts": "7382a45fdac6442abb7e09d07f94a40e29d4bee8f78740ca5c325dd3e3d0216d",
     "tests/browser/portfolio.spec.ts": "b764e19d57cf13d99a28acbbdca1a6ae9ef5231afec714dec2eb216624d6de27",
-    ".github/workflows/verify.yml": "e81afa04e414771df3b9102e1ea7eb5ebe055fc3c9b95946b9330d1656b64766",
-    "package.json": "79033f9588d5cbd00e2c21d8f68dff4996d7b9dbd1363b4b4a7560ccc0ca5a8a",
-    "package-lock.json": "cac40f9de94da01bffc783983ae6e67c8d3710c8ddc3860e2509918faf6abb74",
-    "next.config.mjs": "0732806603edd6c67c1537521d14dff8581cb70f06bd30abad1b2ffe9a498108",
+    ".github/workflows/verify.yml": "80b04104e73a4277e030d913b37e0f9da078cd1c3379254ac4c274ac0bd5f2c7",
+    "package.json": "0acc6d033873c3793c182a5bf46b266116fab423b1f73381a42555f6b3e29703",
+    "package-lock.json": "f5cd3b3fbf1f007cc8bb95affa2b217026b0b294869894542445a377cd7c60cf",
+    "next.config.mjs": "a084db710d2443e0da4715fcae56965c41c0877e033af3e4dcaad9a83e65bedf",
     "tsconfig.json": "5b1ea8ae1df64dc501a241f6251019bf65609e4ba0e7913413b92a4a85f26344",
     "playwright.config.ts": "6f5d82a819bd0e8631ef29bf0ac6613878f3a083eda1d4bd9944a13b3a379931",
-    ".replit": "eb0c543c78f0a72b4ae38f2215b0cdb4f9f0da3091e1c3b884b78423204a322f",
-    "replit.nix": "49c8a7cd57b86c873a1f92665f531c609e74a0c62b8884c93ebc90b00adfc642"
+    ".replit": "e5a0b1e0276ca34b52c363cd6f72589a566cc0e4b4e3bac262e60a9e740fdee5",
+    "replit.nix": "995b9ad6875f7e1be6c4702a468d42f397f232eb7e859fd3037a147fa755ecaa"
   }
 }

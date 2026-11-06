@@ -2,6 +2,12 @@
 
 Release labels follow the [milestone correlation table](docs/RELEASE-VERSION-MAP.md). Historical artifact filenames, branch names, and commit identities retain their original names. The notes below use the proposed labels for past milestones. Actual Git refs are listed in the original-tag column.
 
+## v1.0.15 security maintenance
+
+The package pins Next.js 16.4.5 and targets Node 24 LTS. The image optimizer is disabled because the site uses prebuilt images. Direct garage HTML is inert under a CSP sandbox, while the CRT fetches its template and boots the same opaque iframe. When explicitly enabled behind a trusted ingress, the Ambassador limiter uses the rightmost forwarded IP and normalizes IPv6. It ignores forwarding headers by default.
+
+The local production build passed typecheck, 283 API regressions, 33 privacy cases, six analytics checks, five security categories, 131 HTML/PDF facts, and three Chromium tests covering the woven scroll, Ambassador and CRT game. Both npm audits reported zero findings. See [Vercel's release notes](https://github.com/vercel/next.js/releases/tag/v16.4.5) for the published advisories.
+
 ## v1.0.14 local numbering review
 
 The local candidate applies the milestone mapping to the stable source at `b05f895`. Typecheck, production build, all 249 API and 33 privacy scanner regressions, six analytics event checks, five security check categories, and 131 résumé fact checks passed. The baseline matches all 576 hashes. Desktop Chromium passed the CRT museum, ASCII portal, and four-act scroll checks. The next-version command reports `1.0.15`, and a fixture at `1.0.20` advances to `1.1.0`.

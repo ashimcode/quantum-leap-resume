@@ -1,4 +1,4 @@
-# Ashim John visual resume v1.0.14
+# Ashim John visual resume v1.0.15
 
 Ashim John's visual resume, grounded exclusively in his candidate-supplied canonical LinkedIn specification. Next.js and TypeScript power a full-viewport, four-camera surveillance visual simulation, a sandboxed retro CRT game, and a Virtual Ambassador restricted to approved excerpts.
 
@@ -8,11 +8,11 @@ Ashim John's visual resume, grounded exclusively in his candidate-supplied canon
 | --- | --- |
 | Camera study | Four woven acts in one scroll timeline with native color, tracked overlays, three modes and direct act jumps. |
 | Local security checks | Static analysis, dependency audit, credential checks, configuration and production HTTP tests. |
-| Grounded Virtual Ambassador | 249 API regressions; deterministic pre/post checks; optional server model |
+| Grounded Virtual Ambassador | 283 API regressions; deterministic pre/post checks; optional server model |
 | CRT filesystem and museum | FHS-inspired root, readable exhibits, and an on-demand sandboxed garage |
 | Claim Audit | 223 field-to-source rows; LinkedIn-only career authority; GitHub authorized as public contact only |
 | Redacted Public PDF | Three regenerated and visually reviewed pages; LinkedIn facts and public GitHub link |
-| Replit Core Packaging | Root-level ZIP with checksum and manifest. The deployed archive carries its original v1.4.4 label. |
+| Replit Core Packaging | Root-level ZIP with checksum and manifest for each approved release. |
 
 ## How this repository is used
 
@@ -22,7 +22,7 @@ Historical submission packets and version tags remain historical records; use th
 
 ## Quick start and verification
 
-Use Node 20.9+ and Python 3.11+. CI uses Node 20 and Python 3.12.
+Use Node 24.22.2 or newer on the Node 24 LTS line and Python 3.11+. CI reads the pinned Node version from `.nvmrc` and uses Python 3.12.
 
 ```sh
 npm ci

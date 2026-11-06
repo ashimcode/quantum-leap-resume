@@ -3,7 +3,7 @@
 This is an existing Next.js App Router application in TypeScript and Tailwind CSS.
 
 - Entry: src/app/page.tsx; API: src/app/api/ambassador/route.ts.
-- Node.js 20.9+; npm is the canonical package manager. Use package-lock.json.
+- Node.js 24 LTS (24.22.2 or newer); npm is the canonical package manager. Use package-lock.json.
 - Run npm ci to install. Run npm run dev for preview; npm run build then npm run start for production.
 - Host 0.0.0.0, PORT 3000, external port 80; Autoscale configuration is in .replit.
 - No API key or database is required. Optional OPENAI_API_KEY is server-only.

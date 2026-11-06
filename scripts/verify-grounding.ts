@@ -247,6 +247,21 @@ async function main() {
       globalThis.fetch = async () => { throw Error('offline'); };
       assert.equal(await query(data.starterQuestions[1]), approvedAnswer('hedgehog'));
     } finally { globalThis.fetch = originalFetch; delete process.env.OPENAI_API_KEY; }
+    // An appending ingress supplies the rightmost address. Prefix changes and
+    // equivalent IPv6 spellings must never create extra quota buckets.
+    process.env.TRUST_PROXY = 'true';
+    simulated += 61_000;
+    const forwardedRequest = async (value: string, status: number) => {
+      requests++;
+      const result = await POST(request({ message: 'Tell me about SIEM' }, { 'X-Forwarded-For': value }));
+      assert.equal(result.status, status, 'Unexpected rate limit for ' + value);
+    };
+    for (let i = 1; i <= 15; i++) await forwardedRequest('192.0.2.' + i + ', 2001:db8::1', 200);
+    await forwardedRequest('192.0.2.16, 2001:0db8:0:0:0:0:0:1', 429);
+    await forwardedRequest('192.0.2.16, 2001:db8::2', 200);
+    for (let i = 1; i <= 15; i++) await forwardedRequest('192.0.2.' + i + ', invalid', 200);
+    await forwardedRequest('192.0.2.16, invalid', 429);
+    await forwardedRequest('192.0.2.16, fe80::1%eth0', 429);
     console.log(`PASS: ${requests} API regressions + ${scannerRegressions} scanner regressions; ${files} source/public/client files scanned. Recruiter intents, contextual follow-ups, exact refusals, history tampering, input bounds, rate limits, and model post-checks passed.`);
   } finally {
     Date.now = originalNow;

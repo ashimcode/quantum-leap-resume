@@ -30,8 +30,12 @@ export async function POST(request: Request) {
   }catch{return response(REFUSAL,403);}
  }
  // Default is a shared anonymous bucket: untrusted forwarded headers never bypass the limiter.
- const forwarded=process.env.TRUST_PROXY==='true' ? request.headers.get('x-forwarded-for')?.split(',')[0].trim() : undefined;
- const key=createHash('sha256').update(forwarded && isIP(forwarded) ? forwarded : 'shared').digest('hex');
+ const forwarded = process.env.TRUST_PROXY === 'true' ? request.headers.get('x-forwarded-for') : null;
+ // The trusted ingress must supply the rightmost address and prevent direct access.
+ const client = forwarded?.slice(forwarded.lastIndexOf(',') + 1).trim() ?? '';
+ const version = client.includes('%') ? 0 : isIP(client);
+ const bucket = version === 6 ? new URL('http://[' + client + ']').hostname : version === 4 ? client : 'shared';
+ const key = createHash('sha256').update(bucket).digest('hex');
  if(!checkRate(key))return response(REFUSAL,429);
  const contentType = request.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase();
  if(contentType !== 'application/json')return response(REFUSAL,415);

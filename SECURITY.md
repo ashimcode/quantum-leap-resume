@@ -8,7 +8,11 @@ This private repository holds the deployable Quantum Leap application and saniti
 
 `verifiedSources.ts` is the sole public knowledge base. Deterministic topic coverage, privacy, and prompt-injection checks run before any optional model request. The model may select only the already authorized answer ID or refuse. Public prose comes exclusively from approved excerpts, with post-checks after model selection. Arbitrary HTML is never rendered. Unsupported and mixed unsafe questions return exactly: `I don't have verified information about that.`
 
-The API bounds message size, body size, and conversation history; rejects malformed input and cross-origin requests; and limits requests to 15 attempts per minute. The default anonymous shared bucket avoids trusting spoofable forwarding headers. `TRUST_PROXY=true` enables hashed-IP buckets only when a trusted proxy overwrites forwarding headers and direct access is blocked. The limiter is in-memory, per process, bounded, and resets on restart; Autoscale needs an edge limiter for a global quota.
+The API bounds message size, body size, and conversation history; rejects malformed input and cross-origin requests; and limits requests to 15 attempts per minute. The default anonymous shared bucket avoids trusting spoofable forwarding headers. `TRUST_PROXY=true` uses the rightmost forwarding entry for a hashed IP bucket. Enable it only when trusted ingress supplies the actual client IP in that position and direct access is blocked. Missing or invalid entries use the shared bucket. The limiter is in-memory, per process, bounded, and resets on restart; Autoscale needs an edge limiter for a global quota.
+
+## Runtime attack surface
+
+Use a supported Node 24 LTS runtime and check published framework advisories alongside the npm audit. The app serves its own prebuilt visual assets and disables the Next.js image optimizer. Direct navigation to the garage HTML applies a script-free CSP sandbox. The CRT still fetches the template as text and starts the game in its existing opaque iframe.
 
 ## Secrets and chat handling
 
@@ -28,6 +32,6 @@ Run `npm run build` followed by `npm run verify:security`. The main `npm run ver
 2. Registry tarballs must use the official npm registry and valid SHA-512 integrity. npm's bundled child entries are checked against the declared bundle in the verified parent tarball. The production and full dependency audits both gate the release.
 3. Tracked and new project text is checked for credential patterns and entropy in labelled secret fields. Ignore rules and a temporary exported ZIP inventory are also checked. Two exact synthetic values in the existing privacy test suite are reserved as fixtures.
 4. The canonical Replit Node module, port and deploy commands are checked against the app scripts. The Nix dependencies, TypeScript scope and Next.js security headers are checked as configuration invariants.
-5. A short-lived loopback production server with provider credentials disabled exercises headers and real HTTP API boundaries, including method, media type, JSON schema and size, origin, grounding and rate limits.
+5. A short-lived loopback production server with provider credentials disabled exercises headers and real HTTP API boundaries, including the disabled optimizer, garage template restrictions, method, media type, JSON schema and size, origin, grounding and rate limits.
 
 These checks are scoped local release evidence. Formal security assurance requires a separate review against the complete applicable standard and deployed infrastructure.

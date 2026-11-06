@@ -251,7 +251,7 @@ async function checkConfiguration() {
   const nix = text('replit.nix').replace(/#.*$/gm, '').replace(/\s/g, '');
   assert.equal(nix, '{pkgs}:{deps=[];}', 'Use platform-managed Node without Nix library overrides');
   const replit = JSON.parse(execFileSync(python, ['-c', 'import json,tomllib; print(json.dumps(tomllib.load(open(".replit","rb"))))'], { encoding: 'utf8' }));
-  assert.deepEqual(replit.modules, ['nodejs-20']);
+  assert.deepEqual(replit.modules, ['nodejs-24']);
   assert.equal(replit.deployment.deploymentTarget, 'autoscale');
   assert.deepEqual(replit.deployment.run, ['sh', '-c', 'npm run start']);
   assert.deepEqual(replit.deployment.build, ['sh', '-c', 'npm run build']);
@@ -268,6 +268,7 @@ async function checkConfiguration() {
   assert(tsconfig.include.every((path: string) => path === 'next-env.d.ts' || path.startsWith('src/') || path.startsWith('.next/')), 'Application TypeScript scope is too broad');
   const config = (await import('../next.config.mjs')).default;
   assert.equal(config.poweredByHeader, false);
+  assert.equal(config.images?.unoptimized, true, 'Disable the unused image optimizer');
   assert(typeof config.headers === 'function', 'Missing Next.js headers configuration');
   const route = (await config.headers()).find((entry: { source: string }) => entry.source === '/:path*');
   assert(route, 'Missing app-wide headers');
@@ -310,6 +311,18 @@ async function checkRuntime() {
     checkHeaders(key => home.headers.get(key));
     await home.body?.cancel();
 
+    const image = await request('/_next/image?url=%2Fname-signal-poster.jpg&w=64&q=75');
+    assert.equal(image.status, 404, 'Image optimizer must be unreachable');
+    await image.body?.cancel();
+
+    const game = await request('/carmechanicos/index.html');
+    assert.equal(game.status, 200, 'The CRT host must be able to fetch the game template');
+    const gamePolicy = game.headers.get('content-security-policy')?.split(';').map(part => part.trim());
+    for (const directive of ['sandbox', "default-src 'none'", "form-action 'none'"]) {
+      assert(gamePolicy?.includes(directive), 'Missing raw game template restriction: ' + directive);
+    }
+    assert.match(await game.text(), /This document is booted by the AJ-01 sandbox host/);
+
     const api = '/api/ambassador';
     for (const method of ['GET', 'PUT', 'DELETE', 'PATCH']) {
       const response = await request(api, { method });
@@ -342,7 +355,7 @@ async function checkRuntime() {
     const limited = await post(valid, { 'X-Forwarded-For': '203.0.113.4' });
     assert.equal(limited.headers.get('retry-after'), '60');
     await expectReply(limited, 429);
-    console.log('PASS runtime: production headers, rejected methods, content type, JSON and size bounds, origin, grounding and rate limiting');
+    console.log('PASS runtime: production headers, disabled image optimizer, inert game template, rejected methods, content type, JSON and size bounds, origin, grounding and rate limiting');
   } finally {
     server.kill();
     await Promise.race([exited, delay(2000, undefined, { ref: false })]);

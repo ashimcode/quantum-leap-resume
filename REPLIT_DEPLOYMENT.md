@@ -4,7 +4,7 @@
 
 1. Open https://replit.com/import and select **ZIP**.
 2. Upload `replit-deploy.zip` and select **Import**. The archive has `.replit`, `package.json`, and `src/` directly at its root. Import the ZIP, not the parent workspace containing the private original PDFs.
-3. Replit installs dependencies. The supplied configuration uses the `nodejs-20` runtime, `stable-24_05` Nix channel, and port 3000 → 80. Next.js requires Node 20.9 or newer.
+3. Replit installs dependencies. The supplied configuration uses the `nodejs-24` runtime, `stable-24_05` Nix channel, and port 3000 → 80. Check that the workspace and build both supply Node 24.22.2 or newer.
 4. Select **Run** to preview. The command is `npm run dev` and binds to `0.0.0.0`.
 
 If the import did not install dependencies, run `npm ci` in Shell once. Replit's import compatibility checks may adjust its workspace setup.
@@ -41,7 +41,7 @@ The dev and start scripts explicitly bind `0.0.0.0:3000`, matching the Replit po
 
 The deterministic grounded ambassador works without any secrets. To enable optional OpenAI answer-ID selection, add `OPENAI_API_KEY` as a Replit Secret for the workspace and the published app; optionally set `OPENAI_MODEL`. Never put the key in source, `.replit`, a public environment variable, or the ZIP.
 
-`TRUST_PROXY` defaults to `false`. Enable it only after confirming the deployment proxy overwrites `X-Forwarded-For` and direct access is disabled. The included rate limit is per process; use a platform/edge limit if enforcing a shared quota across Autoscale instances. Prompts and answers are not logged or saved by this application.
+`TRUST_PROXY` defaults to `false`. Enable it only after confirming the trusted ingress sets or appends the actual client IP as the rightmost `X-Forwarded-For` entry and direct access is disabled. Keep the default if the ingress chain has not been verified. The included rate limit is per process; use a platform/edge limit if enforcing a shared quota across Autoscale instances. Prompts and answers are not logged or saved by this application.
 
 ## Reproduce verification
 
@@ -89,4 +89,4 @@ git push -u origin main
 
 Then import `https://github.com/ashimcode/ashim-john-visual-resume` through https://replit.com/import. The repository must exist and your GitHub HTTPS credentials must have push access. These commands are provided for you to run; this preparation task did not create the repository or upload the code.
 
-The `nodejs-20` module in `.replit` supplies Node and its matching libraries. `replit.nix` deliberately has no additional dependencies or `LD_LIBRARY_PATH` override. A legacy override injected an incompatible OpenSSL library during Replit's automatic package-install stage, before the application build command could run. Clearing the variable only inside that later build command cannot repair that earlier stage. Nix/deployment validation requires Replit; a successful Windows build alone does not prove deployment success.
+The platform-managed Node module in `.replit` supplies Node and its matching libraries. `replit.nix` deliberately has no additional dependencies or `LD_LIBRARY_PATH` override. A legacy override injected an incompatible OpenSSL library during Replit's automatic package-install stage, before the application build command could run. Clearing the variable only inside that later build command cannot repair that earlier stage. Nix/deployment validation requires Replit; a successful Windows build alone does not prove deployment success.
