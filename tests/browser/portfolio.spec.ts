@@ -114,6 +114,47 @@ test('woven frames follow all four acts in both directions and preserve source c
   expect(errors).toEqual([]);
 });
 
+test('SOC scroll stays close to the playhead on a cold connection', async ({ page }, info) => {
+  test.skip(info.project.name !== 'chromium-desktop', 'Compare cold-cache cadence at a fixed desktop viewport');
+  await page.route(/\/surveillance\/woven-frames\/\d+\.webp/, async route => {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    await route.continue().catch(() => {}); // The renderer may cancel an obsolete download.
+  });
+  await page.goto('/');
+  const stage = page.locator(cameraStage);
+  await frameNear(stage, 0);
+
+  const endOfScroll = await page.evaluate(async () => {
+    const stage = document.querySelector<HTMLElement>('.surveillance-stage')!;
+    const maxScroll = document.documentElement.scrollHeight - innerHeight;
+    function scroll(from: number, to: number, duration: number) {
+      return new Promise<void>(resolve => {
+        let start: number | undefined;
+        function step(now: number) {
+          start ??= now;
+          const amount = Math.min(1, (now - start) / duration);
+          window.scrollTo({ top: Math.round(maxScroll * (from + (to - from) * amount)), behavior: 'instant' });
+          if (amount < 1) requestAnimationFrame(step);
+          else resolve();
+        }
+        requestAnimationFrame(step);
+      });
+    }
+    await scroll(0, .16, 1900);
+    await scroll(.16, .30, 1400);
+    return Number(stage.dataset.frame);
+  });
+
+  // The normal easing can lag by a few frames while the wheel is moving.
+  // The old queue ended near frame 19 under the same delay.
+  expect(endOfScroll).toBeGreaterThanOrEqual(24);
+  await expect(stage).toHaveAttribute('data-frame', '29');
+  await expect(stage).toHaveAttribute('data-tracking-frame', '29');
+  await scrollToProgress(page, .21);
+  await expect(stage).toHaveAttribute('data-frame', '7');
+  await expect(stage).toHaveAttribute('data-playback', 'active');
+});
+
 test('woven film, CV overlays and HUD have zero drift during five seconds idle', async ({ page, isMobile }) => {
   await page.goto('/');
   const stage = page.locator(cameraStage);

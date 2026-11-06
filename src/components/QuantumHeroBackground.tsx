@@ -270,6 +270,7 @@ export default function QuantumHeroBackground() {
       lastTick = now;
       const ratio = progress.current;
       const intro = ratio < ACT_STARTS[0];
+      const scrubbingSoc = !intro && ratio < ACT_STARTS[1];
       const room = ratio < .14;
       if (ratio !== lastScroll) {
         if (intro) cache?.cancelPlate();
@@ -291,7 +292,7 @@ export default function QuantumHeroBackground() {
         playhead = mix(playhead, target, 1 - Math.exp(-elapsed / 78));
         if (Math.abs(playhead - target) < .15) playhead = target;
         const desired = Math.round(playhead);
-        cache.prioritize(desired, target, direction);
+        cache.prioritize(desired, target, direction, scrubbingSoc);
         const trackingReady = desired === 0 || !!cache.get(desired - 1) || cache.failed(desired - 1);
         if (desired === target) {
           // Present the destination and its tracking data together. Late cache

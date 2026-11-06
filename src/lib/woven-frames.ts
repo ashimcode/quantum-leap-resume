@@ -31,7 +31,7 @@ export function wovenFramePath(frame: number, tier: 'woven-frames' | 'woven-4k' 
 export function createWovenFrameCache(onSettled: () => void) {
   const bytes = new Map<number, Blob>();
   const decoded = new Map<number, ImageBitmap>();
-  const loading = new Set<number>();
+  const loading = new Map<number, { request: AbortController; decoding: boolean }>();
   const failed = new Set<number>();
   const controller = new AbortController();
   const desktop = !matchMedia('(pointer: coarse)').matches;
@@ -41,6 +41,7 @@ export function createWovenFrameCache(onSettled: () => void) {
   let plateRequest: AbortController | undefined;
   let plateTarget = -1;
   let queue: number[] = [];
+  let concurrentLimit = 2;
 
   function trim() {
     const needed = new Set(queue.slice(0, decodeLimit));
@@ -54,47 +55,61 @@ export function createWovenFrameCache(onSettled: () => void) {
   }
 
   async function load(index: number) {
-    loading.add(index);
+    const job = { request: new AbortController(), decoding: false };
+    const { signal } = job.request;
+    loading.set(index, job);
     try {
       let blob = bytes.get(index);
       if (!blob) {
-        const response = await fetch(wovenFramePath(index), { signal: controller.signal });
+        const response = await fetch(wovenFramePath(index), { signal });
         if (!response.ok) throw new Error('Frame unavailable');
         blob = await response.blob();
-        if (controller.signal.aborted) return;
+        if (signal.aborted || controller.signal.aborted) return;
         bytes.set(index, blob);
         while (bytes.size > 48) bytes.delete(bytes.keys().next().value!);
       }
+      job.decoding = true;
       const bitmap = await createImageBitmap(blob);
-      if (controller.signal.aborted) bitmap.close();
+      if (signal.aborted || controller.signal.aborted) bitmap.close();
       else {
         decoded.set(index, bitmap);
         trim();
       }
     } catch {
-      if (!controller.signal.aborted) failed.add(index);
+      if (!signal.aborted && !controller.signal.aborted) failed.add(index);
     } finally {
       loading.delete(index);
       pump();
-      if (!controller.signal.aborted) onSettled();
+      if (!signal.aborted && !controller.signal.aborted) onSettled();
     }
   }
 
   function pump() {
     if (controller.signal.aborted || document.hidden) return;
     for (const index of queue) {
-      if (loading.size >= 2) return;
+      if (loading.size >= concurrentLimit) return;
       if (!decoded.has(index) && !loading.has(index) && !failed.has(index)) void load(index);
     }
   }
 
-  function prioritize(frame: number, target: number, direction: number) {
-    const first = target === frame ? [frame] : [frame, target];
+  function prioritize(frame: number, target: number, direction: number, scrubbingSoc: boolean) {
+    // Preserve the existing intro and later acts' preload behavior. Act I needs
+    // more overlapping requests to keep up with a cold network while scrolling.
+    concurrentLimit = scrubbingSoc ? (desktop ? 5 : 4) : 2;
+    const priority = scrubbingSoc && frame !== target
+      ? [frame, frame + direction, frame + 2 * direction, target, target - 1, frame - 1]
+      : [frame, target, frame - 1, target - 1];
     queue = [...new Set([
-      ...first, frame - 1, target - 1,
+      ...priority,
       ...Array.from({ length: decodeLimit }, (_, i) => frame + (i + 1) * direction),
       ...Array.from({ length: 3 }, (_, i) => frame - (i + 1) * direction),
     ])].filter(index => index >= 0 && index < WOVEN_FRAME_COUNT).slice(0, decodeLimit);
+    if (scrubbingSoc) {
+      for (const [index, job] of loading) {
+        // A decode is already in progress. Cancel only downloads we no longer need.
+        if (!job.decoding && !queue.includes(index)) job.request.abort();
+      }
+    }
     pump();
   }
 
@@ -138,6 +153,7 @@ export function createWovenFrameCache(onSettled: () => void) {
     retry() { failed.clear(); failedPlates.clear(); plateTarget = -1; pump(); },
     dispose() {
       controller.abort();
+      for (const { request } of loading.values()) request.abort();
       plateRequest?.abort();
       for (const bitmap of plates.values()) bitmap.close();
       plates.clear();

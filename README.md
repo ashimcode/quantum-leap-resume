@@ -1,4 +1,4 @@
-# Ashim John visual resume v1.0.15
+# Ashim John visual resume v1.0.16
 
 Ashim John's visual resume, grounded exclusively in his candidate-supplied canonical LinkedIn specification. Next.js and TypeScript power a full-viewport, four-camera surveillance visual simulation, a sandboxed retro CRT game, and a Virtual Ambassador restricted to approved excerpts.
 

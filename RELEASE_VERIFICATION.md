@@ -2,6 +2,14 @@
 
 Release labels follow the [milestone correlation table](docs/RELEASE-VERSION-MAP.md). Historical artifact filenames, branch names, and commit identities retain their original names. The notes below use the proposed labels for past milestones. Actual Git refs are listed in the original-tag column.
 
+## v1.0.16 first SOC act scroll fix
+
+Act I requests the next frames in the direction of travel and cancels obsolete downloads, with a bounded limit of five concurrent jobs on desktop and four on touch. The desk, ASCII orb, reveal, six palettes, later acts and media are unchanged.
+
+In a 1.4 second desktop sweep from 16% to 30% with 200 ms added to each HD frame request, the baseline showed frame 19 at the end of scrolling and frame 21 after a further 400 ms. The candidate showed frames 26 and 29 respectively. The longest nonzero frame hold while scrolling fell from 174 ms to 59 ms in that comparison.
+
+Production typecheck and build, 283 API regressions, 33 privacy cases, six analytics checks, five security categories and 131 HTML/PDF fact checks passed. Nineteen targeted browser checks passed across desktop and 4K Chromium and iPhone-profile WebKit. The new delayed-connection check runs in desktop Chromium.
+
 ## v1.0.15 security maintenance
 
 The package pins Next.js 16.4.5 and targets Node 24 LTS. The image optimizer is disabled because the site uses prebuilt images. Direct garage HTML is inert under a CSP sandbox, while the CRT fetches its template and boots the same opaque iframe. When explicitly enabled behind a trusted ingress, the Ambassador limiter uses the rightmost forwarded IP and normalizes IPv6. It ignores forwarding headers by default.
