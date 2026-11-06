@@ -2,6 +2,10 @@ export const WOVEN_FRAME_COUNT = 192;
 export const WOVEN_ACT_LENGTH = WOVEN_FRAME_COUNT / 4;
 export const ACT_STARTS = [.18, .38, .58, .79, 1];
 
+// Bump when desk or woven images are replaced to separate browser/CDN entries.
+const IMAGE_REVISION = '1.4.3-act0';
+export const PORTAL_DESK_PATH = `/surveillance/desk-4k.webp?v=${IMAGE_REVISION}`;
+
 export function scrollAct(progress: number) {
   if (progress < ACT_STARTS[0]) return -1;
   return Math.min(3, ACT_STARTS.findLastIndex(start => progress >= start));
@@ -17,8 +21,8 @@ export function frameAct(frame: number) {
   return Math.min(3, Math.floor(frame / WOVEN_ACT_LENGTH));
 }
 
-export function wovenFramePath(frame: number) {
-  return `/surveillance/woven-frames/${String(frame).padStart(3, '0')}.webp`;
+export function wovenFramePath(frame: number, tier: 'woven-frames' | 'woven-4k' = 'woven-frames') {
+  return `/surveillance/${tier}/${String(frame).padStart(3, '0')}.webp?v=${IMAGE_REVISION}`;
 }
 
 /** Fetch near the playhead, keep compressed bytes for reverse scrubbing,
@@ -101,7 +105,7 @@ export function createWovenFrameCache(onSettled: () => void) {
     const request = plateRequest;
     plateTarget = frame;
     try {
-      const response = await fetch(`/surveillance/woven-4k/${String(frame).padStart(3, '0')}.webp`, { signal: request.signal });
+      const response = await fetch(wovenFramePath(frame, 'woven-4k'), { signal: request.signal });
       if (!response.ok) throw new Error('Plate unavailable');
       const bitmap = await createImageBitmap(await response.blob());
       if (request.signal.aborted || controller.signal.aborted) { bitmap.close(); return; }
@@ -127,6 +131,7 @@ export function createWovenFrameCache(onSettled: () => void) {
   }
 
   return {
+    cancelPlate() { plateRequest?.abort(); plateRequest = undefined; plateTarget = -1; },
     prioritize, nearest, requestPlate, plateFailed: (index: number) => failedPlates.has(index), plate: (index: number) => plates.get(index),
     get: (index: number) => decoded.get(index),
     failed: (index: number) => failed.has(index),

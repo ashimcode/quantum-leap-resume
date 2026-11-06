@@ -96,6 +96,16 @@ test('woven frames follow all four acts in both directions and preserve source c
     return box.x === 0 && box.y === 0 && box.width === root.clientWidth && root.scrollWidth === root.clientWidth;
   })).toBe(true);
   expect(requests.some(url => /\/surveillance\/.+\.mp4|\/underground-(?:frames|reel)|\/carmechanicos\//.test(url))).toBe(false);
+  const revisionFor = (asset: RegExp) => {
+    const matches = requests.filter(url => asset.test(new URL(url).pathname));
+    expect(matches.length).toBeGreaterThan(0);
+    return matches.map(url => new URL(url).searchParams.get('v'));
+  };
+  const revisions = [
+    ...revisionFor(/\/desk-4k\.webp$/), ...revisionFor(/\/woven-frames\//), ...revisionFor(/\/woven-4k\//),
+  ];
+  expect(revisions[0]).toMatch(/^\d+\.\d+\.\d+/);
+  expect(new Set(revisions).size).toBe(1);
   await cameraControl.click();
   await page.getByRole('button', { name: 'Pause surveillance effects' }).click();
   await expect(stage).toHaveAttribute('data-playback', 'off');
@@ -415,6 +425,232 @@ test('desk stays sharp while the ASCII portal animates, engulfs and reveals', as
   expect(await stage.getAttribute('data-orb-frames')).toBe(count);
 });
 
+const deskImageRequest = /\/surveillance\/desk-4k\.webp(?:\?|$)/;
+
+const charcoalFilm = Array.from({ length: 9 }, () => [7, 9, 14, 255]);
+
+const readFilm = (stage: Locator) => stage.locator('.surveillance-film').evaluate((canvas: HTMLCanvasElement) => {
+  const ctx = canvas.getContext('2d')!;
+  return [.1, .5, .9].flatMap(x => [.16, .45, .8].map(y =>
+    [...ctx.getImageData(Math.round(x * canvas.width), Math.round(y * canvas.height), 1, 1).data]));
+});
+
+async function assertDeskFallback(stage: Locator) {
+  await expect(stage).toHaveAttribute('data-sampling', 'desk-fallback');
+  await expect(stage.locator('.surveillance-poster')).toBeHidden();
+  for (const [r, g, b, a] of await readFilm(stage)) {
+    expect(r).toBeLessThan(40); expect(g).toBeLessThan(40); expect(b).toBeLessThan(50); expect(a).toBe(255);
+  }
+  const orb = await stage.locator('.surveillance-breach').evaluate((canvas: HTMLCanvasElement) => {
+    const gl = canvas.getContext('webgl')!;
+    return new Promise<{ lit: number; maxRadius: number }>(resolve => {
+      const draw = gl.drawArrays;
+      gl.drawArrays = function (mode, first, count) {
+        draw.call(this, mode, first, count);
+        gl.drawArrays = draw;
+        const { width, height } = canvas;
+        const pixels = new Uint8Array(width * height * 4);
+        gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+        const centerX = width < height ? width / 2 : width / 2 + .147 * Math.max(width, height * 16 / 9);
+        const centerY = height / 2 + .068 * Math.max(height, width * 9 / 16);
+        let lit = 0, maxRadius = 0;
+        for (let y = 0; y < height; y += 3) for (let x = 0; x < width; x += 3) {
+          const i = (y * width + x) * 4;
+          if (pixels[i + 3] < 100 || Math.max(pixels[i], pixels[i + 1], pixels[i + 2]) < 80) continue;
+          lit++;
+          maxRadius = Math.max(maxRadius, Math.hypot(x - centerX, y - centerY) / height);
+        }
+        resolve({ lit, maxRadius });
+      };
+      // Reduced motion is static; request one paint without changing progress.
+      document.documentElement.dispatchEvent(new Event('pointerleave'));
+    });
+  });
+  expect(orb.lit).toBeGreaterThan(5);
+  expect(orb.maxRadius).toBeLessThan(.11);
+}
+
+for (const reducedMotion of ['no-preference', 'reduce'] as const) {
+  test.describe(`Act 0 asset fallback (${reducedMotion})`, () => {
+    test.use({ reducedMotion });
+
+    test('slow desk stays charcoal until its image loads', async ({ page }) => {
+      let releaseDesk!: () => void;
+      const pendingDesk = new Promise<void>(resolve => { releaseDesk = resolve; });
+      await page.route(deskImageRequest, async route => {
+        await pendingDesk;
+        await route.continue();
+      });
+      try {
+        await page.goto('/', { waitUntil: 'domcontentloaded' });
+        const stage = page.locator(cameraStage);
+        await expect(stage).toHaveAttribute('data-motion', reducedMotion === 'reduce' ? 'reduced' : 'full');
+        await assertDeskFallback(stage);
+        await scrollToProgress(page, .12);
+        await expect(stage).toHaveAttribute('data-progress', '12');
+        await assertDeskFallback(stage);
+        await scrollToProgress(page, 0);
+        await expect(stage).toHaveAttribute('data-progress', '0');
+        releaseDesk();
+        await expect(stage).toHaveAttribute('data-sampling', 'desk-plate');
+        await expect(stage).toHaveAttribute('data-settled', 'true');
+        expect(await readFilm(stage)).not.toEqual(charcoalFilm);
+      } finally {
+        releaseDesk();
+      }
+    });
+
+    test('missing desk stays charcoal with a compact orb', async ({ page }) => {
+      await page.route(deskImageRequest, route => route.fulfill({ status: 404, headers: { 'cache-control': 'no-store' } }));
+      await page.goto('/');
+      const stage = page.locator(cameraStage);
+      await expect(stage).toHaveAttribute('data-motion', reducedMotion === 'reduce' ? 'reduced' : 'full');
+      const poster = stage.locator('.surveillance-poster');
+      await expect.poll(() => poster.evaluate((image: HTMLImageElement) => image.complete && !image.naturalWidth)).toBe(true);
+      await assertDeskFallback(stage);
+    });
+
+    test('desk survives source eviction, long idle and visibility restoration', async ({ page }, info) => {
+      test.setTimeout(180_000);
+      const errors: string[] = [];
+      page.on('pageerror', error => errors.push(error.message));
+      const plateRequests: string[] = [];
+      page.on('request', request => { if (request.url().includes('/woven-4k/')) plateRequests.push(request.url()); });
+      await page.addInitScript(() => {
+        const draw = CanvasRenderingContext2D.prototype.drawImage;
+        const sources = new Set<HTMLImageElement>();
+        Object.assign(window, { deskTestSources: sources });
+        CanvasRenderingContext2D.prototype.drawImage = function (...args: Parameters<typeof draw>) {
+          if (args[0] instanceof HTMLImageElement && args[0].src.includes('desk-4k')) sources.add(args[0]);
+          return Reflect.apply(draw, this, args);
+        };
+      });
+      await page.goto('/');
+      const stage = page.locator(cameraStage);
+      await expect(stage).toHaveAttribute('data-desk-buffer', 'ready');
+      const original = await stage.locator('.surveillance-film').evaluate((c: HTMLCanvasElement) => c.toDataURL());
+      // Invalidate the original decoded Image and deny refetches. This models
+      // source loss without pretending to force the browser's GPU eviction policy.
+      await page.route(deskImageRequest, route => route.abort());
+      await page.evaluate(() => {
+        const sources = (window as unknown as { deskTestSources: Set<HTMLImageElement> }).deskTestSources;
+        if (!sources.size) throw new Error('No desk source captured');
+        for (const source of sources) { source.onload = null; source.src = 'data:image/webp;base64,AA=='; }
+      });
+      for (const ratio of [0, .03, .08]) {
+        await scrollToProgress(page, ratio);
+        await expect(stage).toHaveAttribute('data-progress', String(Math.round(ratio * 100)));
+        const report = await stage.evaluate(async element => {
+          const film = element.querySelector<HTMLCanvasElement>('.surveillance-film')!;
+          const canvas = element.querySelector<HTMLCanvasElement>('.surveillance-breach')!;
+          const gl = canvas.getContext('webgl')!;
+          const draw = gl.drawArrays;
+          const maxima = [0, 0, 0], roomMaxima = [0, 0, 0];
+          let samples = 0, invalidAlphaPixels = 0;
+          const atTop = (element as HTMLElement).dataset.progress === '0';
+          gl.drawArrays = function (mode, first, count) {
+            draw.call(this, mode, first, count);
+            const ctx = film.getContext('2d')!;
+            for (const x of [.1, .9]) {
+              const base = ctx.getImageData(Math.floor(x * film.width), Math.floor(.2 * film.height), 1, 1).data;
+              const effect = new Uint8Array(4);
+              gl.readPixels(Math.floor(x * canvas.width), canvas.height - 1 - Math.floor(.2 * canvas.height), 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, effect);
+              for (let channel = 0; channel < 3; channel++) {
+                // Preserve the approved expanding burst at 3%/8%. Its desk layer
+                // must stay dark, and transparent effect pixels must never leak RGB.
+                roomMaxima[channel] = Math.max(roomMaxima[channel], base[channel]);
+                if (effect[channel] > effect[3]) invalidAlphaPixels++;
+                if (atTop) maxima[channel] = Math.max(maxima[channel], effect[channel] + base[channel] * (1 - effect[3] / 255));
+              }
+            }
+            samples++;
+          };
+          try {
+            const end = performance.now() + 15_250;
+            while (performance.now() < end) {
+              document.documentElement.dispatchEvent(new Event('pointerleave'));
+              await new Promise(resolve => setTimeout(resolve, 250));
+            }
+          } finally { gl.drawArrays = draw; }
+          return { samples, maxima, roomMaxima, invalidAlphaPixels };
+        });
+        expect(report.samples).toBeGreaterThan(40);
+        expect(report.invalidAlphaPixels).toBe(0);
+        expect(report.roomMaxima[0]).toBeLessThan(40);
+        expect(report.roomMaxima[1]).toBeLessThan(40);
+        expect(report.roomMaxima[2]).toBeLessThan(50);
+        expect(report.maxima[0]).toBeLessThan(40);
+        expect(report.maxima[1]).toBeLessThan(40);
+        expect(report.maxima[2]).toBeLessThan(50);
+        await info.attach(`idle-${ratio}.json`, { body: JSON.stringify(report), contentType: 'application/json' });
+        // Dispatch the actual document lifecycle event; no production test hook.
+        await page.evaluate(() => {
+          Object.defineProperty(document, 'hidden', { configurable: true, value: true });
+          document.dispatchEvent(new Event('visibilitychange'));
+        });
+        const paused = await stage.getAttribute('data-orb-frames');
+        await page.waitForTimeout(300);
+        expect(await stage.getAttribute('data-orb-frames')).toBe(paused);
+        await page.evaluate(() => {
+          delete (document as unknown as { hidden?: boolean }).hidden;
+          document.dispatchEvent(new Event('visibilitychange'));
+        });
+        await expect.poll(async () => Number(await stage.getAttribute('data-orb-frames'))).toBeGreaterThan(Number(paused));
+        await expect(stage).toHaveAttribute('data-desk-buffer', 'ready');
+        await page.screenshot({ path: info.outputPath(`persistent-desk-${ratio}.png`) });
+      }
+      await scrollToProgress(page, 0);
+      await expect(stage).toHaveAttribute('data-progress', '0');
+      // React updates the HUD before the next canvas animation frame. Wait for
+      // that paint, then require byte-identical desk pixels (not a near match).
+      await expect.poll(async () => stage.locator('.surveillance-film').evaluate(
+        (c: HTMLCanvasElement, expected) => c.toDataURL() === expected, original,
+      ), { message: 'returning to the top restores the identical desk frame' }).toBe(true);
+      expect(plateRequests).toEqual([]);
+      expect(errors).toEqual([]);
+    });
+
+    test('ASCII transparency and glyphs recover after graphics context loss', async ({ page }) => {
+      await page.goto('/');
+      const stage = page.locator(cameraStage);
+      await expect(stage).toHaveAttribute('data-desk-buffer', 'ready');
+      await stage.locator('.surveillance-breach').evaluate(async (canvas: HTMLCanvasElement) => {
+        const gl = canvas.getContext('webgl')!;
+        const extension = gl.getExtension('WEBGL_lose_context');
+        if (!extension) throw new Error('Context loss simulation unavailable');
+        const lost = new Promise(resolve => canvas.addEventListener('webglcontextlost', resolve, { once: true }));
+        extension.loseContext();
+        await lost;
+        await new Promise(resolve => setTimeout(resolve, 100));
+        const restored = new Promise(resolve => canvas.addEventListener('webglcontextrestored', resolve, { once: true }));
+        extension.restoreContext();
+        await restored;
+      });
+      const result = await stage.locator('.surveillance-breach').evaluate((canvas: HTMLCanvasElement) => {
+        const gl = canvas.getContext('webgl')!;
+        return new Promise<{ hiddenColor: number; lit: number }>(resolve => {
+          const draw = gl.drawArrays;
+          gl.drawArrays = function (mode, first, count) {
+            draw.call(this, mode, first, count);
+            gl.drawArrays = draw;
+            const pixels = new Uint8Array(canvas.width * canvas.height * 4);
+            gl.readPixels(0, 0, canvas.width, canvas.height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+            let hiddenColor = 0, lit = 0;
+            for (let i = 0; i < pixels.length; i += 4) {
+              if (pixels[i + 3] === 0) hiddenColor = Math.max(hiddenColor, pixels[i], pixels[i + 1], pixels[i + 2]);
+              if (pixels[i + 3] > 100) lit++;
+            }
+            resolve({ hiddenColor, lit });
+          };
+          document.documentElement.dispatchEvent(new Event('pointerleave'));
+        });
+      });
+      expect(result.hiddenColor).toBe(0);
+      expect(result.lit).toBeGreaterThan(20);
+    });
+  });
+}
+
 test('reload selects all six breach palettes without changing color during a visit', async ({ page }, info) => {
   test.setTimeout(180_000);
   const errors: string[] = [];
@@ -462,8 +698,9 @@ test('reload selects all six breach palettes without changing color during a vis
               if (pixels[i + 3] < 100 || Math.max(pixels[i], pixels[i + 1], pixels[i + 2]) < 80) continue;
               bright++;
               for (let channel = 0; channel < 3; channel++) {
-                min[channel] = Math.min(min[channel], pixels[i + channel]);
-                max[channel] = Math.max(max[channel], pixels[i + channel]);
+                const straight = Math.round(pixels[i + channel] * 255 / pixels[i + 3]);
+                min[channel] = Math.min(min[channel], straight);
+                max[channel] = Math.max(max[channel], straight);
               }
             }
             resolve({ bright, min, max });

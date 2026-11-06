@@ -5,6 +5,10 @@
 .surveillance-film, .surveillance-poster { opacity: .94; }
 .surveillance-breach { opacity: 1; }
 .surveillance-stage[data-frame]:not([data-frame=""]) .surveillance-poster { visibility: hidden; }
+.surveillance-stage[data-feed=CAM_00]:not([data-sampling]) .surveillance-picture,
+.surveillance-stage[data-sampling=desk-fallback] .surveillance-picture { background: #07090e; }
+.surveillance-stage[data-sampling=desk-fallback] .surveillance-poster { visibility: hidden; }
+.surveillance-stage[data-sampling=desk-fallback] .surveillance-film { opacity: 1; }
 .surveillance-overlay { opacity: .76; mask-image: linear-gradient(90deg, #0006, #0009 50%, #000 78%); }
 .surveillance-shade { position: absolute; inset: 0; background: linear-gradient(90deg, #07080ae8 0%, #07080abf 32%, #07080a4a 65%, #07080a20), linear-gradient(0deg, #07080a 0%, transparent 35%, transparent 78%, #07080a99); }
 .surveillance-stage:not([data-section=HERO]) .surveillance-shade { background: linear-gradient(90deg, #07080adb, #07080aad 48%, #07080a66); }

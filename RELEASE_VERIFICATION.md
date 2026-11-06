@@ -1,5 +1,15 @@
 # Quantum Leap release verification
 
+## v1.4.4 approved browser-tab compositing repair
+
+The live Chrome defect was reproduced by closing a LinkedIn tab: the native desktop display showed fullscreen rings while a browser screenshot showed the correct orb. The original WebGL fragment stored saturated RGB in fully transparent pixels. Premultiplying the output and enabling premultiplied alpha eliminates that hidden color without changing the approved orb geometry, glyphs, timing, or six reload palettes. Thirty-six original/repaired comparisons differ by at most one channel level out of 255 under correct compositing.
+
+The shaded desk is retained in an offscreen canvas. Act 0 cancels delayed 4K plate requests, uses a charcoal cold-cache fallback, and restores graphics resources and desk rendering after context/visibility changes. No public media or verified career facts changed.
+
+Local typecheck/build, 249 API regressions, 33 privacy cases, six analytics events, five security checks, and 131 HTML/PDF fact checks passed. All 63 browser scenarios are covered across desktop/4K Chromium and iPhone-profile WebKit, including normal/reduced motion, 15-second idle intervals at three intro positions, failed source images, and graphics-context recovery. One initial 4K assertion sampled before the next canvas paint; after awaiting byte-identical restored pixels, both 4K idle modes passed on targeted rerun. Actual desktop Chrome also retained the original orb through repeated LinkedIn-tab closure. Outlook was reported by the user, not independently tested.
+
+Ashim approved publication after reviewing the local preview. The new release preserves all earlier tags and archives; Replit deployment must retain its port-5000 and platform Node configuration. Publication results are recorded separately after the deployment completes.
+
 ## v1.4.3 approved ASCII intro with reload palettes
 
 This release restores the approved v1.4.0 workstation scene, WebGL glyph animation, and scroll transitions. A fresh page load selects one of six equally likely palettes; the monitor orb, bloom, room breach, and glow share that palette until the next reload. No media, résumé evidence, garage, or analytics changes are included.

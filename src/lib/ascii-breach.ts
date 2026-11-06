@@ -57,13 +57,15 @@ void main() {
   float aperture = smoothstep(.14, .18, progress) * diagonal;
   float outside = smoothstep(aperture - cellSize * 2.0, aperture + cellSize * 2.0, distance);
   opacity *= progress > .14 ? outside : 1.0;
-  gl_FragColor = vec4(color, opacity);
+  // Preserve the original appearance while storing no hidden RGB at zero alpha.
+  gl_FragColor = vec4(color * opacity, opacity);
 }`;
 
 /** The only autonomous animation in the intro. The room has a separate buffer. */
-export function createBreachRenderer(canvas: HTMLCanvasElement, palette: BreachPalette = BREACH_PALETTES[0]) {
-  const gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: false, antialias: false, depth: false });
+export function createBreachRenderer(canvas: HTMLCanvasElement, palette: BreachPalette = BREACH_PALETTES[0], onRestore = () => {}) {
+  const gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: true, antialias: false, depth: false });
   if (!gl) return null;
+  let resources: ReturnType<typeof initialize> | null = null;
   function shader(kind: number, source: string) {
     const result = gl!.createShader(kind)!;
     gl!.shaderSource(result, source);
@@ -74,45 +76,63 @@ export function createBreachRenderer(canvas: HTMLCanvasElement, palette: BreachP
     }
     return result;
   }
-  const vert = shader(gl.VERTEX_SHADER, vertex), frag = shader(gl.FRAGMENT_SHADER, fragment);
-  if (!vert || !frag) { if (vert) gl.deleteShader(vert); if (frag) gl.deleteShader(frag); return null; }
-  const program = gl.createProgram()!;
-  gl.attachShader(program, vert);
-  gl.attachShader(program, frag);
-  gl.linkProgram(program);
-  gl.deleteShader(vert);
-  gl.deleteShader(frag);
-  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) { gl.deleteProgram(program); return null; }
-  gl.useProgram(program);
-  for (const shade of ['core', 'mid', 'outer', 'glow'] as const) {
-    const channels = [1, 3, 5].map(offset => parseInt(palette[shade].slice(offset, offset + 2), 16) / 255);
-    gl.uniform3f(gl.getUniformLocation(program, `${shade}Color`), channels[0], channels[1], channels[2]);
+  function initialize() {
+    if (!gl) return null;
+    const vert = shader(gl.VERTEX_SHADER, vertex), frag = shader(gl.FRAGMENT_SHADER, fragment);
+    if (!vert || !frag) { if (vert) gl.deleteShader(vert); if (frag) gl.deleteShader(frag); return null; }
+    const program = gl.createProgram()!;
+    gl.attachShader(program, vert);
+    gl.attachShader(program, frag);
+    gl.linkProgram(program);
+    gl.deleteShader(vert);
+    gl.deleteShader(frag);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) { gl.deleteProgram(program); return null; }
+    gl.useProgram(program);
+    for (const shade of ['core', 'mid', 'outer', 'glow'] as const) {
+      const channels = [1, 3, 5].map(offset => parseInt(palette[shade].slice(offset, offset + 2), 16) / 255);
+      gl.uniform3f(gl.getUniformLocation(program, `${shade}Color`), channels[0], channels[1], channels[2]);
+    }
+    const buffer = gl.createBuffer()!;
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]), gl.STATIC_DRAW);
+    const position = gl.getAttribLocation(program, 'position');
+    gl.enableVertexAttribArray(position);
+    gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+    const atlas = document.createElement('canvas');
+    atlas.width = 288;
+    atlas.height = 32;
+    const ctx = atlas.getContext('2d')!;
+    ctx.font = 'bold 28px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#fff';
+    [...'.:-=+*%#@'].forEach((char, index) => ctx.fillText(char, index * 32 + 16, 16));
+    const texture = gl.createTexture()!;
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, atlas);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    const uniform = Object.fromEntries(['resolution','center','pointer','progress','time','proximity','cellSize'].map(name => [name, gl.getUniformLocation(program, name)]));
+    return { program, buffer, texture, position, uniform };
   }
-  const buffer = gl.createBuffer()!;
-  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]), gl.STATIC_DRAW);
-  const position = gl.getAttribLocation(program, 'position');
-  gl.enableVertexAttribArray(position);
-  gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
-  const atlas = document.createElement('canvas');
-  atlas.width = 288;
-  atlas.height = 32;
-  const ctx = atlas.getContext('2d')!;
-  ctx.font = 'bold 28px monospace';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillStyle = '#fff';
-  [...'.:-=+*%#@'].forEach((char, index) => ctx.fillText(char, index * 32 + 16, 16));
-  const texture = gl.createTexture()!;
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, atlas);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-  const uniform = Object.fromEntries(['resolution','center','pointer','progress','time','proximity','cellSize'].map(name => [name, gl.getUniformLocation(program, name)]));
+  resources = initialize();
+  function lost(event: Event) { event.preventDefault(); resources = null; }
+  function restored() { resources = initialize(); onRestore(); }
+  canvas.addEventListener('webglcontextlost', lost);
+  canvas.addEventListener('webglcontextrestored', restored);
   return {
     draw(progress: number, time: number, center: { x: number; y: number }, pointer: Pointer, scale: number) {
+      if (!resources || gl.isContextLost()) return;
+      const { program, buffer, texture, position, uniform } = resources;
+      gl.useProgram(program);
+      gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+      gl.enableVertexAttribArray(position);
+      gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.disable(gl.BLEND);
       gl.viewport(0, 0, canvas.width, canvas.height);
       gl.uniform2f(uniform.resolution, canvas.width, canvas.height);
       gl.uniform2f(uniform.center, center.x * scale, center.y * scale);
@@ -123,6 +143,11 @@ export function createBreachRenderer(canvas: HTMLCanvasElement, palette: BreachP
       gl.uniform1f(uniform.cellSize, Math.max(7 * scale, canvas.width / 190));
       gl.drawArrays(gl.TRIANGLES, 0, 6);
     },
-    dispose() { gl.deleteTexture(texture); gl.deleteBuffer(buffer); gl.deleteProgram(program); },
+    dispose() {
+      canvas.removeEventListener('webglcontextlost', lost);
+      canvas.removeEventListener('webglcontextrestored', restored);
+      if (resources) { gl.deleteTexture(resources.texture); gl.deleteBuffer(resources.buffer); gl.deleteProgram(resources.program); }
+      resources = null;
+    },
   };
 }
