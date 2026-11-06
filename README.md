@@ -1,4 +1,4 @@
-# Ashim John visual resume v1.3.0
+# Ashim John visual resume v1.4.0
 
 Ashim John's visual resume, grounded exclusively in his candidate-supplied canonical LinkedIn specification. Next.js and TypeScript power a full-viewport, four-camera surveillance visual simulation, a sandboxed retro CRT game, and a Virtual Ambassador restricted to approved excerpts.
 
@@ -9,10 +9,10 @@ Ashim John's visual resume, grounded exclusively in his candidate-supplied canon
 | Camera study | Four woven acts in one scroll timeline with native color, tracked overlays, three modes and direct act jumps. |
 | Local security checks | Static analysis, dependency audit, credential checks, configuration and production HTTP tests. |
 | Grounded Virtual Ambassador | 249 API regressions; deterministic pre/post checks; optional server model |
-| CarMechanicOS Easter egg | Preserved on-demand CLI and opaque-origin sandbox; isolated save/reset and modal expansion |
+| CRT filesystem and museum | FHS-inspired root, readable exhibits, and an on-demand sandboxed garage |
 | Claim Audit | 223 field-to-source rows; LinkedIn-only career authority; GitHub authorized as public contact only |
 | Redacted Public PDF | Three regenerated and visually reviewed pages; LinkedIn facts and public GitHub link |
-| Replit Core Packaging | v1.3.0 root-level ZIP with checksum and manifest. |
+| Replit Core Packaging | v1.4.0 root-level ZIP with checksum and manifest. |
 
 ## How this repository is used
 
@@ -57,24 +57,58 @@ HYBRID_CV, YOLO_BOXES and SLAM_KEYPOINTS select simulation layers. Named subject
 
 Six custom events send fixed labels through the optional Replit Umami tracker. Résumé downloads use a location label, profile links use a platform label, Ambassador events use submission mode and outcome, clearing sends no data, and FX sends the effective mode. The application excludes chat text, full URLs and personal data from custom event data. Actions work with the tracker absent or failing. Run `npm run verify:analytics` for the event contract.
 
-## Hidden garage
+## Explore the CRT
 
-The original idle ASHIM JOHN CRT signal, pause and tune controls remain. Open >_ CLI and type:
+Open **>_ CLI** on the footer CRT. Start with these commands:
 
 ```text
-help
-cd Desktop/carmechanicos
-type README.txt
+ls /
+tree /usr/share/doc/quantum-leap
+cat /usr/share/doc/quantum-leap/origins.txt
+cd /opt/carmechanicos
 start game
 ```
 
-`play` and `carmechanicos.exe` also work. Tab completion, history, directory navigation, clear, reset and exit are supported. This is a virtual filesystem. The game is a fictional easter egg, not a LinkedIn career project.
+`museum` points to the exhibits. The [terminal walkthrough](docs/CRT-FILESYSTEM.md) explains navigation, completion, and the original `Desktop/carmechanicos` shortcut.
 
 The on-demand game runs in an opaque-origin srcdoc iframe. Its restrictive CSP blocks network connections/forms, and a source-window/session-validated bridge exposes only bounded internal save slots under `ql_carmechanicos_save_v1`. Reset removes only that key. EXPAND uses the modal top layer while a placeholder preserves footer geometry. COLLAPSE retains the same frame; ESC / EXIT GAME unmounts it, cancels its execution context and restores CLI focus without scrolling.
 
+## Build journal
+
+Quantum Leap began as Ashim's sophomore-year final project at UAlbany. The original site introduced first-year students to academic resources and campus life. The portfolio grew from that work. The [build journal](docs/BUILD-LOG.md) follows the classroom pages, the scroll-driven portfolio, and the CRT filesystem.
+
+## Screenshot gallery
+
+<table>
+  <tr>
+    <td width="50%"><a href="assets/screenshots/classroom-home.jpg"><img src="assets/screenshots/classroom-home.jpg" alt="Original Quantum Leap home page with college resources and navigation" /></a></td>
+    <td width="50%"><a href="assets/screenshots/classroom-services.jpg"><img src="assets/screenshots/classroom-services.jpg" alt="Original Quantum Leap services page" /></a></td>
+  </tr>
+  <tr>
+    <td><strong>The classroom homepage</strong><br>The first five-page site introduced resources for incoming college students.</td>
+    <td><strong>The services page</strong><br>The original HTML and shared stylesheet organized student support into a dedicated page.</td>
+  </tr>
+  <tr>
+    <td><a href="assets/screenshots/v130-portal.jpg"><img src="assets/screenshots/v130-portal.jpg" alt="v1.3.0 portfolio intro with the desk and ASCII portal" /></a></td>
+    <td><a href="assets/screenshots/v130-crt-desktop.jpg"><img src="assets/screenshots/v130-crt-desktop.jpg" alt="v1.3.0 terminal listing the Desktop directory" /></a></td>
+  </tr>
+  <tr>
+    <td><strong>The portfolio takes shape</strong><br>v1.3.0 introduced the desk, the red ASCII portal, and four camera acts.</td>
+    <td><strong>The first CRT shell</strong><br>The Desktop folder provided a route into the hidden garage.</td>
+  </tr>
+  <tr>
+    <td><a href="assets/screenshots/v140-crt-root.jpg"><img src="assets/screenshots/v140-crt-root.jpg" alt="v1.4.0 terminal listing the filesystem root and /usr" /></a></td>
+    <td><a href="assets/screenshots/v140-crt-museum.jpg"><img src="assets/screenshots/v140-crt-museum.jpg" alt="v1.4.0 terminal displaying the UAlbany classroom and portfolio exhibits" /></a></td>
+  </tr>
+  <tr>
+    <td><strong>A filesystem to explore</strong><br>The CRT now opens at / and supports browsing, completion, and reading.</td>
+    <td><strong>Museum of Humble Beginnings</strong><br>Visitors can read how the class project became the current portfolio.</td>
+  </tr>
+</table>
+
 ## Release and deployment
 
-v1.2.3 is prepared on `feat/v1.2.3-unified-surveillance-and-security`. The current live release is v1.2.1. [Quantum Leap](https://quantum-leap-interactive.replit.app/)
+Open the current build on [Quantum Leap](https://quantum-leap-interactive.replit.app/).
 
 After explicit versioning, use a new version for every freeze. The freeze script refuses existing tags or same-version manifests.
 

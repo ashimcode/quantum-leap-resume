@@ -259,6 +259,48 @@ test('public résumé link downloads the approved PDF bytes', async ({ page }) =
   expect(await readFile(await download.path())).toEqual(await readFile('public/resume-public.pdf'));
 });
 
+test('CRT browses the virtual root and opens the museum without host file access', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Open CLI', exact: true }).click();
+  const command = page.getByRole('textbox', { name: 'Terminal command' });
+  const output = page.locator('.aj-cli-output');
+  const prompt = page.locator('label[for="aj-cli-input"]');
+  const run = async (input: string) => {
+    await command.fill(input);
+    await command.press('Enter');
+  };
+
+  await expect(prompt).toHaveText('aj@crt:/$');
+  await run('ls');
+  await expect(output).toContainText(/bin\/.*etc\/.*home\/.*opt\/.*usr\/.*var\//);
+  await run('cd ../../..');
+  await expect(prompt).toHaveText('aj@crt:/$');
+  await run('cat /etc/passwd');
+  await expect(output).toContainText('cat: no such file: /etc/passwd');
+  await run('museum');
+  await expect(output).toContainText('MUSEUM OF HUMBLE BEGINNINGS');
+  await command.fill('cd /usr/share/doc/quan');
+  await command.press('Tab');
+  await expect(command).toHaveValue('cd /usr/share/doc/quantum-leap/');
+  await command.press('Enter');
+  await expect(prompt).toHaveText('aj@crt:/usr/share/doc/quantum-leap$');
+  await run('tree');
+  await expect(output).toContainText('origins.txt');
+  await run('cat origins.txt');
+  await expect(output).toContainText('sophomore-year final project at UAlbany');
+  await command.press('ArrowUp');
+  await expect(command).toHaveValue('cat origins.txt');
+  await run('cd ~');
+  await expect(prompt).toHaveText('aj@crt:~$');
+  await run('cd Desktop/carmechanicos');
+  await expect(prompt).toHaveText('aj@crt:/opt/carmechanicos$');
+  await run('cd /');
+  await run('cd /opt/carmechanicos');
+  await expect(prompt).toHaveText('aj@crt:/opt/carmechanicos$');
+  await expect(page.locator('iframe[title="CarMechanicOS hidden garage game"]')).toHaveCount(0);
+});
+
 test('garage loads on demand and exits without shifting the document', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');

@@ -1,5 +1,11 @@
 # Quantum Leap release verification
 
+## v1.4.0 CRT filesystem and project museum
+
+Typecheck, production build, grounding, privacy, analytics, security, and submission verification passed. Six targeted browser checks exercised the virtual root, completion, history, exhibit text, traversal boundaries, and the legacy garage shortcut in Chromium at desktop and 4K sizes and iPhone-profile WebKit. The garage still loads on demand and returns focus without shifting the document.
+
+The classroom pages were rendered from the supplied HTML and CSS. The gallery pairs those captures with the previous portal and CRT, and the new filesystem and museum.
+
 ## v1.3.0 4K scrollytelling and ASCII portal
 
 The approved intro uses an original 4K desk illustration and an independently animated crimson glyph layer. The four subsequent acts use 192 HD frames and matching 4K plates, with bounded decoding and the same frame selected at rest. SOC is upscaled from the 1080p source. The other sources originate in 4K. The first two acts retain color and the last two use monochrome.
