@@ -1,4 +1,4 @@
-# Ashim John visual resume v1.2.6
+# Ashim John visual resume v1.3.0
 
 Ashim John's visual resume, grounded exclusively in his candidate-supplied canonical LinkedIn specification. Next.js and TypeScript power a full-viewport, four-camera surveillance visual simulation, a sandboxed retro CRT game, and a Virtual Ambassador restricted to approved excerpts.
 
@@ -12,7 +12,7 @@ Ashim John's visual resume, grounded exclusively in his candidate-supplied canon
 | CarMechanicOS Easter egg | Preserved on-demand CLI and opaque-origin sandbox; isolated save/reset and modal expansion |
 | Claim Audit | 223 field-to-source rows; LinkedIn-only career authority; GitHub authorized as public contact only |
 | Redacted Public PDF | Three regenerated and visually reviewed pages; LinkedIn facts and public GitHub link |
-| Replit Core Packaging | v1.2.6 root-level ZIP with checksum and manifest. |
+| Replit Core Packaging | v1.3.0 root-level ZIP with checksum and manifest. |
 
 ## How this repository is used
 
@@ -45,7 +45,11 @@ To rebuild the public PDF, install reportlab, pypdf and pypdfium2 in your Python
 
 ## Surveillance visual simulation
 
-Four original feeds map to four equal scroll bands. Run `python scripts/build-woven-surveillance-reel.py` with FFmpeg, FFprobe and Pillow to regenerate the 192 metadata-free WebP frames and silent H.264 reel. Fourteen-frame optical dissolves bridge each act. A damped scroll playhead settles on one frame and holds its motion boxes and keypoints until the visitor scrolls again. Pointer inspection stays interactive. Camera controls jump to 0%, 28%, 55%, and 80%. The first two acts retain native color.
+An original 4K desk plate remains stationary at the top while a separate red ASCII orb animates. The first 18% of scroll zooms into the monitor, fills the viewport with crimson glyphs, then opens a circular aperture. Woven acts occupy 18–38%, 38–58%, 58–79%, and 79–100%. Direct camera controls jump to 18%, 40%, 60%, and 81%.
+
+The 192-frame bank contains paired 1920×1080 scrub images and exact matching 3840×2160 resting images, WebP quality 92. The first two acts retain color; the last two are monochrome. The original SOC master is 1080p and is upscaled, not newly captured 4K detail. The other masters are native 4K H.264. Fourteen-frame optical dissolves bridge acts. The desktop cache holds at most 12 decoded HD frames and two 4K plates; touch devices hold six HD frames and one plate. Compressed HD look-ahead is capped at 48 entries. Requests are local assets, and the large complete release archive is never downloaded by the page.
+
+Rebuild media with `python scripts/build-woven-surveillance-reel.py --masters <master-folder>` using FFmpeg, FFprobe, Pillow, NumPy and OpenCV. `node scripts/build-portal-desk.mjs` regenerates the authored desk illustration. Runtime dependencies are unchanged. Native-DPR room/CV backing stores are bounded by a 3840×2160 pixel budget (rotated for portrait); the glyph effect uses a separate CSS-resolution buffer capped at 1920 pixels on its long edge. When scrolling settles, the same exact frame sharpens to 4K; failure keeps that HD frame instead of jumping to an anchor. Pointer inspection stays interactive. Animation uses requestAnimationFrame and targets 60fps; actual throughput depends on the browser and hardware.
 
 HYBRID_CV, YOLO_BOXES and SLAM_KEYPOINTS select simulation layers. Named subjects are hand-marked and interpolated within visible ranges. The motion study also measures luminance changes and gradient keypoints on the displayed frame. Motion percentages describe pixel evidence. The system performs no model inference, biometric identification, redaction, or audit. Reduced Motion uses stills, OFF hides the overlays, and failed frame requests expose a retry action.
 

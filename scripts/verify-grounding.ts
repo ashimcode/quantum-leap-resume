@@ -18,7 +18,7 @@ function scan(folder: string) {
     if (path.endsWith('.pdf')) {
       text = execFileSync(process.env.PYTHON_BIN || (process.platform === 'win32' ? 'python' : 'python3'), ['-c',
         'import sys; sys.path.insert(0, ".qa/python"); from pypdf import PdfReader; r=PdfReader(sys.argv[1]); print("\\n".join(p.extract_text() or "" for p in r.pages)); print(str(r.metadata))', path], { encoding: 'utf8' });
-    } else if (/^public\/surveillance\/woven-frames\/\d{3}\.webp$/.test(path.replaceAll('\\', '/'))) {
+    } else if (/^public\/surveillance\/(?:(?:woven-frames|woven-4k)\/\d{3}|desk-4k)\.webp$/.test(path.replaceAll('\\', '/'))) {
       // The generator emits a single VP8 image chunk with no metadata. Compressed
       // pixels can coincidentally contain byte runs that look like text.
       const raw = readFileSync(path);
@@ -29,6 +29,22 @@ function scan(folder: string) {
       assert.equal(raw.length, 20 + size + (size % 2), `Unexpected WebP metadata or trailing data: ${path}`);
       files++;
       continue;
+    } else if (path.replaceAll('\\', '/') === 'public/surveillance/woven-scroll-reel.mp4') {
+      // Inspect the generated MP4 container and all metadata, not compressed
+      // H.264 samples inside mdat. Reject unexpected atoms and trailing bytes.
+      const raw = readFileSync(path), metadata: Buffer[] = [], atoms = new Set<string>();
+      let offset = 0;
+      while (offset < raw.length) {
+        assert(offset + 8 <= raw.length, 'Truncated MP4 atom');
+        const size = raw.readUInt32BE(offset), kind = raw.toString('ascii', offset + 4, offset + 8);
+        assert(size >= 8 && offset + size <= raw.length, 'Invalid MP4 atom size');
+        assert(['ftyp', 'moov', 'free', 'mdat'].includes(kind), `Unexpected MP4 atom: ${kind}`);
+        atoms.add(kind);
+        if (kind !== 'mdat') metadata.push(raw.subarray(offset, offset + size));
+        offset += size;
+      }
+      assert(['ftyp', 'moov', 'mdat'].every(kind => atoms.has(kind)), 'Incomplete MP4');
+      text = Buffer.concat(metadata).toString('utf8');
     } else { text = readFileSync(path, 'utf8'); }
     assert(!privacyViolation(path,text), `Privacy pattern detected in ${path}`);
     files++;

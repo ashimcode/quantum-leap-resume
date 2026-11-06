@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import ChapterNavigation from './ChapterNavigation';
 import { inspectFrame, SAMPLE_WIDTH, SAMPLE_HEIGHT } from '@/lib/motion-study';
-import { createWovenFrameCache, frameAct, WOVEN_FRAME_COUNT } from '@/lib/woven-frames';
+import { createWovenFrameCache, frameAct, scrollAct, scrollFrame, ACT_STARTS } from '@/lib/woven-frames';
+import { createBreachRenderer } from '@/lib/ascii-breach';
 import { annotatedBoxes } from '@/lib/woven-annotations';
 import { trackEvent } from '@/lib/analytics';
 
@@ -15,7 +16,7 @@ const FEEDS = [
   { file: 'cam-03-fisheye-transit', name: 'FISHEYE_TRANSIT' },
   { file: 'cam-04-spherical-grid', name: 'SPHERICAL_GRID' },
 ] as const;
-const ANCHORS = [0, .28, .55, .8];
+const ANCHORS = [.18, .40, .60, .81];
 const MODES = ['HYBRID_CV', 'YOLO_BOXES', 'SLAM_KEYPOINTS'] as const;
 const mix = (a: number, b: number, t: number) => a + (b - a) * t;
 const SCENES = [
@@ -35,11 +36,12 @@ export default function QuantumHeroBackground() {
   const [systemReduced, setSystemReduced] = useState(true);
   const [requestedMotion, setRequestedMotion] = useState<Motion>('full');
   const [failed, setFailed] = useState(false);
-  const [scroll, setScroll] = useState({ percent: 0, act: 0, section: 'HERO', chapter: 'top' });
+  const [scroll, setScroll] = useState({ percent: 0, act: -1, section: 'HERO', chapter: 'top' });
   const rootRef = useRef<HTMLDivElement>(null);
   const pictureRef = useRef<HTMLCanvasElement>(null);
   const posterRef = useRef<HTMLImageElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const breachRef = useRef<HTMLCanvasElement>(null);
   const readoutRef = useRef<HTMLSpanElement>(null);
   const progress = useRef(0);
   const displayMode = useRef(0);
@@ -80,7 +82,7 @@ export default function QuantumHeroBackground() {
       const marker = y + Math.max(headerHeight, Math.min(180, window.innerHeight * .3));
       const current = progress.current >= .999 ? positions.at(-1) : positions.findLast(position => position.top <= marker);
       const next = {
-        percent: Math.round(progress.current * 100), act: Math.min(3, Math.floor(progress.current * 4)), section: current?.section ?? 'HERO',
+        percent: Math.round(progress.current * 100), act: scrollAct(progress.current), section: current?.section ?? 'HERO',
         chapter: current?.chapter ?? 'top',
       };
       setScroll(previous => previous.percent === next.percent && previous.act === next.act && previous.section === next.section ? previous : next);
@@ -118,16 +120,23 @@ export default function QuantumHeroBackground() {
     if (!container || !overlay || !picture || !ctx || !imageContext) return;
     const stage = container, effects = overlay, image = picture, ink = ctx, film = imageContext;
     const cache = motion === 'full' ? createWovenFrameCache(schedule) : null;
+    const breachCanvas = breachRef.current;
+    const breach = breachCanvas && createBreachRenderer(breachCanvas);
+    const desk = new Image();
+    desk.onload = () => { filmDirty = true; invalidate(); };
+    desk.src = '/surveillance/desk-4k.webp';
     const sampler = document.createElement('canvas');
     sampler.width = SAMPLE_WIDTH;
     sampler.height = SAMPLE_HEIGHT;
     const sampleContext = sampler.getContext('2d', { willReadFrequently: true });
     const pointer = { x: 0, y: 0, active: false };
-    const scrollFrame = () => Math.min(WOVEN_FRAME_COUNT - 1, Math.round(progress.current * WOVEN_FRAME_COUNT));
+    const selectedFrame = () => scrollFrame(progress.current);
     let width = 0, height = 0, dpr = 0, raf = 0, painted = 0, dirty = true, filmDirty = true;
     let crop = { x: 0, y: 0, width: 0, height: 0 };
-    let target = scrollFrame();
+    let target = selectedFrame();
     let playhead = target, direction = 1, lastTick: number | undefined;
+    let lastScroll = -1, stillSince = performance.now(), plateTimer = 0, renderedPlate: ImageBitmap | undefined;
+    let introPaints = 0, sampledIntro = true;
     let fallback = false;
     let rendered: number | undefined, sampled: number | undefined;
     let posterSource: string | undefined;
@@ -147,7 +156,13 @@ export default function QuantumHeroBackground() {
     const line = (a: Point, b: Point) => { ink.beginPath(); ink.moveTo(a.x, a.y); ink.lineTo(b.x, b.y); ink.stroke(); };
     const draw = () => {
       ink.clearRect(0, 0, width, height);
-      if (motion === 'off') return;
+      if (motion === 'off' || progress.current < ACT_STARTS[0]) {
+        stage.dataset.annotations = '';
+        stage.dataset.keypoints = '0';
+        stage.dataset.blobs = '0';
+        stage.dataset.frames = String(++painted);
+        return;
+      }
       if (displayMode.current !== 2) {
         const origin = pointer.active ? pointer : { x: width * .73, y: height * .43 };
         ink.globalAlpha = .14;
@@ -234,7 +249,18 @@ export default function QuantumHeroBackground() {
       if (document.hidden) return;
       const elapsed = lastTick === undefined ? 16 : Math.min(64, now - lastTick);
       lastTick = now;
-      const next = scrollFrame();
+      const ratio = progress.current;
+      const intro = ratio < ACT_STARTS[0];
+      const room = ratio < .14;
+      if (ratio !== lastScroll) {
+        lastScroll = ratio;
+        stillSince = now;
+        filmDirty = true;
+        dirty = true;
+        clearTimeout(plateTimer);
+        plateTimer = window.setTimeout(schedule, 180);
+      }
+      const next = selectedFrame();
       if (next !== target) {
         direction = next > target ? 1 : -1;
         target = next;
@@ -270,33 +296,59 @@ export default function QuantumHeroBackground() {
 
       const previous = current === undefined ? undefined : cache?.get(current - 1);
       const still = posterRef.current;
-      if (current !== sampled || (!bitmap && still?.complete && still.currentSrc !== posterSource)) {
+      if (intro !== sampledIntro || current !== sampled || (!bitmap && still?.complete && still.currentSrc !== posterSource)) {
         sampled = current;
+        sampledIntro = intro;
         posterSource = still?.complete ? still.currentSrc : undefined;
         const source = bitmap ?? (still?.complete && still.naturalWidth ? still : undefined);
         const values = source && luma(source);
-        analysis = values && motion !== 'off' ? inspectFrame(values, previous && luma(previous)) : { boxes: [], keypoints: [] };
+        analysis = values && motion !== 'off' && !intro ? inspectFrame(values, previous && luma(previous)) : { boxes: [], keypoints: [] };
         dirty = true;
       }
       const frameChanged = current !== rendered;
+      const atRest = playhead === target && now - stillSince >= 160;
+      if (!room && atRest && current === target) void cache?.requestPlate(target);
+      const plate = atRest && current === target ? cache?.plate(target) : undefined;
+      if (plate !== renderedPlate) { renderedPlate = plate; filmDirty = true; }
+      const zoomProgress = Math.min(1, ratio / .14);
+      const zoom = 1 + zoomProgress * zoomProgress * 5;
+      const deskX = width < height ? width / 2 - .647 * crop.width : crop.x;
+      const focus = {
+        x: mix(deskX + .647 * crop.width, width / 2, zoomProgress),
+        y: mix(crop.y + .432 * crop.height, height / 2, zoomProgress),
+      };
       if (filmDirty || frameChanged) {
-        if (bitmap) {
-          film.drawImage(bitmap, crop.x, crop.y, crop.width, crop.height);
+        if (room && desk.complete && desk.naturalWidth) {
+          film.clearRect(0, 0, width, height);
+          film.drawImage(desk, Math.round(focus.x - .647 * crop.width * zoom), Math.round(focus.y - .432 * crop.height * zoom),
+            Math.round(crop.width * zoom), Math.round(crop.height * zoom));
+        } else if (!room && (plate || bitmap)) {
+          film.drawImage(plate || bitmap!, crop.x, crop.y, crop.width, crop.height);
         } else {
           film.clearRect(0, 0, width, height);
         }
         rendered = current;
         stage.dataset.frame = current === undefined ? '' : String(current);
         stage.dataset.trackingFrame = stage.dataset.frame;
-        stage.dataset.sampling = bitmap ? 'woven-frame' : 'still-edges';
+        stage.dataset.sampling = room ? 'desk-plate' : bitmap ? 'woven-frame' : 'still-edges';
+        stage.dataset.resolution = room || plate ? '4k' : 'hd';
         filmDirty = false;
       }
       if (dirty || frameChanged) {
         draw();
         dirty = false;
       }
-      stage.dataset.settled = String(!!cache && playhead === target && rendered === target);
-      if (cache && playhead !== target) schedule();
+      stage.dataset.intro = room ? ratio < .02 ? 'desk' : 'breach' : intro ? 'reveal' : 'complete';
+      if (breachCanvas) {
+        breachCanvas.style.visibility = intro && motion !== 'off' ? 'visible' : 'hidden';
+        if (intro && motion !== 'off') {
+          breach?.draw(ratio, motion === 'full' ? now / 1000 : 0, focus, pointer, breachCanvas.width / width);
+          stage.dataset.orbFrames = String(++introPaints);
+        }
+      }
+      stage.dataset.settled = String(room ? desk.complete && desk.naturalWidth > 0
+        : !!cache && playhead === target && rendered === target && (!!plate || cache.plateFailed(target)));
+      if (cache && (playhead !== target || intro)) schedule();
       else lastTick = undefined;
     }
 
@@ -306,7 +358,7 @@ export default function QuantumHeroBackground() {
     function invalidate() { dirty = true; schedule(); }
     function resize() {
       const nextWidth = stage.clientWidth, nextHeight = stage.clientHeight;
-      const nextDpr = Math.min(devicePixelRatio || 1, 1.5);
+      const nextDpr = Math.min(devicePixelRatio || 1, 3840 / Math.max(nextWidth, nextHeight), 2160 / Math.min(nextWidth, nextHeight));
       if (!nextWidth || !nextHeight || (width === nextWidth && height === nextHeight && dpr === nextDpr)) return;
       width = nextWidth;
       height = nextHeight;
@@ -324,7 +376,16 @@ export default function QuantumHeroBackground() {
         surface.width = pixelWidth;
         surface.height = pixelHeight;
       }
+      // Glyph cells carry no extra detail at Retina resolution. Keep the room/CV
+      // native-DPR while avoiding millions of redundant shader fragments.
+      if (breachCanvas) {
+        const effectRatio = Math.min(dpr, 1, 1920 / Math.max(width, height));
+        breachCanvas.width = Math.round(width * effectRatio);
+        breachCanvas.height = Math.round(height * effectRatio);
+      }
       for (const context of [film, ink]) context.setTransform(scaleX, 0, 0, scaleY, 0, 0);
+      film.imageSmoothingEnabled = true;
+      film.imageSmoothingQuality = 'high';
       filmDirty = true;
       invalidate();
     }
@@ -361,6 +422,9 @@ export default function QuantumHeroBackground() {
     resize();
     return () => {
       cancelAnimationFrame(raf);
+      clearTimeout(plateTimer);
+      desk.onload = null;
+      breach?.dispose();
       cache?.dispose();
       redraw.current = null;
       retry.current = null;
@@ -387,8 +451,9 @@ export default function QuantumHeroBackground() {
   return <>
     <div ref={rootRef} className="surveillance-stage" data-feed={camera} data-motion={motion} data-section={scroll.section} data-progress={scroll.percent} data-settled="false" aria-hidden="true">
       <div className="surveillance-picture">
-        <img ref={posterRef} className="surveillance-poster" src={`/surveillance/${FEEDS[scroll.act].file}.jpg`} alt=""/>
+        <img ref={posterRef} className="surveillance-poster" src={scroll.act < 0 ? '/surveillance/desk-4k.webp' : `/surveillance/${FEEDS[scroll.act].file}.jpg`} alt=""/>
         <canvas ref={pictureRef} className="surveillance-film"/>
+        <canvas ref={breachRef} className="surveillance-breach"/>
         <div className="surveillance-shade"/><canvas ref={canvasRef} className="surveillance-overlay"/><div className="surveillance-scanlines"/>
       </div>
     </div>

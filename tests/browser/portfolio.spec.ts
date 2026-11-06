@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 const cameraStage = '.surveillance-stage';
 
 async function ready(page: Page) {
-  await expect(page.locator(cameraStage)).toHaveAttribute('data-feed', /^CAM_0[1-4]$/);
+  await expect(page.locator(cameraStage)).toHaveAttribute('data-feed', /^CAM_0[0-4]$/);
 }
 
 async function frameNear(stage: Locator, expected: number) {
@@ -43,8 +43,9 @@ test('woven frames follow all four acts in both directions and preserve source c
   const cameraPanel = page.locator('#camera-study');
   await expect(cameraPanel).toBeHidden();
   await frameNear(stage, 0);
-  await expect(stage).toHaveAttribute('data-sampling', 'woven-frame');
-  await expect(stage).toHaveAttribute('data-annotations', /Monitor_Wall/);
+  await expect(stage).toHaveAttribute('data-sampling', 'desk-plate');
+  await expect(stage).toHaveAttribute('data-resolution', '4k');
+
   await film.evaluate(element => { element.dataset.qaIdentity = 'same-film'; });
   await page.screenshot({ path: info.outputPath('woven-hero.png') });
   await cameraControl.click();
@@ -52,13 +53,13 @@ test('woven frames follow all four acts in both directions and preserve source c
   const panel = (await cameraPanel.boundingBox())!;
   await expect.poll(async () => (await page.locator('.scroll-telemetry').boundingBox())!.y).toBeGreaterThan(panel.y + panel.height);
 
-  for (const progress of [0, .30, .60, .90, .60, .30, 0]) {
+  for (const progress of [.24, .44, .66, .88, .66, .44, .24]) {
     await scrollToProgress(page, progress);
-    await expect(stage).toHaveAttribute('data-feed', `CAM_0${1 + Math.floor(progress * 4)}`);
-    await frameNear(stage, Math.round(progress * 192));
+    await expect(stage).toHaveAttribute('data-feed', `CAM_0${progress < .38 ? 1 : progress < .58 ? 2 : progress < .79 ? 3 : 4}`);
+    await frameNear(stage, progress === .24 ? 14 : progress === .44 ? 62 : progress === .66 ? 114 : 165);
     await expect.poll(() => stage.evaluate(element => Number((element as HTMLElement).dataset.keypoints))).toBeGreaterThan(0);
-    if (progress === .30) await expect(stage).toHaveAttribute('data-annotations', /Billboard_Display Pedestrian/);
-    if (progress === .90) await expect(stage).toHaveAttribute('data-annotations', /Spherical_Vehicle/);
+    if (progress === .44) await expect(stage).toHaveAttribute('data-annotations', /Billboard_Display Pedestrian/);
+    if (progress === .88) await expect(stage).toHaveAttribute('data-annotations', /Spherical_Vehicle/);
     if (progress < .5) {
       await expect.poll(() => film.evaluate((canvas: HTMLCanvasElement) => {
         const { data } = canvas.getContext('2d')!.getImageData(0, 0, canvas.width, canvas.height);
@@ -71,10 +72,10 @@ test('woven frames follow all four acts in both directions and preserve source c
       })).toBeGreaterThan(.03);
     }
   }
-  for (const [camera, progress] of [[2, 28], [3, 55], [4, 80], [1, 0]]) {
+  for (const [camera, progress] of [[2, 40], [3, 60], [4, 81], [1, 18]]) {
     await cameraPanel.getByRole('button', { name: new RegExp(`^CAM_0${camera} /`) }).click();
     await expect(stage).toHaveAttribute('data-progress', String(progress));
-    await frameNear(stage, Math.round(progress * 1.92));
+    await frameNear(stage, camera === 1 ? 0 : camera === 2 ? 53 : camera === 3 ? 101 : 149);
   }
   for (const mode of ['YOLO_BOXES', 'SLAM_KEYPOINTS', 'HYBRID_CV']) {
     const button = page.getByRole('button', { name: mode, exact: true });
@@ -107,15 +108,16 @@ test('woven film, CV overlays and HUD have zero drift during five seconds idle',
   const stage = page.locator(cameraStage);
   await page.getByRole('button', { name: /^Camera study controls/ }).click();
   await page.evaluate(async () => { await document.fonts.ready; });
+  await expect.poll(() => page.evaluate(() => parseFloat(document.querySelector<HTMLElement>('.site')!.style.getPropertyValue('--hud-height')) === document.querySelector<HTMLElement>('.hud-header')!.offsetHeight)).toBe(true);
   if (!isMobile) await page.mouse.move(900, 350);
 
-  for (const [progress, expectedFrame] of [[0, 0], [.55, 106]]) {
+  for (const [progress, expectedFrame] of [[0, 0], [.55, 89]]) {
     await scrollToProgress(page, progress);
     await expect(stage).toHaveAttribute('data-frame', String(expectedFrame));
     await expect(stage).toHaveAttribute('data-settled', 'true');
     const result = await stage.evaluate(async element => {
       const stage = element as HTMLElement;
-      const canvases = [...stage.querySelectorAll('canvas')];
+      const canvases = [...stage.querySelectorAll<HTMLCanvasElement>('canvas:not(.surveillance-breach)')];
       const sample = document.createElement('canvas');
       sample.width = 96;
       sample.height = 54;
@@ -159,6 +161,8 @@ test('reduced motion requests stills and takes precedence over the header cycle'
   await expect(stage.locator('img')).toBeVisible();
   await expect.poll(() => stage.locator('img').evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
   await page.getByRole('button', { name: /^Camera study controls/ }).click();
+  await page.getByRole('button', { name: /^CAM_01 / }).click();
+  await expect.poll(() => stage.evaluate(element => Number((element as HTMLElement).dataset.keypoints))).toBeGreaterThan(0);
   const canvas = stage.locator('.surveillance-overlay');
   const hybrid = await canvas.evaluate((element: HTMLCanvasElement) => element.toDataURL());
   await page.getByRole('button', { name: 'SLAM_KEYPOINTS', exact: true }).click();
@@ -330,4 +334,53 @@ test('portfolio actions emit one fixed-label event each and tolerate tracker err
   await page.getByRole('button', { name: 'Clear conversation' }).click();
   await expect(question).toBeFocused();
   expect(errors).toEqual([]);
+});
+
+
+test('desk stays sharp while the ASCII portal animates, engulfs and reveals', async ({ page }, info) => {
+  await page.goto('/');
+  const stage = page.locator(cameraStage);
+  const film = stage.locator('.surveillance-film');
+  await expect(stage).toHaveAttribute('data-intro', 'desk');
+  await expect(stage).toHaveAttribute('data-resolution', '4k');
+  await expect(stage).toHaveAttribute('data-settled', 'true');
+  const dimensions = await film.evaluate((canvas: HTMLCanvasElement) => ({
+    width: canvas.width, height: canvas.height, cssWidth: innerWidth, cssHeight: innerHeight, ratio: devicePixelRatio,
+  }));
+  const expectedRatio = Math.min(dimensions.ratio, 3840 / Math.max(dimensions.cssWidth, dimensions.cssHeight), 2160 / Math.min(dimensions.cssWidth, dimensions.cssHeight));
+  expect(dimensions.width).toBe(Math.round(dimensions.cssWidth * expectedRatio));
+  expect(dimensions.height).toBe(Math.round(dimensions.cssHeight * expectedRatio));
+  const start = Number(await stage.getAttribute('data-orb-frames'));
+  await expect.poll(async () => Number(await stage.getAttribute('data-orb-frames'))).toBeGreaterThan(start + 5);
+  const cadence = await stage.evaluate(async element => {
+    const stage = element as HTMLElement, start = performance.now(), first = Number(stage.dataset.orbFrames);
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    return { seconds: (performance.now() - start) / 1000, frames: Number(stage.dataset.orbFrames) - first };
+  });
+  await info.attach('intro-cadence.json', { body: JSON.stringify(cadence), contentType: 'application/json' });
+  await page.screenshot({ path: info.outputPath('portal-desk.png') });
+  for (const [ratio, state] of [[.09, 'breach'], [.13, 'breach'], [.155, 'reveal'], [.24, 'complete']] as const) {
+    await scrollToProgress(page, ratio);
+    await expect(stage).toHaveAttribute('data-intro', state);
+    await page.screenshot({ path: info.outputPath(`portal-${ratio}.png`) });
+  }
+  await expect(stage).toHaveAttribute('data-resolution', '4k');
+  await expect(stage).toHaveAttribute('data-settled', 'true');
+  await expect(stage.locator('.surveillance-breach')).toBeHidden();
+  const count = await stage.getAttribute('data-orb-frames');
+  await page.waitForTimeout(500);
+  expect(await stage.getAttribute('data-orb-frames')).toBe(count);
+});
+
+test('failed 4K enhancement retains the exact HD frame without idle drift', async ({ page }) => {
+  await page.route('**/surveillance/woven-4k/**', route => route.abort());
+  await page.goto('/');
+  await scrollToProgress(page, .44);
+  const stage = page.locator(cameraStage);
+  await expect(stage).toHaveAttribute('data-frame', '62');
+  await expect(stage).toHaveAttribute('data-settled', 'true');
+  await expect(stage).toHaveAttribute('data-resolution', 'hd');
+  const pixels = await stage.locator('.surveillance-film').evaluate((canvas: HTMLCanvasElement) => canvas.toDataURL());
+  await page.waitForTimeout(500);
+  expect(await stage.locator('.surveillance-film').evaluate((canvas: HTMLCanvasElement) => canvas.toDataURL())).toBe(pixels);
 });

@@ -1,12 +1,12 @@
 # Browser testing
 
-Build the production app with npm run build, install Playwright Chromium and WebKit with npx playwright install chromium webkit, then run npm run verify:browser. The suite starts an isolated production server on loopback port 3123, with model-provider credentials disabled. Browser specs and their configuration stay outside the application TypeScript project. Traces and screenshots are written under the ignored .qa/v125/playwright directory.
+Build the production app with npm run build, install Playwright Chromium and WebKit with npx playwright install chromium webkit, then run npm run verify:browser. The suite starts an isolated production server on loopback port 3123, with model-provider credentials disabled. Browser specs and their configuration stay outside the application TypeScript project. Traces and screenshots are written under the ignored .qa/v130/playwright directory.
 
-The projects use desktop Chromium at 1440 × 900 and Playwright WebKit with the iPhone 13 device profile. This profile emulates the viewport, touch, scale, and user agent. Physical iPhone testing is a separate check for hardware decoding, Safari browser controls, and the device download and share UI. See the [Playwright browser documentation](https://playwright.dev/docs/browsers#webkit) and [device emulation documentation](https://playwright.dev/docs/emulation).
+The projects use desktop Chromium at 1440 × 900, Chromium at 3840 × 2160, and Playwright WebKit with the iPhone 13 device profile. This profile emulates the viewport, touch, scale, and user agent. Physical iPhone testing is a separate check for hardware decoding, Safari browser controls, and the device download and share UI. See the [Playwright browser documentation](https://playwright.dev/docs/browsers#webkit) and [device emulation documentation](https://playwright.dev/docs/emulation).
 
 The suite covers all four acts in forward and reverse order, canvas RGB color, matching image and tracking frame indexes, fixed camera jumps, reduced motion, asset failure and retry, keyboard focus, actual Ambassador grounding, exact analytics labels and failure tolerance, PDF bytes, and the sandboxed garage. The current WebKit project uses a 390 × 844 CSS-pixel viewport.
 
-The v1.2.6 idle regression opens the camera controls and holds the top and 55% scroll positions for five seconds each. At 250 ms intervals it compares pixel samples from both canvases, hero and HUD bounding rectangles, the scroll position, document dimensions, and the frame and draw counters.
+The idle regression opens the camera controls and holds the top and 55% scroll positions for five seconds each. At 250 ms intervals it compares pixel samples from the film and CV canvases (the deliberately animated intro glyph layer is tested separately), hero and HUD bounding rectangles, the scroll position, document dimensions, and the frame and draw counters.
 
 ## v1.2.3 results
 
@@ -17,3 +17,5 @@ The keyboard paths use Tab, Shift+Tab, Enter and Escape in both projects. Explic
 The playback checks require decoded video frames and an advancing clock, including after retry and resume. The four source files are H.264 at 1280 × 720 as confirmed with ffprobe. Chromium also records the initial network request count. WebKit's media process reports range requests separately from page request events, so its checks use the active media source, decoded frames and playback position.
 
 Hardware playback, real Safari controls and the iOS download/share interface still need a physical-device check.
+
+The v1.3.0 checks also cover native-DPR buffers, intro stages at 0%, 9%, 13% and 15.5%, the first woven act, and an unavailable 4K image retaining the exact HD frame. A device emulator is not evidence of sustained physical-iPhone 60fps.

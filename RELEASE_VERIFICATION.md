@@ -1,5 +1,11 @@
 # Quantum Leap release verification
 
+## v1.3.0 4K scrollytelling and ASCII portal
+
+The approved intro uses an original 4K desk illustration and an independently animated crimson glyph layer. The four subsequent acts use 192 HD frames and matching 4K plates, with bounded decoding and the same frame selected at rest. SOC is upscaled from the 1080p source. The other sources originate in 4K. The first two acts retain color and the last two use monochrome.
+
+Local typecheck, production build, 249 API checks, 33 privacy cases, six analytics events, five security checks, 131 HTML/PDF facts and 17 entity answers and anchors passed. The 33 browser checks across Chromium at 1440×900 and 3840×2160 and iPhone-profile WebKit at 390×844 include the breach, aperture, both scrub directions, HD fallback and five-second idle checks. Film pixels, CV and HUD geometry stayed fixed at rest in every profile. A short intro sample measured about 60 fps in desktop Chromium, 12 fps in headless 4K Chromium and 7 fps in iPhone-profile WebKit on Windows. Physical device cadence remains unmeasured.
+
 ## v1.2.6 scroll and idle stability
 
 The woven playhead locks to the nearest scroll-selected frame and its tracking sample. A settled stage wakes for input, resize, or asset completion. The film and CV overlay share a pixel-aligned crop. The HUD reserves space for counters and the root keeps a consistent vertical scrollbar.

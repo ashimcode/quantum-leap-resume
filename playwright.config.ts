@@ -4,14 +4,16 @@ const url = 'http://127.0.0.1:3123';
 
 export default defineConfig({
   testDir: './tests/browser',
-  outputDir: '.qa/v125/playwright',
+  outputDir: '.qa/v130/playwright',
   fullyParallel: false,
   workers: 1,
   reporter: 'list',
-  timeout: 45_000,
+  timeout: 90_000,
+  expect: { timeout: 15_000 },
   use: { baseURL: url, acceptDownloads: true, screenshot: 'only-on-failure', trace: 'retain-on-failure' },
   projects: [
     { name: 'chromium-desktop', use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } } },
+    { name: 'chromium-4k', use: { ...devices['Desktop Chrome'], viewport: { width: 3840, height: 2160 } } },
     { name: 'webkit-iphone', use: { ...devices['iPhone 13'], defaultBrowserType: 'webkit', viewport: { width: 390, height: 844 } } },
   ],
   webServer: {

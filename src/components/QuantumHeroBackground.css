@@ -3,6 +3,7 @@
 .surveillance-picture { position: absolute; inset: 0; pointer-events: none; background: #07080a; }
 .surveillance-picture img, .surveillance-picture canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .surveillance-film, .surveillance-poster { opacity: .94; }
+.surveillance-breach { opacity: 1; }
 .surveillance-stage[data-frame]:not([data-frame=""]) .surveillance-poster { visibility: hidden; }
 .surveillance-overlay { opacity: .76; mask-image: linear-gradient(90deg, #0006, #0009 50%, #000 78%); }
 .surveillance-shade { position: absolute; inset: 0; background: linear-gradient(90deg, #07080ae8 0%, #07080abf 32%, #07080a4a 65%, #07080a20), linear-gradient(0deg, #07080a 0%, transparent 35%, transparent 78%, #07080a99); }

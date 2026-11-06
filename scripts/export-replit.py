@@ -43,7 +43,9 @@ surveillance = (
 required.update(f'public/surveillance/{name}.{ext}'
                 for name in surveillance for ext in ('mp4', 'jpg'))
 required.update(f'public/surveillance/woven-frames/{index:03}.webp' for index in range(192))
-assert sum((ROOT / name).stat().st_size for name in required if '/woven-' in name) < 16 * 1024 * 1024, 'Woven media exceeds release budget'
+required.update(f'public/surveillance/woven-4k/{index:03}.webp' for index in range(192))
+required.add('public/surveillance/desk-4k.webp')
+assert sum((ROOT / name).stat().st_size for name in required if '/woven-' in name) < 320 * 1024 * 1024, 'HD/4K media exceeds release budget'
 assert sum((ROOT / f'public/surveillance/{name}.mp4').stat().st_size
            for name in surveillance) < 12 * 1024 * 1024, 'Camera payload exceeds release budget'
 assert all(p.is_file() and not p.is_symlink() and p.resolve().is_relative_to(ROOT) for p in files), 'Missing file or unsafe export path'
@@ -63,7 +65,7 @@ with zipfile.ZipFile(output, 'x', zipfile.ZIP_DEFLATED, compresslevel=9) as arch
 with zipfile.ZipFile(output) as archive:
     assert archive.testzip() is None
     assert set(archive.namelist()) == paths
-assert output.stat().st_size < 200 * 1024 * 1024
+assert output.stat().st_size < 350 * 1024 * 1024
 checksum = hashlib.sha256(output.read_bytes()).hexdigest()
 output.with_suffix('.sha256').write_text(f'{checksum}  {output.name}\n')
 output.with_suffix('.manifest.json').write_text(json.dumps({
