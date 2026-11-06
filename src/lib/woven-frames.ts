@@ -94,9 +94,15 @@ export function createWovenFrameCache(onSettled: () => void) {
     pump();
   }
 
-  async function requestPlate(frame: number) {
-    if (plateTarget === frame || plates.has(frame)) return;
+  function cancelPlate() {
     plateRequest?.abort();
+    plateRequest = undefined;
+    plateTarget = -1;
+  }
+
+  async function requestPlate(frame: number, isCurrent: () => boolean) {
+    if (plateTarget === frame || plates.has(frame) || failedPlates.has(frame)) return;
+    cancelPlate();
     plateRequest = new AbortController();
     const request = plateRequest;
     plateTarget = frame;
@@ -104,7 +110,7 @@ export function createWovenFrameCache(onSettled: () => void) {
       const response = await fetch(`/surveillance/woven-4k/${String(frame).padStart(3, '0')}.webp`, { signal: request.signal });
       if (!response.ok) throw new Error('Plate unavailable');
       const bitmap = await createImageBitmap(await response.blob());
-      if (request.signal.aborted || controller.signal.aborted) { bitmap.close(); return; }
+      if (request.signal.aborted || controller.signal.aborted || !isCurrent()) { bitmap.close(); return; }
       plates.set(frame, bitmap);
       for (const [index, old] of plates) {
         if (plates.size <= (desktop ? 2 : 1)) break;
@@ -112,8 +118,10 @@ export function createWovenFrameCache(onSettled: () => void) {
       }
       onSettled();
     } catch {
-      if (!request.signal.aborted && !controller.signal.aborted) { failedPlates.add(frame); onSettled(); }
+      if (!request.signal.aborted && !controller.signal.aborted && isCurrent()) { failedPlates.add(frame); onSettled(); }
       // Keep the exact HD frame; never switch to a nearby 4K anchor.
+    } finally {
+      if (plateRequest === request) cancelPlate();
     }
   }
 
@@ -127,13 +135,13 @@ export function createWovenFrameCache(onSettled: () => void) {
   }
 
   return {
-    prioritize, nearest, requestPlate, plateFailed: (index: number) => failedPlates.has(index), plate: (index: number) => plates.get(index),
+    prioritize, nearest, requestPlate, cancelPlate, plateFailed: (index: number) => failedPlates.has(index), plate: (index: number) => plates.get(index),
     get: (index: number) => decoded.get(index),
     failed: (index: number) => failed.has(index),
-    retry() { failed.clear(); failedPlates.clear(); plateTarget = -1; pump(); },
+    retry() { failed.clear(); failedPlates.clear(); cancelPlate(); pump(); },
     dispose() {
       controller.abort();
-      plateRequest?.abort();
+      cancelPlate();
       for (const bitmap of plates.values()) bitmap.close();
       plates.clear();
       for (const bitmap of decoded.values()) bitmap.close();

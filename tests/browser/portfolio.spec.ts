@@ -414,6 +414,86 @@ test('desk stays sharp while the ASCII portal animates, engulfs and reveals', as
   expect(await stage.getAttribute('data-orb-frames')).toBe(count);
 });
 
+test('idle desk contains the red orb through rapid scroll and late 4K responses', async ({ page }) => {
+  const stage = page.locator(cameraStage);
+  let releasePlates!: () => void;
+  const heldPlates = new Promise<void>(resolve => { releasePlates = resolve; });
+  let requested = 0;
+  await page.route('**/surveillance/woven-4k/**', async route => {
+    requested++;
+    try {
+      const response = await route.fetch();
+      await heldPlates;
+      await route.fulfill({ response });
+    } catch {
+      // Leaving the requested scroll position cancels the browser's request.
+    }
+  });
+  await page.goto('/');
+  await expect(stage).toHaveAttribute('data-motion', 'full');
+
+  async function checkDesk() {
+    await expect(stage).toHaveAttribute('data-intro', 'desk');
+    await expect(stage).toHaveAttribute('data-settled', 'true');
+    // Sample the composited page. Reading the WebGL backing buffer after the
+    // browser presents it can miss the very overlay this test is looking for.
+    const shot = await page.screenshot({ scale: 'css' });
+    const pixels = await page.evaluate(async base64 => {
+      const bytes = Uint8Array.from(atob(base64), value => value.charCodeAt(0));
+      const bitmap = await createImageBitmap(new Blob([bytes], { type: 'image/png' }));
+      const canvas = document.createElement('canvas');
+      const w = canvas.width = 320, h = canvas.height = 180;
+      const context = canvas.getContext('2d')!;
+      context.drawImage(bitmap, 0, 0, w, h);
+      bitmap.close();
+      const data = context.getImageData(0, 0, w, h).data;
+      const imageWidth = Math.max(innerWidth, innerHeight * 16 / 9);
+      const imageHeight = imageWidth * 9 / 16;
+      const cx = innerWidth < innerHeight ? .5 : .5 + .147 * imageWidth / innerWidth;
+      const cy = .5 - .068 * imageHeight / innerHeight;
+      let inside = 0, outside = 0;
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          const i = (y * w + x) * 4;
+          if (data[i] < 52 || data[i] - Math.max(data[i + 1], data[i + 2]) < 26) continue;
+          const dx = Math.abs((x + .5) / w - cx), dy = Math.abs((y + .5) / h - cy);
+          if (dx < .14 * imageWidth / innerWidth && dy < .136 * imageHeight / innerHeight) inside++;
+          else outside++;
+        }
+      }
+      return { inside, outside };
+    }, shot.toString('base64'));
+    expect(pixels.outside, 'bright red pixels outside the monitor').toBeLessThan(12);
+    return pixels.inside;
+  }
+
+  try {
+    let orbPixels = 0;
+    const idleUntil = Date.now() + 12_000;
+    do {
+      orbPixels = Math.max(orbPixels, await checkDesk());
+      await page.waitForTimeout(500);
+    } while (Date.now() < idleUntil);
+    expect(orbPixels).toBeGreaterThan(8);
+    expect(requested).toBe(0);
+    await scrollToProgress(page, .60);
+    await expect.poll(() => requested).toBeGreaterThan(0);
+    await scrollToProgress(page, .04);
+    await scrollToProgress(page, 0);
+    await checkDesk();
+    await scrollToProgress(page, .85);
+    await expect.poll(() => requested).toBeGreaterThan(1);
+    await scrollToProgress(page, 0);
+    await expect(stage).toHaveAttribute('data-intro', 'desk');
+    releasePlates();
+    await checkDesk();
+    await page.waitForTimeout(750);
+    expect(await checkDesk()).toBeGreaterThan(8);
+  } finally {
+    releasePlates();
+  }
+});
+
 test('failed 4K enhancement retains the exact HD frame without idle drift', async ({ page }) => {
   await page.route('**/surveillance/woven-4k/**', route => route.abort());
   await page.goto('/');

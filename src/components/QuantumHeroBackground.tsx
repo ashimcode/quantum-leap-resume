@@ -44,6 +44,7 @@ export default function QuantumHeroBackground() {
   const breachRef = useRef<HTMLCanvasElement>(null);
   const readoutRef = useRef<HTMLSpanElement>(null);
   const progress = useRef(0);
+  const scrollEpoch = useRef(0);
   const displayMode = useRef(0);
   const redraw = useRef<(() => void) | null>(null);
   const retry = useRef<(() => void) | null>(null);
@@ -70,11 +71,14 @@ export default function QuantumHeroBackground() {
     let pageHeight = 1;
     let headerHeight = 65;
     let positions: { top: number; section: string; chapter: string }[] = [];
+    let scrollY = -1;
     function update() {
       pending = 0;
       const y = Math.max(0, window.scrollY);
       const ratio = Math.min(1, y / pageHeight);
-      if (ratio !== progress.current) {
+      if (y !== scrollY || ratio !== progress.current) {
+        scrollY = y;
+        scrollEpoch.current++;
         progress.current = ratio;
         redraw.current?.();
       }
@@ -135,7 +139,8 @@ export default function QuantumHeroBackground() {
     let crop = { x: 0, y: 0, width: 0, height: 0 };
     let target = selectedFrame();
     let playhead = target, direction = 1, lastTick: number | undefined;
-    let lastScroll = -1, stillSince = performance.now(), plateTimer = 0, renderedPlate: ImageBitmap | undefined;
+    let lastEpoch = -1, stillSince = performance.now(), plateTimer = 0, renderedPlate: ImageBitmap | undefined;
+    const animationStart = performance.now();
     let introPaints = 0, sampledIntro = true;
     let fallback = false;
     let rendered: number | undefined, sampled: number | undefined;
@@ -252,17 +257,20 @@ export default function QuantumHeroBackground() {
       const ratio = progress.current;
       const intro = ratio < ACT_STARTS[0];
       const room = ratio < .14;
-      if (ratio !== lastScroll) {
-        lastScroll = ratio;
+      const epoch = scrollEpoch.current;
+      if (epoch !== lastEpoch) {
+        lastEpoch = epoch;
+        cache?.cancelPlate();
         stillSince = now;
         filmDirty = true;
         dirty = true;
         clearTimeout(plateTimer);
-        plateTimer = window.setTimeout(schedule, 180);
+        if (!intro) plateTimer = window.setTimeout(schedule, 180);
       }
       const next = selectedFrame();
       if (next !== target) {
         direction = next > target ? 1 : -1;
+        if (intro || frameAct(next) !== frameAct(target)) playhead = next;
         target = next;
       }
       let current: number | undefined;
@@ -307,8 +315,12 @@ export default function QuantumHeroBackground() {
       }
       const frameChanged = current !== rendered;
       const atRest = playhead === target && now - stillSince >= 160;
-      if (!room && atRest && current === target) void cache?.requestPlate(target);
-      const plate = atRest && current === target ? cache?.plate(target) : undefined;
+      const enhance = !intro && atRest && current === target;
+      if (enhance) {
+        const y = window.scrollY;
+        void cache?.requestPlate(target, () => epoch === scrollEpoch.current && y === window.scrollY);
+      }
+      const plate = enhance ? cache?.plate(target) : undefined;
       if (plate !== renderedPlate) { renderedPlate = plate; filmDirty = true; }
       const zoomProgress = Math.min(1, ratio / .14);
       const zoom = 1 + zoomProgress * zoomProgress * 5;
@@ -342,12 +354,19 @@ export default function QuantumHeroBackground() {
       if (breachCanvas) {
         breachCanvas.style.visibility = intro && motion !== 'off' ? 'visible' : 'hidden';
         if (intro && motion !== 'off') {
-          breach?.draw(ratio, motion === 'full' ? now / 1000 : 0, focus, pointer, breachCanvas.width / width);
+          const time = motion === 'full' ? ((now - animationStart) / 1000) % (100 * Math.PI) : 0;
+          // Interior of the screen in the original desk plate's coordinates.
+          const monitor = { x: crop.width * zoom * .14, y: crop.height * zoom * .136 };
+          const clip = ratio <= .02
+            ? `inset(${Math.max(0, focus.y - monitor.y)}px ${Math.max(0, width - focus.x - monitor.x)}px ${Math.max(0, height - focus.y - monitor.y)}px ${Math.max(0, focus.x - monitor.x)}px)`
+            : 'none';
+          if (breachCanvas.style.clipPath !== clip) breachCanvas.style.clipPath = clip;
+          breach?.draw(ratio, time, focus, monitor, pointer, breachCanvas.width / width);
           stage.dataset.orbFrames = String(++introPaints);
         }
       }
       stage.dataset.settled = String(room ? desk.complete && desk.naturalWidth > 0
-        : !!cache && playhead === target && rendered === target && (!!plate || cache.plateFailed(target)));
+        : !!cache && playhead === target && rendered === target && (intro || !!plate || cache.plateFailed(target)));
       if (cache && (playhead !== target || intro)) schedule();
       else lastTick = undefined;
     }

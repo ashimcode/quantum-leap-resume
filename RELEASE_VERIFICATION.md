@@ -1,5 +1,11 @@
 # Quantum Leap release verification
 
+## v1.4.1 intro stability
+
+The existing 4K desk plate has no baked red rings. The renderer confines idle glyphs to the monitor in both the shader and the canvas clip. Scroll progress releases the clip for the breach. Woven 4K enhancement is reserved for Acts I–IV. Pending requests are canceled on scroll, and a decode must still belong to the current scroll position before it can enter the cache.
+
+The browser regression samples composited pixels over twelve seconds at the top, then checks the desk after rapid scroll jumps with woven 4K responses held until the return. The test runs in desktop and 4K Chromium and iPhone-profile WebKit.
+
 ## v1.4.0 CRT filesystem and project museum
 
 Typecheck, production build, grounding, privacy, analytics, security, and submission verification passed. Six targeted browser checks exercised the virtual root, completion, history, exhibit text, traversal boundaries, and the legacy garage shortcut in Chromium at desktop and 4K sizes and iPhone-profile WebKit. The garage still loads on demand and returns focus without shifting the document.

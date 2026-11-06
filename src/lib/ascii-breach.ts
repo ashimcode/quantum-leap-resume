@@ -4,7 +4,7 @@ const vertex = `attribute vec2 position;
 void main() { gl_Position = vec4(position, 0.0, 1.0); }`;
 const fragment = `
 precision highp float;
-uniform vec2 resolution, center, pointer;
+uniform vec2 resolution, center, monitorHalfSize;
 uniform float progress, time, proximity, cellSize;
 uniform sampler2D glyphs;
 float hash(vec2 p) { return fract(sin(dot(p, vec2(12.98, 78.23))) * 4375.85); }
@@ -16,16 +16,21 @@ float bayer(vec2 p) {
 }
 void main() {
   vec2 point = vec2(gl_FragCoord.x, resolution.y - gl_FragCoord.y);
+  bool contained = progress <= .02;
+  if (contained && any(greaterThan(abs(point - center), monitorHalfSize))) {
+    gl_FragColor = vec4(0.0);
+    return;
+  }
   vec2 cell = floor(point / cellSize);
   vec2 at = (cell + .5) * cellSize;
   vec2 delta = at - center;
   float distance = length(delta);
   float diagonal = length(resolution);
-  float spread = smoothstep(.01, .13, progress);
+  float spread = smoothstep(.02, .13, progress);
   float radius = mix(resolution.y * .075, diagonal * 1.25, spread);
   float pulse = 1.0 + .035 * sin(time * 2.4) + .025 * proximity;
   float rim = 1.0 - smoothstep(radius * .75, radius * pulse, distance);
-  float angle = atan(delta.y, delta.x);
+  float angle = atan(delta.y, delta.x + (distance < .001 ? .001 : 0.0));
   float ray = pow(max(0.0, sin(angle * 19.0 + time * .28)), 18.0);
   float rays = ray * exp(-distance / max(1.0, radius * 1.6)) * .28;
   float wave = .5 + .5 * sin(distance / max(radius, 1.0) * 15.0 - time * 2.2 + sin(angle * 7.0 + time));
@@ -38,6 +43,12 @@ void main() {
   vec3 crimson = mix(vec3(.60,.106,.106), vec3(1.0,.118,.220), wave);
   crimson = mix(crimson, vec3(1.0,.302,.369), pow(light, 4.0));
   float opacity = clamp((ink * light + speck * rim) * 1.35 + light * .13, 0.0, .94);
+  // Contain stray rays in the monitor and fade the radial field before it
+  // reaches the bezel. Release that mask smoothly as the breach begins.
+  float escape = smoothstep(.02, .055, progress);
+  vec2 edge = abs(point - center) / max(monitorHalfSize, vec2(1.0));
+  float glass = 1.0 - smoothstep(.85, 1.0, max(edge.x, edge.y));
+  opacity *= mix(glass, 1.0, escape);
   vec3 color = crimson;
   float storm = smoothstep(.055, .12, progress);
   // A dark crimson bed makes the radial glyph front consume the room.
@@ -95,13 +106,13 @@ export function createBreachRenderer(canvas: HTMLCanvasElement) {
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-  const uniform = Object.fromEntries(['resolution','center','pointer','progress','time','proximity','cellSize'].map(name => [name, gl.getUniformLocation(program, name)]));
+  const uniform = Object.fromEntries(['resolution','center','monitorHalfSize','progress','time','proximity','cellSize'].map(name => [name, gl.getUniformLocation(program, name)]));
   return {
-    draw(progress: number, time: number, center: { x: number; y: number }, pointer: Pointer, scale: number) {
+    draw(progress: number, time: number, center: { x: number; y: number }, monitor: { x: number; y: number }, pointer: Pointer, scale: number) {
       gl.viewport(0, 0, canvas.width, canvas.height);
       gl.uniform2f(uniform.resolution, canvas.width, canvas.height);
       gl.uniform2f(uniform.center, center.x * scale, center.y * scale);
-      gl.uniform2f(uniform.pointer, pointer.x * scale, pointer.y * scale);
+      gl.uniform2f(uniform.monitorHalfSize, monitor.x * scale, monitor.y * scale);
       gl.uniform1f(uniform.progress, progress);
       gl.uniform1f(uniform.time, time);
       gl.uniform1f(uniform.proximity, pointer.active ? Math.max(0, 1 - Math.hypot(pointer.x - center.x, pointer.y - center.y) / 280) : 0);
